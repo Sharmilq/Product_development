@@ -68,10 +68,10 @@ def predict_tooth():
     confidence = float(preds[class_index])
 
     if class_name == "Healthy":
-        inflammation_score = int(5 + (1 - confidence) * 20)
-        cleanliness_score = int(80 + confidence * 20)
-        overall_score = int(82 + confidence * 18)
-        result_label = "Healthy gums and good cleanliness"
+        inflammation_score = 0
+        cleanliness_score = int(88 + confidence * 7)
+        overall_score = int(88 + confidence * 7)
+        result_label = "Healthy gums and excellent oral condition"
 
     elif class_name == "Gingivitis":
         inflammation_score = int(35 + confidence * 50)
