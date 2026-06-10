@@ -77,7 +77,6 @@
     <string name="err_no_connection">Cannot connect to server. Check your WiFi.</string>
 
     <!-- Google Sign-In & OTP strings -->
-    <string name="default_web_client_id">123456789012-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com</string>
     <string name="title_otp_verify">Verify OTP</string>
     <string name="subtitle_otp_verify">Enter the 6-digit verification code sent to your email.</string>
     <string name="otp_hint">000000</string>
