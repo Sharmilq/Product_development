@@ -75,7 +75,7 @@ public class ProfileActivity extends AppCompatActivity {
                     try {
                         ApiService.logout(ProfileActivity.this);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        android.util.Log.e("ProfileActivity", "Error during logout API call", e);
                         new com.dentnova.app.utils.SessionManager(ProfileActivity.this)
                                 .clearSession();
                     }
@@ -178,7 +178,7 @@ public class ProfileActivity extends AppCompatActivity {
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
+                android.util.Log.e("ProfileActivity", "Error fetching user profile", e);
             }
 
         }).start();

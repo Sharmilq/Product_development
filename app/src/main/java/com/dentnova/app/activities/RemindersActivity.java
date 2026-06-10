@@ -83,7 +83,7 @@ public class RemindersActivity extends AppCompatActivity {
                     });
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                android.util.Log.e("RemindersActivity", "Error loading reminders list", e);
             }
         }).start();
     }
@@ -191,7 +191,7 @@ public class RemindersActivity extends AppCompatActivity {
                                                 minute
                                         );
                                     } catch (Exception e) {
-                                        e.printStackTrace();
+                                        android.util.Log.e("RemindersActivity", "Error adding time-based reminder", e);
                                     }
                                 }).start();
 
@@ -235,7 +235,7 @@ public class RemindersActivity extends AppCompatActivity {
                                     selected.getTimeInMillis()
                             );
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            android.util.Log.e("RemindersActivity", "Error adding date-based reminder", e);
                         }
 
                     }).start();
@@ -281,7 +281,7 @@ public class RemindersActivity extends AppCompatActivity {
                                 runOnUiThread(() -> list.removeView(item));
 
                             } catch (Exception e) {
-                                e.printStackTrace();
+                                android.util.Log.e("RemindersActivity", "Error deleting reminder", e);
                             }
                         }).start();
                     })

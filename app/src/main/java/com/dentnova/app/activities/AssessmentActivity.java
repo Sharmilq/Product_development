@@ -280,7 +280,7 @@ public class AssessmentActivity extends AppCompatActivity {
                 ApiService.saveAssessment(this, score, label, answers);
 
             } catch (Exception e) {
-                e.printStackTrace();
+                android.util.Log.e("AssessmentActivity", "Failed to get prediction or save assessment. Using fallback local computation.", e);
 
                 score = computeScore();
                 label = score < 30 ? "High" : score < 60 ? "Moderate" : "Low";

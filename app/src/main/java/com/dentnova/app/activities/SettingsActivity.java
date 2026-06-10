@@ -68,7 +68,7 @@ public class SettingsActivity extends AppCompatActivity {
                                 );
 
                             } catch (Exception e) {
-                                e.printStackTrace();
+                                android.util.Log.e("SettingsActivity", "Error sending feedback to Supabase", e);
                             }
 
                         }).start();
@@ -168,6 +168,7 @@ public class SettingsActivity extends AppCompatActivity {
                             });
 
                         } catch (Exception e) {
+                            android.util.Log.e("SettingsActivity", "Error changing password", e);
                             runOnUiThread(() ->
                                     Toast.makeText(this, "Password update failed", Toast.LENGTH_LONG).show()
                             );

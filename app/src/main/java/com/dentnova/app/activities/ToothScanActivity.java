@@ -175,7 +175,7 @@ public class ToothScanActivity extends AppCompatActivity {
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
+                android.util.Log.e("ToothScanActivity", "Error loading tooth scans history", e);
             }
 
         }).start();
@@ -383,8 +383,7 @@ public class ToothScanActivity extends AppCompatActivity {
                 });
 
             } catch (Exception e) {
-
-                e.printStackTrace();
+                android.util.Log.e("ToothScanActivity", "Error predicting or saving tooth scan", e);
                 runOnUiThread(() ->
                         android.widget.Toast.makeText(
                                 ToothScanActivity.this,
@@ -550,7 +549,7 @@ public class ToothScanActivity extends AppCompatActivity {
             startActivity(Intent.createChooser(intent, "Share DentNova Report"));
 
         } catch (Exception e) {
-            e.printStackTrace();
+            android.util.Log.e("ToothScanActivity", "Error creating/sharing PDF report", e);
             android.widget.Toast.makeText(
                     this,
                     "Failed to create PDF report",

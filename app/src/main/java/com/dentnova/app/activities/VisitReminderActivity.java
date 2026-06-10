@@ -141,7 +141,7 @@ public class VisitReminderActivity extends AppCompatActivity {
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
+                android.util.Log.e("VisitReminderActivity", "Error loading dentist visit reminders", e);
             }
 
         }).start();
@@ -246,7 +246,7 @@ public class VisitReminderActivity extends AppCompatActivity {
                         clinicName + " - " + reason
                 );
             } catch (Exception e) {
-                e.printStackTrace();
+                android.util.Log.e("VisitReminderActivity", "Error saving dentist visit reminder", e);
             }
         }).start();
 

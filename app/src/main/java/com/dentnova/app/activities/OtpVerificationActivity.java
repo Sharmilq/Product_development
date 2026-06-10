@@ -99,6 +99,7 @@ public class OtpVerificationActivity extends AppCompatActivity {
                     }
                 });
             } catch (Exception e) {
+                android.util.Log.e("OtpVerification", "Error verifying reset OTP", e);
                 runOnUiThread(() -> {
                     progress.dismiss();
                     Toast.makeText(this, "Connection failed. Please check your network.", Toast.LENGTH_LONG).show();
@@ -150,6 +151,7 @@ public class OtpVerificationActivity extends AppCompatActivity {
                     }
                 });
             } catch (Exception e) {
+                android.util.Log.e("OtpVerification", "Error updating password after OTP verification", e);
                 runOnUiThread(() -> {
                     progress.dismiss();
                     Toast.makeText(this, "Connection failed. Please check your network.", Toast.LENGTH_LONG).show();

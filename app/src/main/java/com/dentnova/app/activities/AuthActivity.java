@@ -212,6 +212,7 @@ public class AuthActivity extends AppCompatActivity {
                         }
                     });
                 } catch (Exception e) {
+                    android.util.Log.e("AuthActivity", "Error requesting password reset OTP", e);
                     runOnUiThread(() -> {
                         progress.dismiss();
                         Toast.makeText(
@@ -301,6 +302,7 @@ public class AuthActivity extends AppCompatActivity {
                     }
                 });
             } catch (Exception e) {
+                android.util.Log.e("AuthActivity", "Error during login/register API call", e);
                 runOnUiThread(() -> {
                     progress.dismiss();
                     Toast.makeText(
@@ -376,6 +378,7 @@ public class AuthActivity extends AppCompatActivity {
                     }
                 });
             } catch (Exception e) {
+                android.util.Log.e("AuthActivity", "Error syncing Google user with Supabase", e);
                 runOnUiThread(() -> {
                     progress.dismiss();
                     Toast.makeText(this, "Failed to connect to Supabase. Check your network.", Toast.LENGTH_LONG).show();

@@ -217,7 +217,7 @@ public class ProfileSetupActivity extends AppCompatActivity {
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
+                android.util.Log.e("ProfileSetupActivity", "Error loading profile details from Supabase", e);
             }
         });
     }
@@ -318,6 +318,7 @@ public class ProfileSetupActivity extends AppCompatActivity {
                     }
                 });
             } catch (Exception e) {
+                android.util.Log.e("ProfileSetupActivity", "Error saving profile setup data to Supabase", e);
                 runOnUiThread(() -> {
                     progress.dismiss();
                     btnContinue.setText("Save changes");

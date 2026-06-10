@@ -92,7 +92,7 @@ public class HomeActivity extends AppCompatActivity {
                     profile = profileResponse.getAsJsonObject("profile");
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                android.util.Log.e("HomeActivity", "Error fetching user profile", e);
             }
 
             try {
@@ -101,6 +101,7 @@ public class HomeActivity extends AppCompatActivity {
                         ? ah.getAsJsonArray("assessments")
                         : new JsonArray();
             } catch (Exception e) {
+                android.util.Log.e("HomeActivity", "Error fetching assessment history", e);
                 assessments = new JsonArray();
             }
 
@@ -112,6 +113,7 @@ public class HomeActivity extends AppCompatActivity {
                         : new JsonArray();
 
             } catch (Exception e) {
+                android.util.Log.e("HomeActivity", "Error fetching notifications", e);
                 notifications = new JsonArray();
             }
             try {
@@ -131,7 +133,7 @@ public class HomeActivity extends AppCompatActivity {
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
+                android.util.Log.e("HomeActivity", "Error fetching visit reminders", e);
             }
             runOnUiThread(this::refreshHomeUI);
 
@@ -403,7 +405,7 @@ public class HomeActivity extends AppCompatActivity {
                         : new JsonArray();
 
             } catch (Exception e) {
-                e.printStackTrace();
+                android.util.Log.e("HomeActivity", "Error loading notifications in notifications view", e);
                 notifications = new JsonArray();
             }
 

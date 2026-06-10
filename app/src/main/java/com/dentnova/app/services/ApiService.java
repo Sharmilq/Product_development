@@ -8,6 +8,9 @@ import com.dentnova.app.SupabaseConfig;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import okhttp3.*;
+import okio.Buffer;
+import okio.BufferedSource;
+import java.nio.charset.Charset;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -35,6 +38,7 @@ public class ApiService {
     private static final OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(15, TimeUnit.SECONDS)
+            .addInterceptor(new SupabaseLoggingInterceptor())
             .build();
 
     private static final Gson gson = new Gson();
@@ -78,14 +82,44 @@ public class ApiService {
                 .build();
 
         String raw = client.newCall(req).execute().body().string();
+        android.util.Log.d("SUPABASE_REGISTER", "Register response: " + raw);
 
         JsonObject result = new JsonObject();
 
         if (raw.contains("\"id\"")) {
+            // Also insert a row in the users table so user_id is consistent
+            try {
+                int localUserId = email.hashCode();
+                if (localUserId < 0) localUserId = -localUserId;
+
+                JsonObject userRow = new JsonObject();
+                userRow.addProperty("user_id", localUserId);
+                userRow.addProperty("name", name);
+                userRow.addProperty("email", email);
+                userRow.addProperty("age", 20);
+                userRow.addProperty("gender", "Female");
+                userRow.addProperty("concerns", "");
+                userRow.addProperty("photo_url", "");
+
+                Request insertReq = new Request.Builder()
+                        .url(SupabaseConfig.REST_URL + "users")
+                        .post(RequestBody.create(userRow.toString(), JSON))
+                        .headers(supabaseHeaders())
+                        .build();
+                String insertRaw = client.newCall(insertReq).execute().body().string();
+                android.util.Log.d("SUPABASE_REGISTER", "User row insert: " + insertRaw);
+
+                // Save session so ProfileSetupActivity can immediately update the profile
+                new SessionManager(ctx).saveSession(localUserId, "", name, email);
+
+            } catch (Exception e) {
+                android.util.Log.e("SUPABASE_REGISTER", "Failed to insert user row: " + e.getMessage());
+            }
             result.addProperty("success", true);
             result.addProperty("message", "Account created successfully");
         } else {
             result.addProperty("success", false);
+            android.util.Log.e("SUPABASE_REGISTER", "Register failed: " + raw);
             result.addProperty("message", raw);
         }
 
@@ -172,6 +206,7 @@ public class ApiService {
                 .build();
 
         String raw = client.newCall(req).execute().body().string();
+        android.util.Log.d("SUPABASE_LOGIN", "Auth response: " + raw);
 
         JsonObject data = gson.fromJson(raw, JsonObject.class);
 
@@ -179,31 +214,22 @@ public class ApiService {
 
         if (data.has("access_token")) {
 
-            String token =
-                    data.get("access_token").getAsString();
-
-            JsonObject user =
-                    data.getAsJsonObject("user");
-
-            String userId =
-                    user.get("id").getAsString();
-            int localUserId = userId.hashCode();
-
-            String userEmail =
-                    user.get("email").getAsString();
+            String token = data.get("access_token").getAsString();
+            JsonObject user = data.getAsJsonObject("user");
+            String userEmail = user.get("email").getAsString();
 
             String userName = "";
-
             if (user.has("user_metadata")) {
-
-                JsonObject meta =
-                        user.getAsJsonObject("user_metadata");
-
+                JsonObject meta = user.getAsJsonObject("user_metadata");
                 if (meta.has("name")) {
-                    userName =
-                            meta.get("name").getAsString();
+                    userName = meta.get("name").getAsString();
                 }
             }
+
+            // FIX: Look up real user_id from users table by email.
+            // Do NOT use supabase_uuid.hashCode() — that differs from email.hashCode() used at registration.
+            int localUserId = lookupUserIdByEmail(userEmail);
+            android.util.Log.d("SUPABASE_LOGIN", "Looked up user_id for " + userEmail + ": " + localUserId);
 
             new SessionManager(ctx).saveSession(
                     localUserId,
@@ -217,31 +243,47 @@ public class ApiService {
         } else {
 
             result.addProperty("success", false);
+            android.util.Log.e("SUPABASE_LOGIN", "Login failed raw response: " + raw);
 
             if (raw.contains("Invalid login credentials")) {
-
-                result.addProperty(
-                        "message",
-                        "Invalid email or password"
-                );
-
+                result.addProperty("message", "Invalid email or password");
             } else if (raw.contains("Email not confirmed")) {
-
-                result.addProperty(
-                        "message",
-                        "Please verify your email first"
-                );
-
+                result.addProperty("message", "Please verify your email first");
             } else {
-
-                result.addProperty(
-                        "message",
-                        "Login failed. Please try again"
-                );
+                result.addProperty("message", "Login failed. Please try again");
             }
         }
 
         return result;
+    }
+
+    /**
+     * Looks up the integer user_id stored in the users table for the given email.
+     * Returns email.hashCode() (with sign correction) as fallback if user not found.
+     */
+    private static int lookupUserIdByEmail(String email) {
+        try {
+            Request req = new Request.Builder()
+                    .url(SupabaseConfig.REST_URL + "users?email=eq." + email + "&select=user_id&limit=1")
+                    .get()
+                    .headers(supabaseHeaders())
+                    .build();
+            String raw = client.newCall(req).execute().body().string();
+            android.util.Log.d("SUPABASE_LOGIN", "lookupUserIdByEmail raw: " + raw);
+            JsonArray arr = gson.fromJson(raw, JsonArray.class);
+            if (arr != null && arr.size() > 0) {
+                JsonObject row = arr.get(0).getAsJsonObject();
+                if (row.has("user_id")) {
+                    return row.get("user_id").getAsInt();
+                }
+            }
+        } catch (Exception e) {
+            android.util.Log.e("SUPABASE_LOGIN", "lookupUserIdByEmail failed: " + e.getMessage());
+        }
+        // Fallback: derive same way registration does
+        int fallback = email.hashCode();
+        if (fallback < 0) fallback = -fallback;
+        return fallback;
     }
 
     // ── Logout ── ApiService.logout() ─────────────────────────────────────
@@ -964,8 +1006,9 @@ public static JsonObject predictToothScan(
             throws IOException {
         JsonObject result = new JsonObject();
 
-        // Check if user already exists in users table by email or firebase_uid
-        String queryUrl = SupabaseConfig.REST_URL + "users?or=(firebase_uid.eq." + firebaseUid + ",email.eq." + email + ")";
+        // Check if user already exists in users table by email only
+        // (firebase_uid and auth_provider columns do not exist in the DB schema)
+        String queryUrl = SupabaseConfig.REST_URL + "users?email=eq." + email + "&select=user_id,name,photo_url&limit=1";
         Request checkReq = new Request.Builder()
                 .url(queryUrl)
                 .get()
@@ -973,44 +1016,41 @@ public static JsonObject predictToothScan(
                 .build();
 
         String checkRaw = client.newCall(checkReq).execute().body().string();
+        android.util.Log.d("SUPABASE_GOOGLE_SYNC", "Check user raw: " + checkRaw);
         JsonArray users = gson.fromJson(checkRaw, JsonArray.class);
 
         int localUserId;
         String displayName = (name == null || name.trim().isEmpty()) ? email.split("@")[0] : name;
 
         if (users != null && users.size() > 0) {
-            // User exists
+            // User already exists — use their existing user_id
             JsonObject existingUser = users.get(0).getAsJsonObject();
             localUserId = existingUser.get("user_id").getAsInt();
-            displayName = existingUser.has("name") && !existingUser.get("name").isJsonNull() ? existingUser.get("name").getAsString() : displayName;
+            if (existingUser.has("name") && !existingUser.get("name").isJsonNull()) {
+                displayName = existingUser.get("name").getAsString();
+            }
 
-            // Link profile if auth_provider is 'email' or firebase_uid is empty/null
-            String existingProvider = existingUser.has("auth_provider") && !existingUser.get("auth_provider").isJsonNull() ? existingUser.get("auth_provider").getAsString() : "email";
-            String existingFirebaseUid = existingUser.has("firebase_uid") && !existingUser.get("firebase_uid").isJsonNull() ? existingUser.get("firebase_uid").getAsString() : "";
-
-            if ("email".equals(existingProvider) || existingFirebaseUid.isEmpty()) {
-                // Link account to google by updating firebase_uid and auth_provider
-                JsonObject patchBody = new JsonObject();
-                patchBody.addProperty("firebase_uid", firebaseUid);
-                patchBody.addProperty("auth_provider", "google");
-                if (photoUrl != null && !photoUrl.isEmpty() && (!existingUser.has("photo_url") || existingUser.get("photo_url").isJsonNull() || existingUser.get("photo_url").getAsString().isEmpty())) {
+            // Update photo_url if not set and Google provides one
+            if (photoUrl != null && !photoUrl.isEmpty()) {
+                String existingPhoto = existingUser.has("photo_url") && !existingUser.get("photo_url").isJsonNull() ? existingUser.get("photo_url").getAsString() : "";
+                if (existingPhoto.isEmpty()) {
+                    JsonObject patchBody = new JsonObject();
                     patchBody.addProperty("photo_url", photoUrl);
+                    Request patchReq = new Request.Builder()
+                            .url(SupabaseConfig.REST_URL + "users?user_id=eq." + localUserId)
+                            .patch(RequestBody.create(patchBody.toString(), JSON))
+                            .headers(supabaseHeaders())
+                            .build();
+                    String patchRaw = client.newCall(patchReq).execute().body().string();
+                    android.util.Log.d("SUPABASE_GOOGLE_SYNC", "Patch photo_url raw: " + patchRaw);
                 }
-
-                Request patchReq = new Request.Builder()
-                        .url(SupabaseConfig.REST_URL + "users?user_id=eq." + localUserId)
-                        .patch(RequestBody.create(patchBody.toString(), JSON))
-                        .headers(supabaseHeaders())
-                        .build();
-
-                client.newCall(patchReq).execute();
             }
 
             result.addProperty("success", true);
             result.addProperty("user_id", localUserId);
             result.addProperty("name", displayName);
         } else {
-            // User does not exist, create a new row in users table
+            // User does not exist — insert new row with only valid columns
             localUserId = email.hashCode();
             if (localUserId < 0) {
                 localUserId = -localUserId;
@@ -1020,10 +1060,8 @@ public static JsonObject predictToothScan(
             body.addProperty("user_id", localUserId);
             body.addProperty("name", displayName);
             body.addProperty("email", email);
-            body.addProperty("firebase_uid", firebaseUid);
-            body.addProperty("auth_provider", "google");
-            body.addProperty("age", 20); // default age
-            body.addProperty("gender", "Female"); // default gender
+            body.addProperty("age", 20);
+            body.addProperty("gender", "Female");
             body.addProperty("concerns", "");
             body.addProperty("photo_url", (photoUrl != null) ? photoUrl : "");
 
@@ -1034,6 +1072,7 @@ public static JsonObject predictToothScan(
                     .build();
 
             String insertRaw = client.newCall(insertReq).execute().body().string();
+            android.util.Log.d("SUPABASE_GOOGLE_SYNC", "Insert user raw: " + insertRaw);
 
             result.addProperty("success", !insertRaw.contains("code"));
             result.addProperty("user_id", localUserId);
@@ -1092,5 +1131,86 @@ public static JsonObject predictToothScan(
             result.addProperty("message", errMsg);
         }
         return result;
+    }
+
+    public static class SupabaseLoggingInterceptor implements Interceptor {
+        private static final String TAG = "SUPABASE_HTTP";
+
+        @Override
+        public Response intercept(Chain chain) throws IOException {
+            Request request = chain.request();
+            String url = request.url().toString();
+            String method = request.method();
+
+            android.util.Log.d(TAG, "==================== SUPABASE REQUEST ====================");
+            android.util.Log.d(TAG, "Request URL: " + url);
+            android.util.Log.d(TAG, "HTTP Method: " + method);
+
+            // Log Headers (excluding secrets)
+            Headers headers = request.headers();
+            for (int i = 0; i < headers.size(); i++) {
+                String name = headers.name(i);
+                String value = headers.value(i);
+                if (name.equalsIgnoreCase("apikey") || name.equalsIgnoreCase("Authorization")) {
+                    android.util.Log.d(TAG, "Header: " + name + ": [HIDDEN SECRET]");
+                } else {
+                    android.util.Log.d(TAG, "Header: " + name + ": " + value);
+                }
+            }
+
+            // Log Request Body (if any)
+            if (request.body() != null) {
+                try {
+                    Buffer buffer = new Buffer();
+                    request.body().writeTo(buffer);
+                    String requestBody = buffer.readUtf8();
+                    // Mask passwords in request body if present
+                    if (requestBody.contains("\"password\"")) {
+                        requestBody = requestBody.replaceAll("\"password\"\\s*:\\s*\"[^\"]+\"", "\"password\":\"[HIDDEN SECRET]\"");
+                    }
+                    android.util.Log.d(TAG, "Request Body: " + requestBody);
+                } catch (Exception e) {
+                    android.util.Log.d(TAG, "Request Body: [Could not read: " + e.getMessage() + "]");
+                }
+            }
+
+            long startTime = System.nanoTime();
+            Response response;
+            try {
+                response = chain.proceed(request);
+            } catch (IOException e) {
+                android.util.Log.e(TAG, "==================== SUPABASE EXCEPTION ====================");
+                android.util.Log.e(TAG, "Exception during call to: " + url, e);
+                android.util.Log.e(TAG, "Exception Message: " + e.getMessage());
+                // Log the stack trace elements
+                for (StackTraceElement element : e.getStackTrace()) {
+                    android.util.Log.e(TAG, "    at " + element.toString());
+                }
+                throw e;
+            }
+
+            long endTime = System.nanoTime();
+            double durationMs = (endTime - startTime) / 1e6;
+
+            android.util.Log.d(TAG, "==================== SUPABASE RESPONSE ====================");
+            android.util.Log.d(TAG, "Response Code: " + response.code());
+            android.util.Log.d(TAG, "Response Message: " + response.message());
+            android.util.Log.d(TAG, "Time taken: " + String.format("%.1f", durationMs) + "ms");
+
+            if (response.body() != null) {
+                try {
+                    BufferedSource source = response.body().source();
+                    source.request(Long.MAX_VALUE); // Buffer the entire body.
+                    Buffer buffer = source.getBuffer();
+                    String body = buffer.clone().readString(Charset.forName("UTF-8"));
+                    android.util.Log.d(TAG, "Response Body: " + body);
+                } catch (Exception e) {
+                    android.util.Log.e(TAG, "Failed to read/log response body: " + e.getMessage());
+                }
+            }
+            android.util.Log.d(TAG, "==========================================================");
+
+            return response;
+        }
     }
 }
