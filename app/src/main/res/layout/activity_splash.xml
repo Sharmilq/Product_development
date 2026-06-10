@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_splash_gradient">
+
+    <ImageView android:id="@+id/ivToothDecor"
+        android:layout_width="38dp" android:layout_height="42dp"
+        android:layout_gravity="top|start"
+        android:layout_marginStart="44dp" android:layout_marginTop="130dp"
+        android:alpha="0.45" android:src="@drawable/ic_tooth_decor"/>
+
+    <ImageView android:id="@+id/ivBrushDecor"
+        android:layout_width="14dp" android:layout_height="46dp"
+        android:layout_gravity="top|end"
+        android:layout_marginEnd="72dp" android:layout_marginTop="100dp"
+        android:alpha="0.80" android:src="@drawable/ic_toothbrush_decor"/>
+
+    <ImageView android:id="@+id/ivLeafDecor"
+        android:layout_width="44dp" android:layout_height="44dp"
+        android:layout_gravity="center_vertical|end"
+        android:layout_marginEnd="30dp"
+        android:alpha="0.85" android:src="@drawable/ic_leaf_decor"/>
+
+    <ImageView android:id="@+id/ivSparkleDecor"
+        android:layout_width="36dp" android:layout_height="36dp"
+        android:layout_gravity="center_vertical|start"
+        android:layout_marginStart="36dp"
+        android:alpha="0.90" android:src="@drawable/ic_sparkle_yellow"/>
+
+    <ImageView android:id="@+id/ivCursorDecor"
+        android:layout_width="28dp" android:layout_height="38dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="40dp" android:layout_marginBottom="200dp"
+        android:alpha="0.55" android:src="@drawable/ic_cursor_decor"/>
+
+    <LinearLayout
+        android:layout_gravity="center"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:orientation="vertical" android:gravity="center">
+
+        <FrameLayout android:id="@+id/flaLogo"
+            android:layout_width="160dp" android:layout_height="160dp"
+            android:layout_gravity="center_horizontal">
+            <View android:layout_width="160dp" android:layout_height="160dp"
+                android:background="@drawable/bg_splash_logo_outer"/>
+            <View android:layout_width="138dp" android:layout_height="138dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_splash_logo_inner"/>
+            <ImageView android:id="@+id/ivToothLogo"
+                android:layout_width="80dp" android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:src="@drawable/tooth_logo" android:scaleType="fitCenter"/>
+        </FrameLayout>
+
+        <Space android:layout_width="0dp" android:layout_height="32dp"/>
+
+        <LinearLayout android:id="@+id/llTitleRow"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:alpha="0" android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <TextView android:id="@+id/tvAppName"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_extrabold"
+                android:text="DentNova" android:textColor="#1AACCF"
+                android:textSize="38sp"/>
+            <Space android:layout_width="6dp" android:layout_height="0dp"/>
+            <ImageView android:id="@+id/ivTitleSparkle"
+                android:layout_width="26dp" android:layout_height="26dp"
+                android:src="@drawable/ic_sparkle_cyan"/>
+        </LinearLayout>
+
+        <Space android:layout_width="0dp" android:layout_height="8dp"/>
+
+        <TextView android:id="@+id/tvTagline"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:alpha="0" android:fontFamily="@font/poppins_regular"
+            android:text="Smart Dental Care for a Healthier Smile"
+            android:textColor="#D22E6A7A" android:textSize="14sp"/>
+    </LinearLayout>
+
+    <LinearLayout android:id="@+id/llDots"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:gravity="center_vertical" android:orientation="horizontal"
+        android:layout_marginBottom="176dp">
+        <View android:id="@+id/dot1" android:layout_width="10dp" android:layout_height="10dp"
+            android:layout_marginEnd="6dp" android:background="@drawable/bg_dot_cyan"/>
+        <View android:id="@+id/dot2" android:layout_width="10dp" android:layout_height="10dp"
+            android:layout_marginEnd="6dp" android:background="@drawable/bg_dot_cyan_mid"/>
+        <View android:id="@+id/dot3" android:layout_width="10dp" android:layout_height="10dp"
+            android:background="@drawable/bg_dot_cyan_light"/>
+    </LinearLayout>
+</FrameLayout>

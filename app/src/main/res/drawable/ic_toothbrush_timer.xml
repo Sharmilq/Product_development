@@ -1,0 +1,28 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Toothbrush handle -->
+    <path
+        android:fillColor="#00BCD4"
+        android:pathData="M7,14L15,6C15.6,5.4 16.6,5.4 17.2,6C17.8,6.6 17.8,7.6 17.2,8.2L9.2,16.2L7,14Z"/>
+
+    <!-- Brush -->
+    <path
+        android:fillColor="#00BCD4"
+        android:pathData="M5,15L8,18L6.5,19.5C5.7,20.3 4.3,20.3 3.5,19.5C2.7,18.7 2.7,17.3 3.5,16.5L5,15Z"/>
+
+    <!-- Timer circle -->
+    <path
+        android:fillColor="#80DEEA"
+        android:pathData="M18,14A4,4 0 1,1 18,22A4,4 0 1,1 18,14"/>
+
+    <!-- Timer hand -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:pathData="M18,16V18L19.5,19"/>
+</vector>

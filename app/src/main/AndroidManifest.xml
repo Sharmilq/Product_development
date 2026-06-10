@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.dentnova.app">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/dentnova_logo"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/dentnova_logo"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.DentNova"
+        android:usesCleartextTraffic="true">
+        <receiver
+            android:name=".receivers.ReminderReceiver"
+            android:exported="false" />
+        <!-- forget password -->
+        <activity
+            android:name=".activities.ResetPasswordActivity"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="dentnova"
+                    android:host="reset-password" />
+            </intent-filter>
+
+        </activity>
+
+        <!-- OTP Verification -->
+        <activity
+            android:name=".activities.OtpVerificationActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Splash -->
+        <activity
+            android:name=".activities.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.DentNova.Splash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Onboarding -->
+        <activity
+            android:name=".activities.OnboardingActivity"
+            android:exported="false" />
+
+        <!-- Auth (Login / Register) -->
+        <activity
+            android:name=".activities.AuthActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Profile Setup -->
+        <activity
+            android:name=".activities.ProfileSetupActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".activities.SettingsActivity"
+            android:exported="false" />
+
+        <!-- Home (hosts bottom nav tabs) -->
+        <activity
+            android:name=".activities.HomeActivity"
+            android:exported="false" />
+
+        <!-- Assessment -->
+        <activity
+            android:name=".activities.AssessmentActivity"
+            android:exported="false" />
+
+        <!-- Assessment Result -->
+        <activity
+            android:name=".activities.AssessmentResultActivity"
+            android:exported="false" />
+
+        <!-- Tooth Scan -->
+        <activity
+            android:name=".activities.ToothScanActivity"
+            android:exported="false" />
+
+        <!-- Education -->
+        <activity
+            android:name=".activities.EducationActivity"
+            android:exported="false" />
+
+        <!-- Reminders -->
+        <activity
+            android:name=".activities.RemindersActivity"
+            android:exported="false" />
+
+        <!-- Visit Reminder -->
+        <activity
+            android:name=".activities.VisitReminderActivity"
+            android:exported="false" />
+
+        <!-- Profile -->
+        <activity
+            android:name=".activities.ProfileActivity"
+            android:exported="false" />
+
+        <!-- Send Feedback -->
+        <activity
+            android:name=".activities.FeedbackActivity"
+            android:exported="false" />
+
+        <!-- How It Works -->
+        <activity
+            android:name=".activities.HowItWorksActivity"
+            android:exported="false" />
+        <!-- Education -->
+        <activity
+            android:name=".activities.ArticleDetailActivity"
+            android:exported="false" />
+
+        <!-- Notification channel provider -->
+        <service
+            android:name=".services.NotificationService"
+            android:exported="false" />
+
+        <!-- Boot receiver for rescheduling alarms -->
+        <receiver
+            android:name=".services.AlarmReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="com.dentnova.ALARM_TRIGGER" />
+            </intent-filter>
+        </receiver>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+    </application>
+
+</manifest>

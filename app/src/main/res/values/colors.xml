@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary palette (AppTheme.dart → AppTheme.primary etc.) -->
+    <color name="primary">#00BCD4</color>
+    <color name="primaryDark">#0097A7</color>
+    <color name="primaryLight">#B2EBF2</color>
+    <color name="teal_200">#00BCD4</color>
+    <color name="accent">#26C6DA</color>
+    <color name="splashBg">#CBEFF6</color>
+
+    <!-- Background / surface -->
+    <color name="background">#F5F9FA</color>
+    <color name="cardBg">#FFFFFF</color>
+    <color name="inputBg">#FFFFFF</color>
+    <color name="inputBorder">#E0E8EF</color>
+    <color name="text_primary">#1E293B</color>
+    <color name="text_secondary">#64748B</color>
+    <color name="risk_red">#EF4444</color>
+    <color name="warning_orange">#F57C00</color>
+    <color name="success_green">#10B981</color>
+
+    <!-- Text -->
+    <color name="textPrimary">#1A2332</color>
+    <color name="textSecondary">#6B7B8D</color>
+    <color name="textLight">#9EAAB8</color>
+
+    <!-- Status -->
+    <color name="riskRed">#E53935</color>
+    <color name="warningOrange">#F57C00</color>
+    <color name="successGreen">#43A047</color>
+
+    <!-- Tag backgrounds -->
+    <color name="tagBlue">#E3F2FD</color>
+    <color name="tagRed">#FFEBEE</color>
+    <color name="tagOrange">#FFF3E0</color>
+    <color name="tagGreen">#E8F5E9</color>
+
+    <!-- Step icon colors (HowItWorksScreen) -->
+    <color name="stepBlue">#3B82F6</color>
+    <color name="stepBlueBg">#EFF6FF</color>
+    <color name="stepGreen">#10B981</color>
+    <color name="stepGreenBg">#ECFDF5</color>
+    <color name="stepPurple">#8B5CF6</color>
+    <color name="stepPurpleBg">#F5F3FF</color>
+    <color name="stepCyan">#00BCD4</color>
+    <color name="stepCyanBg">#E0F7FA</color>
+    <color name="stepGray">#6B7280</color>
+    <color name="stepGrayBg">#F3F4F6</color>
+
+    <!-- Misc -->
+    <color name="divider">#E0E8EF</color>
+    <color name="star">#FFC107</color>
+    <color name="noteBg">#FFF8E1</color>
+    <color name="infoBg">#E8F8FC</color>
+    <color name="surfaceBg">#F9FAFB</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="transparent">#00000000</color>
+</resources>

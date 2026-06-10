@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DentNova</string>
+    <string name="tagline">Smart Dental Care for a Healthier Smile</string>
+
+    <!-- Auth -->
+    <string name="welcome_back">Welcome back</string>
+    <string name="create_account">Create account</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_in_subtitle">Sign in to continue your dental journey</string>
+    <string name="register_subtitle">Join DentNova and start caring for your smile.</string>
+    <string name="full_name">Full name</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="or_continue_with">or continue with</string>
+    <string name="continue_google">Continue with Google</string>
+    <string name="new_here">New here?</string>
+    <string name="already_account">Already have an account?</string>
+
+    <!-- Onboarding -->
+    <string name="skip">Skip</string>
+    <string name="next">Next</string>
+    <string name="get_started">Get Started</string>
+    <string name="ob_title_1">Track Your Smile</string>
+    <string name="ob_sub_1">Take a quick assessment and discover the health of your teeth and gums.</string>
+    <string name="ob_title_2">AI Tooth Scan</string>
+    <string name="ob_sub_2">Snap a photo and let our AI analyze plaque, gum condition, and cleanliness.</string>
+    <string name="ob_title_3">Daily Reminders</string>
+    <string name="ob_sub_3">Never skip brushing again with smart, gentle reminders that fit your routine.</string>
+
+    <!-- Profile Setup -->
+    <string name="setup_profile">Set up your profile</string>
+    <string name="setup_subtitle">Help us personalize your experience.</string>
+    <string name="name_hint">Your name</string>
+    <string name="age">Age</string>
+    <string name="gender">Gender</string>
+    <string name="dental_concerns">Dental concerns (optional)</string>
+    <string name="continue_btn">Continue</string>
+    <string name="saving">Saving…</string>
+
+    <!-- Home -->
+    <string name="hello">Hello</string>
+    <string name="notifications">Notifications</string>
+    <string name="no_notifications">No notifications yet</string>
+
+    <!-- Assessment -->
+    <string name="assessment">Assessment</string>
+    <string name="start_assessment">Start Assessment</string>
+    <string name="submit">Submit</string>
+    <string name="next_question">Next</string>
+
+    <!-- Reminders -->
+    <string name="reminders">Reminders</string>
+    <string name="add_reminder">Add Reminder</string>
+    <string name="visit_reminder">Dentist Visit</string>
+
+    <!-- Feedback -->
+    <string name="send_feedback">Send feedback</string>
+    <string name="rate_app">How would you rate DentNova?</string>
+    <string name="tell_us_more">Tell us more (optional)</string>
+    <string name="feedback_hint">What\'s on your mind?</string>
+    <string name="submit_feedback">Submit feedback</string>
+    <string name="thank_you">Thank you!</string>
+    <string name="feedback_thanks">Your feedback helps us improve.</string>
+
+    <!-- How It Works -->
+    <string name="how_it_works">How DentNova Works</string>
+    <string name="pocket_dental_coach">Your pocket dental coach</string>
+
+    <!-- Errors -->
+    <string name="err_name_empty">Please enter your full name</string>
+    <string name="err_invalid_email">Please enter a valid email address</string>
+    <string name="err_short_password">Password must be at least 6 characters</string>
+    <string name="err_password_mismatch">Passwords do not match</string>
+    <string name="err_no_connection">Cannot connect to server. Check your WiFi.</string>
+
+    <!-- Google Sign-In & OTP strings -->
+    <string name="default_web_client_id">123456789012-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com</string>
+    <string name="title_otp_verify">Verify OTP</string>
+    <string name="subtitle_otp_verify">Enter the 6-digit verification code sent to your email.</string>
+    <string name="otp_hint">000000</string>
+    <string name="btn_verify">Verify OTP</string>
+    <string name="title_reset_password">Reset Password</string>
+    <string name="subtitle_reset_password">Choose a strong new password for your account.</string>
+    <string name="new_password_hint">New password</string>
+    <string name="confirm_password_hint">Confirm new password</string>
+    <string name="btn_reset_password">Reset Password</string>
+    <string name="err_otp_empty">Please enter the 6-digit OTP</string>
+    <string name="err_otp_invalid">OTP must be exactly 6 digits</string>
+    <string name="otp_sent_success">OTP sent to your email successfully 📧</string>
+    <string name="otp_verification_success">OTP verified successfully!</string>
+    <string name="otp_reset_success">Password updated successfully! Please sign in.</string>
+</resources>

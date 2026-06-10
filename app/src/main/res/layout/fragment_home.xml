@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  HomeFragment — exact replica of home_screen.dart _buildBody()
+  Sections: Header | Score Card (gradient) | Daily Tip | Brushing Timer card |
+            Dental Timeline | Quick Actions Grid (2-col) | Recent Assessments
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="#F5F9FA">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="20dp" android:paddingEnd="20dp"
+        android:paddingTop="14dp" android:paddingBottom="84dp">
+
+        <!-- ── HEADER: greeting + name + notification bell ──── -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:gravity="center_vertical" android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_vertical">
+                <!-- "Good morning, 👋" Inter Regular 13sp #6B7B8D -->
+                <TextView android:id="@+id/tvGreeting"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:fontFamily="@font/inter_regular"
+                    android:text="Good morning, 👋"
+                    android:textColor="#6B7B8D" android:textSize="13sp"/>
+                <!-- User name Inter Bold 22sp #1A2332 -->
+                <TextView android:id="@+id/tvUserName"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:fontFamily="@font/inter_bold"
+                    android:text="User"
+                    android:textColor="#1A2332" android:textSize="22sp"/>
+            </LinearLayout>
+
+            <!-- Profile avatar: 40dp circle bg=#E8F8FC, photo or person icon -->
+            <de.hdodenhof.circleimageview.CircleImageView android:id="@+id/civAvatar"
+                android:src="@drawable/home_avatar"
+                android:layout_width="40dp" android:layout_height="40dp"
+                android:scaleType="centerCrop"/>
+
+        </LinearLayout>
+
+        <Space android:layout_width="0dp" android:layout_height="10dp"/>
+
+        <!-- ── SCORE CARD: gradient #00BCD4→#0097A7, radius=20dp ── -->
+        <FrameLayout android:id="@+id/cardScore"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:background="@drawable/bg_score_card_gradient"
+            android:padding="20dp">
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:gravity="center_vertical" android:orientation="horizontal">
+
+                <!-- Circular progress: 80dp, strokeWidth=7, white bg 30%, white fill -->
+                <FrameLayout android:layout_width="80dp" android:layout_height="80dp">
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/scoreProgress"
+                        android:layout_width="80dp" android:layout_height="80dp"
+                        android:layout_gravity="center"
+                        app:indicatorColor="#FFFFFF"
+                        app:trackColor="#4DFFFFFF"
+                        app:trackThickness="7dp"
+                        app:indicatorSize="80dp"/>
+                    <TextView android:id="@+id/tvScore"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:fontFamily="@font/inter_extrabold"
+                        android:text="--"
+                        android:textColor="#FFFFFF" android:textSize="22sp"/>
+                </FrameLayout>
+
+                <Space android:layout_width="30dp" android:layout_height="0dp"/>
+
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical">
+
+                    <!-- "ORAL HEALTH SCORE" Inter SemiBold 10sp white 80% letterSpacing=0.5 -->
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_semibold"
+                        android:text="ORAL HEALTH SCORE"
+                        android:textColor="#CCFFFFFF" android:textSize="10sp"
+                        android:letterSpacing="0.05"/>
+
+                    <!-- Label: "Not assessed" / score label Inter Bold 22sp white -->
+                    <TextView android:id="@+id/tvScoreLabel"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_bold"
+                        android:text="Not assessed"
+                        android:textColor="#FFFFFF" android:textSize="22sp"/>
+
+                    <Space android:layout_width="0dp" android:layout_height="4dp"/>
+
+                    <!-- Sub-label Inter Regular 12sp white 85% -->
+                    <TextView android:id="@+id/tvScoreSub"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_regular"
+                        android:text="Take your first assessment"
+                        android:textColor="#D9FFFFFF" android:textSize="12sp"/>
+
+                    <Space android:layout_width="0dp" android:layout_height="10dp"/>
+
+                    <!-- "Start Now →" pill button: bg white 25%, radius=20dp, text white 12sp -->
+                    <FrameLayout android:id="@+id/btnStartAssessment"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:background="@drawable/bg_score_pill"
+                        android:paddingStart="14dp" android:paddingEnd="14dp"
+                        android:paddingTop="6dp" android:paddingBottom="6dp">
+                        <TextView android:id="@+id/tvStartNow"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:fontFamily="@font/inter_semibold"
+                            android:text="Start Now →"
+                            android:textColor="#FFFFFF" android:textSize="12sp"/>
+                    </FrameLayout>
+
+                </LinearLayout>
+            </LinearLayout>
+        </FrameLayout>
+
+        <Space android:layout_width="0dp" android:layout_height="12dp"/>
+
+        <!-- ── DAILY TIP card: white, radius=14dp, shadow ──── -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="2dp"
+            app:cardUseCompatPadding="true">
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:gravity="center_vertical" android:orientation="horizontal"
+                android:padding="16dp">
+
+                <!-- Lightbulb icon 36×36 bg=#FFF9E6 radius=10dp -->
+                <FrameLayout android:layout_width="36dp" android:layout_height="36dp"
+                    android:background="@drawable/bg_tip_icon">
+                    <ImageView android:layout_width="28dp" android:layout_height="28dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/home_daily_tip"
+                        android:scaleType="fitCenter" />
+                </FrameLayout>
+
+                <Space android:layout_width="12dp" android:layout_height="0dp"/>
+
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical">
+                    <!-- "DAILY TIP" + "NIGHT TIP" tag row -->
+                    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:gravity="center_vertical" android:orientation="horizontal">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:fontFamily="@font/inter_bold"
+                            android:text="DAILY TIP"
+                            android:textColor="#6B7B8D" android:textSize="10sp"
+                            android:letterSpacing="0.05"/>
+                        <Space android:layout_width="8dp" android:layout_height="0dp"/>
+                        <!-- "NIGHT TIP" tag: bg=#E3F2FD radius=4dp text=#00BCD4 9sp -->
+                        <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:background="@drawable/bg_tag_blue"
+                            android:paddingStart="6dp" android:paddingEnd="6dp"
+                            android:paddingTop="2dp" android:paddingBottom="2dp">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:fontFamily="@font/inter_semibold"
+                                android:text="NIGHT TIP"
+                                android:textColor="#00BCD4" android:textSize="9sp"/>
+                        </FrameLayout>
+                    </LinearLayout>
+                    <Space android:layout_width="0dp" android:layout_height="2dp"/>
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_regular"
+                        android:text="Brush thoroughly before bed — saliva slows down at night."
+                        android:textColor="#1A2332" android:textSize="13sp"
+                        android:lineSpacingMultiplier="1.4"/>
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <Space android:layout_width="0dp" android:layout_height="10dp"/>
+
+        <!-- ── BRUSHING TIMER card: white radius=16dp shadow ─── -->
+        <androidx.cardview.widget.CardView android:id="@+id/cardBrushingTimer"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardUseCompatPadding="true">
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:gravity="center_vertical" android:orientation="horizontal"
+                android:padding="16dp">
+
+                <!-- Left: icon + Brushing Timer text + "Start 2 min" -->
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:orientation="vertical">
+                    <!-- emoji_food_beverage icon, cyan, 26dp -->
+                    <ImageView android:layout_width="34dp" android:layout_height="34dp"
+                        android:src="@drawable/home_brushing_timer"
+                        android:scaleType="fitCenter" />
+                    <Space android:layout_width="0dp" android:layout_height="4dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_bold"
+                        android:text="Brushing Timer"
+                        android:textColor="#1A2332" android:textSize="14sp"
+                        android:maxLines="1" android:ellipsize="end"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_regular"
+                        android:text="Start 2 min"
+                        android:textColor="#6B7B8D" android:textSize="11sp"/>
+                </LinearLayout>
+
+                <!-- Middle: timer_outlined icon 20dp, cyan 70% -->
+                <ImageView android:layout_width="20dp" android:layout_height="20dp"
+                    android:layout_marginStart="8dp" android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_timer_outlined" android:alpha="0.70"
+                    app:tint="#00BCD4"/>
+
+                <!-- Right: 88dp circle toothbrush image (assets/images/tooth_brush_hero.png) -->
+                <de.hdodenhof.circleimageview.CircleImageView android:id="@+id/civBrushHero"
+                    android:layout_width="88dp" android:layout_height="88dp"
+                    android:src="@drawable/home_tooth_hero"
+                    android:scaleType="centerCrop"/>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <Space android:layout_width="0dp" android:layout_height="10dp"/>
+
+        <!-- ── DENTAL TIMELINE card: white radius=14dp ───────── -->
+        <!-- ── DENTAL TIMELINE ── -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="2dp"
+            app:cardUseCompatPadding="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Dental Timeline"
+                    android:textColor="#1A2332"
+                    android:textSize="15sp"/>
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="12dp"/>
+
+                <!-- Last check -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <View
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:background="@drawable/bg_dot_green"/>
+
+                    <Space
+                        android:layout_width="10dp"
+                        android:layout_height="0dp"/>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Last check"
+                        android:textColor="#1A2332"
+                        android:textSize="13sp"/>
+
+                    <TextView
+                        android:id="@+id/tvLastCheck"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="—"
+                        android:textColor="#6B7B8D"
+                        android:textSize="13sp"/>
+                </LinearLayout>
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="8dp"/>
+
+                <!-- Next visit -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <View
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:background="@drawable/bg_dot_blue"/>
+
+                    <Space
+                        android:layout_width="10dp"
+                        android:layout_height="0dp"/>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Next visit"
+                        android:textColor="#1A2332"
+                        android:textSize="13sp"/>
+
+                    <TextView
+                        android:id="@+id/tvNextVisit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="—"
+                        android:textColor="#6B7B8D"
+                        android:textSize="13sp"/>
+                </LinearLayout>
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="8dp"/>
+
+                <!-- Replace toothbrush -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <View
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:background="@drawable/bg_dot_orange"/>
+
+                    <Space
+                        android:layout_width="10dp"
+                        android:layout_height="0dp"/>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Replace toothbrush"
+                        android:textColor="#1A2332"
+                        android:textSize="13sp"/>
+
+                    <TextView
+                        android:id="@+id/tvBrushReplace"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="—"
+                        android:textColor="#6B7B8D"
+                        android:textSize="13sp"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+        <Space android:layout_width="0dp" android:layout_height="10dp"/>
+
+        <!-- ── QUICK ACTIONS GRID: 2-col, each card 14dp padding, radius=14dp ── -->
+        <!-- Java inflates 6 _QuickActionCard items into this GridLayout -->
+        <android.widget.GridLayout
+            android:id="@+id/gridQuickActions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:rowCount="3"
+            android:useDefaultMargins="false" />
+        <Space android:layout_width="0dp" android:layout_height="10dp"/>
+
+        <!-- ── RECENT ASSESSMENTS ────────────────────────────── -->
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_semibold"
+            android:text="Recent assessments"
+            android:textColor="#1A2332" android:textSize="15sp"/>
+
+        <Space android:layout_width="0dp" android:layout_height="12dp"/>
+
+        <!-- Empty state (shown when no assessments) -->
+        <androidx.cardview.widget.CardView android:id="@+id/cardNoAssessments"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            app:cardBackgroundColor="#FFFFFF" app:cardCornerRadius="14dp"
+            app:cardElevation="2dp" app:cardUseCompatPadding="true"
+            android:visibility="visible">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:gravity="center" android:orientation="vertical" android:padding="20dp">
+                <ImageView android:layout_width="54dp" android:layout_height="54dp"
+                    android:src="@drawable/home_empty_assessment"
+                    android:scaleType="fitCenter" />
+                <Space android:layout_width="0dp" android:layout_height="8dp"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:fontFamily="@font/inter_semibold"
+                    android:text="No assessments yet"
+                    android:textColor="#6B7B8D" android:textSize="14sp"/>
+                <Space android:layout_width="0dp" android:layout_height="4dp"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:fontFamily="@font/inter_regular" android:gravity="center"
+                    android:text="Complete an assessment to see your results here."
+                    android:textColor="#9EAAB8" android:textSize="12sp"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Assessment list container (shown when assessments exist) -->
+        <LinearLayout android:id="@+id/llAssessments"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:visibility="gone"/>
+
+    </LinearLayout>
+</ScrollView>

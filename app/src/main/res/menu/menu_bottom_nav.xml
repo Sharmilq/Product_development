@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- BottomNavigationBar from home_screen.dart: Check|Scan|Home|Notifications|Profile -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/navCheck" android:icon="@drawable/ic_assignment_outlined" android:title="Check"/>
+    <item android:id="@+id/navScan" android:icon="@drawable/ic_document_scanner" android:title="Scan"/>
+    <item android:id="@+id/navHome" android:icon="@drawable/ic_home_outlined" android:title="Home"/>
+    <item android:id="@+id/navNotifications" android:icon="@drawable/ic_notifications_outlined" android:title="Alerts"/>
+    <item android:id="@+id/navProfile" android:icon="@drawable/ic_person_outlined" android:title="Profile"/>
+</menu>

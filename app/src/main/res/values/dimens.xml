@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="screen_padding">20dp</dimen>
+    <dimen name="card_radius">16dp</dimen>
+    <dimen name="button_radius">12dp</dimen>
+    <dimen name="input_radius">10dp</dimen>
+    <dimen name="chip_radius">20dp</dimen>
+    <dimen name="avatar_size">88dp</dimen>
+    <dimen name="icon_size_small">20dp</dimen>
+    <dimen name="icon_size_medium">24dp</dimen>
+    <dimen name="icon_size_large">40dp</dimen>
+    <dimen name="text_title">22sp</dimen>
+    <dimen name="text_header">18sp</dimen>
+    <dimen name="text_body">14sp</dimen>
+    <dimen name="text_caption">12sp</dimen>
+    <dimen name="text_label">13sp</dimen>
+    <dimen name="bottom_nav_height">64dp</dimen>
+</resources>

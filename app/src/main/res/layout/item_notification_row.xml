@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardBackgroundColor="#FFFFFF" app:cardCornerRadius="12dp"
+    app:cardElevation="2dp" app:cardUseCompatPadding="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="14dp">
+        <TextView android:id="@+id/tvNotifTitle"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_semibold" android:textColor="#1A2332" android:textSize="14sp"/>
+        <TextView android:id="@+id/tvNotifBody"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_regular" android:textColor="#6B7B8D" android:textSize="12sp"/>
+        <TextView android:id="@+id/tvNotifTime"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_regular" android:textColor="#9EAAB8" android:textSize="11sp"/>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

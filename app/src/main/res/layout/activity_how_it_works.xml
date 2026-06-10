@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- how_it_works_screen.dart exact replica -->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:background="#FFFFFF" app:elevation="0dp">
+        <androidx.appcompat.widget.Toolbar android:id="@+id/toolbar"
+            android:layout_width="match_parent" android:layout_height="?attr/actionBarSize"
+            android:background="#FFFFFF" app:title="How DentNova Works"
+            app:titleTextColor="#1A2332"
+            app:navigationIcon="@drawable/ic_arrow_back_ios"/>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:padding="20dp">
+
+            <!-- Hero card: bg=#E8F8FC radius=16dp, sentiment icon 48dp + title + subtitle -->
+            <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/bg_info_card" android:padding="20dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:gravity="center" android:orientation="vertical">
+                    <ImageView android:layout_width="48dp" android:layout_height="48dp"
+                        android:src="@drawable/img_education"
+                        android:scaleType="fitCenter"/>
+                    <Space android:layout_width="0dp" android:layout_height="12dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_bold" android:gravity="center"
+                        android:text="Your pocket dental coach"
+                        android:textColor="#1A2332" android:textSize="20sp"/>
+                    <Space android:layout_width="0dp" android:layout_height="8dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_regular" android:gravity="center"
+                        android:lineSpacingMultiplier="1.5"
+                        android:text="DentNova combines a clinical-style assessment, mock AI scanning and habit reminders into one simple flow."
+                        android:textColor="#6B7B8D" android:textSize="13sp"/>
+                </LinearLayout>
+            </FrameLayout>
+
+            <Space android:layout_width="0dp" android:layout_height="24dp"/>
+
+            <!-- 5 step cards — each is a _StepCard row: circle icon + content card -->
+            <!-- Step 1: icon #3B82F6 bg #EFF6FF -->
+            <include layout="@layout/item_how_it_works_step" android:id="@+id/step1"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"/>
+            <include layout="@layout/item_how_it_works_step" android:id="@+id/step2"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"/>
+            <include layout="@layout/item_how_it_works_step" android:id="@+id/step3"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"/>
+            <include layout="@layout/item_how_it_works_step" android:id="@+id/step4"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"/>
+            <include layout="@layout/item_how_it_works_step" android:id="@+id/step5"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"/>
+            <include
+                layout="@layout/item_how_it_works_step"
+                android:id="@+id/step6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"/>
+            <!-- Project note card: bg=#FFF8E1 border #FFE082 50%, radius=12dp -->
+            <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/bg_note_card" android:padding="14dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_semibold"
+                        android:text="Project note" android:textColor="#1A2332" android:textSize="13sp"/>
+                    <Space android:layout_width="0dp" android:layout_height="6dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_regular" android:lineSpacingMultiplier="1.5"
+                        android:text="This is a clinical prototype — the AI scan\'s simulated for demonstration. The scoring logic, recommendations and badge engine are fully functional."
+                        android:textColor="#6B7B8D" android:textSize="12sp"/>
+                </LinearLayout>
+            </FrameLayout>
+
+            <Space android:layout_width="0dp" android:layout_height="40dp"/>
+        </LinearLayout>
+    </ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,71 @@
+plugins {
+    id 'com.android.application'
+    id 'com.google.gms.google-services'
+}
+
+android {
+    namespace 'com.dentnova.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.dentnova.app"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    // AppCompat, Material, ConstraintLayout
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'com.android.volley:volley:1.2.1'
+
+    // Navigation component
+    implementation 'androidx.navigation:navigation-fragment:2.7.7'
+    implementation 'androidx.navigation:navigation-ui:2.7.7'
+
+
+    // RecyclerView & CardView
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'androidx.cardview:cardview:1.0.0'
+
+    // ViewPager2 (Onboarding)
+    implementation 'androidx.viewpager2:viewpager2:1.1.0'
+
+    // Networking — OkHttp + Gson (replaces dart:http + jsonDecode)
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
+
+    // Image loading — Glide (replaces Image.file / Image.network)
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
+
+    // Local notifications — WorkManager based (replaces flutter_local_notifications)
+    implementation 'androidx.work:work-runtime:2.9.0'
+
+    // SharedPreferences (same concept as Flutter shared_preferences)
+    implementation 'androidx.preference:preference:1.2.1'
+
+    // CircleImageView for avatar
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+
+    // Lottie for animations (replaces Flutter AnimationController)
+    implementation 'com.airbnb.android:lottie:6.4.0'
+
+    // Firebase Authentication & Google Sign-In
+    implementation platform('com.google.firebase:firebase-bom:33.1.0')
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.android.gms:play-services-auth:21.2.0'
+}

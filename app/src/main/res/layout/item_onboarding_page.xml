@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Single onboarding slide: 220dp illus box (bg #E8F8FC, radius=24dp) + title + subtitle -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:gravity="center" android:orientation="vertical"
+    android:paddingStart="32dp" android:paddingEnd="32dp">
+
+    <FrameLayout android:layout_width="220dp" android:layout_height="220dp"
+        android:background="@drawable/bg_onboarding_illus">
+        <ImageView
+            android:id="@+id/ivIllustration"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_gravity="center"
+            android:scaleType="fitCenter" />
+    </FrameLayout>
+
+    <Space android:layout_width="0dp" android:layout_height="40dp"/>
+
+    <TextView android:id="@+id/tvTitle"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:fontFamily="@font/inter_bold" android:gravity="center"
+        android:textColor="#1A2332" android:textSize="24sp"/>
+
+    <Space android:layout_width="0dp" android:layout_height="12dp"/>
+
+    <TextView android:id="@+id/tvSubtitle"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:fontFamily="@font/inter_regular" android:gravity="center"
+        android:lineSpacingMultiplier="1.5"
+        android:textColor="#6B7B8D" android:textSize="14sp"/>
+</LinearLayout>

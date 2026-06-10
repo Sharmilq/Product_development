@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F9FA">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="18dp">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="240dp"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#D7F8FB">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:layout_width="82dp"
+                    android:layout_height="82dp"
+                    android:background="@drawable/bg_white_circle"
+                    android:gravity="center"
+                    android:text="📷"
+                    android:textSize="34sp"/>
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="20dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Scan your teeth"
+                    android:textColor="#1A2332"
+                    android:textSize="20sp"
+                    android:textStyle="bold"/>
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="8dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Take a clear photo of your teeth or upload one. Our AI will analyze it instantly."
+                    android:textColor="#6B7B8D"
+                    android:textSize="14sp"
+                    android:lineSpacingMultiplier="1.25"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <Space android:layout_width="0dp" android:layout_height="24dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCamera"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:text="Open Camera"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:backgroundTint="#00BCD4"
+            app:cornerRadius="22dp"
+            app:icon="@drawable/ic_camera_alt"
+            app:iconTint="#FFFFFF"/>
+
+        <Space android:layout_width="0dp" android:layout_height="14dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnGallery"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:text="Upload from gallery"
+            android:textAllCaps="false"
+            android:textColor="#1A2332"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:cornerRadius="22dp"
+            app:icon="@drawable/ic_upload"
+            app:iconTint="#1A2332"
+            app:strokeColor="#E0E8EF"
+            app:strokeWidth="1dp"/>
+
+        <Space android:layout_width="0dp" android:layout_height="36dp"/>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="1dp"
+            app:cardBackgroundColor="#FFFFFF">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tips for best results"
+                    android:textColor="#1A2332"
+                    android:textSize="14sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="• Use good lighting and a clean background\n• Open your mouth wide and smile\n• Hold the camera steady and close"
+                    android:textColor="#6B7B8D"
+                    android:textSize="13sp"
+                    android:lineSpacingMultiplier="1.25"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="24dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Previous scans"
+            android:textColor="#1A2332"
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="12dp"/>
+
+        <LinearLayout
+            android:id="@+id/llScanHistory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"/>
+
+        <TextView
+            android:id="@+id/tvNoScans"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="18dp"
+            android:text="No previous scans yet"
+            android:textColor="#6B7B8D"
+            android:textSize="14sp"/>
+    </LinearLayout>
+</ScrollView>

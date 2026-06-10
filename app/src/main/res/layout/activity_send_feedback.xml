@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- send_feedback_screen.dart exact replica -->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:background="#FFFFFF" app:elevation="0dp">
+        <androidx.appcompat.widget.Toolbar android:id="@+id/toolbar"
+            android:layout_width="match_parent" android:layout_height="?attr/actionBarSize"
+            android:background="#FFFFFF" app:title="Send feedback" app:titleTextColor="#1A2332"
+            app:navigationIcon="@drawable/ic_arrow_back_ios"/>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:fillViewport="true">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:padding="24dp">
+
+            <Space android:layout_width="0dp" android:layout_height="16dp"/>
+
+            <!-- "How would you rate DentNova?" Inter SemiBold 16sp -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_semibold"
+                android:text="How would you rate DentNova?"
+                android:textColor="#1A2332" android:textSize="16sp"/>
+
+            <Space android:layout_width="0dp" android:layout_height="20dp"/>
+
+            <!-- 5 stars row centered: 44dp each, #FFC107 filled/outline -->
+            <LinearLayout android:id="@+id/llStars"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_vertical" android:orientation="horizontal">
+                <ImageView android:id="@+id/star1" android:layout_width="44dp" android:layout_height="44dp"
+                    android:layout_marginEnd="6dp"
+                    android:src="@drawable/ic_star_filled" android:tint="#FFC107"/>
+                <ImageView android:id="@+id/star2" android:layout_width="44dp" android:layout_height="44dp"
+                    android:layout_marginEnd="6dp"
+                    android:src="@drawable/ic_star_filled" android:tint="#FFC107"/>
+                <ImageView android:id="@+id/star3" android:layout_width="44dp" android:layout_height="44dp"
+                    android:layout_marginEnd="6dp"
+                    android:src="@drawable/ic_star_filled" android:tint="#FFC107"/>
+                <ImageView android:id="@+id/star4" android:layout_width="44dp" android:layout_height="44dp"
+                    android:layout_marginEnd="6dp"
+                    android:src="@drawable/ic_star_filled" android:tint="#FFC107"/>
+                <ImageView android:id="@+id/star5" android:layout_width="44dp" android:layout_height="44dp"
+                    android:src="@drawable/ic_star_filled" android:tint="#FFC107"/>
+            </LinearLayout>
+
+            <Space android:layout_width="0dp" android:layout_height="8dp"/>
+
+            <!-- "We're thrilled! 🎉" shown when rating=5, hidden otherwise -->
+            <TextView android:id="@+id/tvThrilled"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:fontFamily="@font/inter_semibold"
+                android:text="We're thrilled! 🎉"
+                android:textColor="#1A2332" android:textSize="15sp"
+                android:visibility="visible"/>
+
+            <Space android:layout_width="0dp" android:layout_height="28dp"/>
+
+            <!-- "Tell us more (optional)" Inter Medium 14sp -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_medium"
+                android:text="Tell us more (optional)"
+                android:textColor="#1A2332" android:textSize="14sp"/>
+
+            <Space android:layout_width="0dp" android:layout_height="10dp"/>
+
+            <!-- Multiline TextInputLayout, 5 lines, radius=12dp -->
+            <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilFeedback"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:boxCornerRadiusTopStart="12dp" app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp" app:boxCornerRadiusBottomEnd="12dp"
+                app:boxStrokeColor="#E0E8EF" app:boxBackgroundColor="#FFFFFF">
+                <com.google.android.material.textfield.TextInputEditText android:id="@+id/etFeedback"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:hint="What's on your mind?"
+                    android:inputType="textMultiLine" android:minLines="5"
+                    android:gravity="top|start"
+                    android:fontFamily="@font/inter_regular" android:textSize="14sp"
+                    android:padding="14dp"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Space android:layout_width="0dp" android:layout_height="24dp"/>
+
+            <!-- Submit button (shown when not submitted) -->
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnSubmitFeedback"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="Submit feedback" android:textColor="#FFFFFF"
+                android:fontFamily="@font/inter_semibold"
+                android:paddingTop="14dp" android:paddingBottom="14dp"
+                app:icon="@drawable/ic_send_outlined" app:iconTint="#FFFFFF"
+                app:backgroundTint="#00BCD4" app:cornerRadius="12dp" app:elevation="0dp"/>
+
+            <!-- Thank you card (shown after submit, hidden initially) -->
+            <FrameLayout android:id="@+id/cardThankYou"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/bg_info_card"
+                android:padding="24dp" android:visibility="gone">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:gravity="center" android:orientation="vertical">
+                    <!-- 56dp cyan circle with check icon -->
+                    <FrameLayout android:layout_width="56dp" android:layout_height="56dp"
+                        android:background="@drawable/bg_success_circle">
+                        <ImageView android:layout_width="28dp" android:layout_height="28dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_check_white"/>
+                    </FrameLayout>
+                    <Space android:layout_width="0dp" android:layout_height="12dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_bold"
+                        android:text="Thank you!"
+                        android:textColor="#1A2332" android:textSize="18sp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:fontFamily="@font/inter_regular"
+                        android:text="Your feedback helps us improve."
+                        android:textColor="#6B7B8D" android:textSize="13sp"/>
+                </LinearLayout>
+            </FrameLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

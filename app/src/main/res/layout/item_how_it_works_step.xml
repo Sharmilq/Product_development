@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- _StepCard from how_it_works_screen.dart: icon circle + content box -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:gravity="top" android:orientation="horizontal">
+
+    <!-- 44dp circle icon -->
+    <FrameLayout android:id="@+id/flaStepIcon"
+        android:layout_width="44dp" android:layout_height="44dp"
+        android:background="@drawable/tooth_logo">
+        <ImageView android:id="@+id/ivStepIcon"
+            android:layout_width="40dp" android:layout_height="40dp"
+            android:layout_gravity="center"/>
+    </FrameLayout>
+
+    <Space android:layout_width="14dp" android:layout_height="0dp"/>
+
+    <!-- Content card: bg=#F9FAFB radius=12dp padding=14dp -->
+    <FrameLayout android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@drawable/bg_auth_logo_box" android:padding="14dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <!-- "1. Title" row -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:gravity="center_vertical" android:orientation="horizontal">
+                <TextView android:id="@+id/tvStepNumber"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:fontFamily="@font/inter_bold"
+                    android:textSize="14sp"/>
+                <TextView android:id="@+id/tvStepTitle"
+                    android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/inter_bold"
+                    android:textColor="#1A2332" android:textSize="14sp"/>
+            </LinearLayout>
+            <Space android:layout_width="0dp" android:layout_height="4dp"/>
+            <TextView android:id="@+id/tvStepDesc"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_regular"
+                android:lineSpacingMultiplier="1.5"
+                android:textColor="#6B7B8D" android:textSize="12sp"/>
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="320dp" android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_card"
+    android:orientation="vertical" android:padding="24dp" android:gravity="center">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical">
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:fontFamily="@font/inter_bold"
+            android:text="Brushing Timer 🪥" android:textColor="#1A2332" android:textSize="16sp"/>
+        <ImageView
+            android:id="@+id/btnCloseTimer"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/home_brushing_timer"/>
+    </LinearLayout>
+
+    <Space android:layout_width="0dp" android:layout_height="20dp"/>
+
+    <FrameLayout
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_gravity="center_horizontal"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/timerProgress"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:layout_gravity="center"
+            android:progress="100"
+            app:indicatorColor="#00BCD4"
+            app:trackColor="#26000000"
+            app:trackThickness="8dp"
+            app:indicatorSize="140dp"/>
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_gravity="center" android:gravity="center" android:orientation="vertical">
+            <TextView android:id="@+id/tvTimerTime"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_extrabold"
+                android:text="02:00" android:textColor="#1A2332" android:textSize="28sp"/>
+        </LinearLayout>
+    </FrameLayout>
+
+    <Space android:layout_width="0dp" android:layout_height="12dp"/>
+
+    <TextView android:id="@+id/tvTimerHint"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:fontFamily="@font/inter_regular" android:gravity="center"
+        android:text="Ready when you are" android:textColor="#6B7B8D" android:textSize="13sp"/>
+
+    <Space android:layout_width="0dp" android:layout_height="20dp"/>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnResetTimer"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:layout_marginEnd="8dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:text="Reset" android:textColor="#6B7B8D"
+            android:fontFamily="@font/inter_semibold"
+            android:paddingTop="12dp" android:paddingBottom="12dp"
+            app:strokeColor="#E0E8EF" app:cornerRadius="12dp"/>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnStartPause"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Start" android:textColor="#FFFFFF"
+            android:fontFamily="@font/inter_semibold"
+            android:paddingTop="12dp" android:paddingBottom="12dp"
+            app:backgroundTint="#00BCD4" app:cornerRadius="12dp" app:elevation="0dp"/>
+    </LinearLayout>
+</LinearLayout>

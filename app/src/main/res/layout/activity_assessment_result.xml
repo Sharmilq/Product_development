@@ -1,0 +1,657 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F1F5F9"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- ══ TOOLBAR ══ -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#FFFFFF"
+            android:elevation="0dp"
+            app:titleTextColor="#1E293B" />
+
+        <!-- ══ BODY PADDING ══ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- ═══════════════════════════════
+                 1. SCORE CARD
+            ════════════════════════════════ -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_score_card_gradient"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <!-- "ORAL HEALTH SCORE" -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:letterSpacing="0.08"
+                        android:text="ORAL HEALTH SCORE"
+                        android:textColor="#B3FFFFFF"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <!-- Circular progress + number -->
+                    <FrameLayout
+                        android:layout_width="130dp"
+                        android:layout_height="130dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginBottom="12dp">
+
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/scoreProgress"
+                            android:layout_width="130dp"
+                            android:layout_height="130dp"
+                            android:layout_gravity="center"
+                            android:max="100"
+                            android:progress="72"
+                            app:indicatorColor="#10B981"
+                            app:indicatorSize="130dp"
+                            app:trackColor="#26FFFFFF"
+                            app:trackCornerRadius="5dp"
+                            app:trackThickness="10dp" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_marginBottom="2dp"
+                                android:src="@drawable/ic_auto_awesome" />
+
+                            <TextView
+                                android:id="@+id/tvScoreNumber"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="72"
+                                android:textColor="#FFFFFF"
+                                android:textSize="36sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </FrameLayout>
+
+                    <!-- Risk badge pill -->
+                    <TextView
+                        android:id="@+id/tvRiskLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:background="@drawable/bg_pill_red"
+                        android:letterSpacing="0.08"
+                        android:paddingStart="14dp"
+                        android:paddingTop="5dp"
+                        android:paddingEnd="14dp"
+                        android:paddingBottom="5dp"
+                        android:text="RISK"
+                        android:textColor="#FFFFFF"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <!-- Subtitle -->
+                    <TextView
+                        android:id="@+id/tvWhyScore"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:lineSpacingMultiplier="1.4"
+                        android:text="Some areas need attention. Let&#8217;s improve together."
+                        android:textColor="#D9FFFFFF"
+                        android:textSize="13sp" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ═══════════════════════════════
+                 2. ORAL HEALTH RISK SUMMARY
+            ════════════════════════════════ -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:id="@+id/llRiskSummaryContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <!-- Section title -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="14dp"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_marginEnd="8dp"
+                            android:src="@drawable/ic_shield_outlined"
+                            app:tint="#0EA5E9" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Oral Health Risk Summary"
+                            android:textColor="#1E293B"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- High Risk red box -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_rounded_red_light"
+                        android:layout_marginBottom="14dp"
+                        android:orientation="vertical"
+                        android:padding="14dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="8dp"
+                            android:orientation="horizontal">
+
+                            <View
+                                android:layout_width="10dp"
+                                android:layout_height="10dp"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/bg_circle_red" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="High Risk"
+                                android:textColor="#EF4444"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="4 concerns"
+                                android:textColor="#EF4444"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <!-- 4 bullet items -->
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="4dp">
+                            <View android:layout_width="6dp" android:layout_height="6dp" android:background="@drawable/bg_circle_red" android:layout_marginEnd="8dp"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Frequent gum bleeding" android:textColor="#1E293B" android:textSize="13sp"/>
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="4dp">
+                            <View android:layout_width="6dp" android:layout_height="6dp" android:background="@drawable/bg_circle_red" android:layout_marginEnd="8dp"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tooth sensitivity" android:textColor="#1E293B" android:textSize="13sp"/>
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="4dp">
+                            <View android:layout_width="6dp" android:layout_height="6dp" android:background="@drawable/bg_circle_red" android:layout_marginEnd="8dp"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Very high sugar intake" android:textColor="#1E293B" android:textSize="13sp"/>
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                            <View android:layout_width="6dp" android:layout_height="6dp" android:background="@drawable/bg_circle_red" android:layout_marginEnd="8dp"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Occasional tobacco use" android:textColor="#1E293B" android:textSize="13sp"/>
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- Yellow dentist warning box -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_rounded_yellow_light"
+                        android:layout_marginBottom="14dp"
+                        android:orientation="vertical"
+                        android:padding="14dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="6dp"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_marginEnd="8dp"
+                                android:src="@drawable/ic_warning_amber"
+                                app:tint="#F57C00" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="We recommend visiting a dentist soon"
+                                android:textColor="#1E293B"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="10dp"
+                            android:text="Your answers indicate signs that benefit from a professional check-up."
+                            android:textColor="#64748B"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnVisitReminder"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="16dp"
+                            android:paddingTop="8dp"
+                            android:paddingEnd="16dp"
+                            android:paddingBottom="8dp"
+                            android:text="Set visit reminder"
+                            android:textColor="#F57C00"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:backgroundTint="@android:color/transparent"
+                            app:cornerRadius="20dp"
+                            app:strokeColor="#F57C00"
+                            app:strokeWidth="1dp" />
+                    </LinearLayout>
+
+                    <!-- Risk indicators label -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:text="Risk indicators"
+                        android:textColor="#1E293B"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <!-- Chips -->
+                    <com.google.android.material.chip.ChipGroup
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:chipSpacingHorizontal="8dp"
+                        app:chipSpacingVertical="8dp">
+
+                        <com.google.android.material.chip.Chip
+                            style="@style/Widget.MaterialComponents.Chip.Entry"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Good Brushing Habit"
+                            android:textColor="#10B981"
+                            android:textSize="11sp"
+                            app:chipBackgroundColor="#E8F5E9"
+                            app:chipStrokeWidth="0dp" />
+
+                        <com.google.android.material.chip.Chip
+                            style="@style/Widget.MaterialComponents.Chip.Entry"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="High Sugar Intake"
+                            android:textColor="#EF4444"
+                            android:textSize="11sp"
+                            app:chipBackgroundColor="#FFEBEE"
+                            app:chipStrokeWidth="0dp" />
+
+                        <com.google.android.material.chip.Chip
+                            style="@style/Widget.MaterialComponents.Chip.Entry"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Gum Sensitivity"
+                            android:textColor="#F57C00"
+                            android:textSize="11sp"
+                            app:chipBackgroundColor="#FFF3E0"
+                            app:chipStrokeWidth="0dp" />
+
+                        <com.google.android.material.chip.Chip
+                            style="@style/Widget.MaterialComponents.Chip.Entry"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Tooth Sensitivity"
+                            android:textColor="#F57C00"
+                            android:textSize="11sp"
+                            app:chipBackgroundColor="#FFF3E0"
+                            app:chipStrokeWidth="0dp" />
+
+                        <com.google.android.material.chip.Chip
+                            style="@style/Widget.MaterialComponents.Chip.Entry"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Tobacco Use"
+                            android:textColor="#9E9E9E"
+                            android:textSize="11sp"
+                            app:chipBackgroundColor="#F5F5F5"
+                            app:chipStrokeWidth="0dp" />
+
+                    </com.google.android.material.chip.ChipGroup>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ═══════════════════════════════
+                 3. IMPROVEMENT PLAN
+            ════════════════════════════════ -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:id="@+id/llImprovementPlan"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="14dp"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_marginEnd="8dp"
+                            android:src="@drawable/ic_trending_up"
+                            app:tint="#0EA5E9" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Your Improvement Plan"
+                            android:textColor="#1E293B"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- MEDIUM: Floss -->
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="12dp">
+                        <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_orange" android:layout_marginTop="5dp" android:layout_marginEnd="10dp"/>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Floss at least once a day" android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="MEDIUM PRIORITY" android:textColor="#F57C00" android:textSize="10sp" android:textStyle="bold" android:layout_marginTop="2dp"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- HIGH: Soft bristles -->
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="12dp">
+                        <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_red" android:layout_marginTop="5dp" android:layout_marginEnd="10dp"/>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Switch to soft bristles and book a dental check-up for bleeding gums" android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="HIGH PRIORITY" android:textColor="#EF4444" android:textSize="10sp" android:textStyle="bold" android:layout_marginTop="2dp"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- HIGH: Sugar -->
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="12dp">
+                        <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_red" android:layout_marginTop="5dp" android:layout_marginEnd="10dp"/>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Reduce sugary snacks and rinse with water after sweets" android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="HIGH PRIORITY" android:textColor="#EF4444" android:textSize="10sp" android:textStyle="bold" android:layout_marginTop="2dp"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- HIGH: Tobacco -->
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="12dp">
+                        <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_red" android:layout_marginTop="5dp" android:layout_marginEnd="10dp"/>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Cut down on tobacco &#8212; major risk for gums" android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="HIGH PRIORITY" android:textColor="#EF4444" android:textSize="10sp" android:textStyle="bold" android:layout_marginTop="2dp"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- HIGH: Checkup -->
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="12dp">
+                        <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_red" android:layout_marginTop="5dp" android:layout_marginEnd="10dp"/>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Schedule a dental check-up soon" android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="HIGH PRIORITY" android:textColor="#EF4444" android:textSize="10sp" android:textStyle="bold" android:layout_marginTop="2dp"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- MEDIUM: Night guard -->
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                        <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_orange" android:layout_marginTop="5dp" android:layout_marginEnd="10dp"/>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Ask your dentist about a night guard for grinding" android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="MEDIUM PRIORITY" android:textColor="#F57C00" android:textSize="10sp" android:textStyle="bold" android:layout_marginTop="2dp"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ═══════════════════════════════
+                 4. KEY ISSUES
+            ════════════════════════════════ -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:id="@+id/llKeyIssues"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="14dp"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_marginEnd="8dp"
+                            android:src="@drawable/ic_warning_amber"
+                            app:tint="#0EA5E9" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Key issues"
+                            android:textColor="#1E293B"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
+                        <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_orange" android:layout_marginTop="5dp" android:layout_marginEnd="8dp"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Frequent bleeding requires a dental visit." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
+                        <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_orange" android:layout_marginTop="5dp" android:layout_marginEnd="8dp"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="High sugar exposure puts you at high risk for cavities." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
+                        <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_orange" android:layout_marginTop="5dp" android:layout_marginEnd="8dp"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Tobacco stains teeth and harms gums." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
+                        <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_orange" android:layout_marginTop="5dp" android:layout_marginEnd="8dp"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Yearly checkups help catch issues early." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                        <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_orange" android:layout_marginTop="5dp" android:layout_marginEnd="8dp"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Grinding wears enamel; consider a night guard." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ═══════════════════════════════
+                 5. RECOMMENDATIONS
+            ════════════════════════════════ -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:id="@+id/llRecommendations"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="14dp"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_marginEnd="8dp"
+                            android:src="@drawable/ic_check_circle_outline"
+                            app:tint="#0EA5E9" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Recommendations"
+                            android:textColor="#1E293B"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
+                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check" app:tint="#10B981" android:layout_marginTop="2dp" android:layout_marginEnd="8dp"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Bleeding gums detected &#8212; consider booking a dental consultation." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
+                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check" app:tint="#10B981" android:layout_marginTop="2dp" android:layout_marginEnd="8dp"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Cut back on sugar and rinse with water after sweets." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
+                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check" app:tint="#10B981" android:layout_marginTop="2dp" android:layout_marginEnd="8dp"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Tobacco harms your gums and stains teeth &#8212; quitting helps fast." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
+                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check" app:tint="#10B981" android:layout_marginTop="2dp" android:layout_marginEnd="8dp"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Schedule a dental checkup &#8212; early detection prevents bigger issues." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
+                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check" app:tint="#10B981" android:layout_marginTop="2dp" android:layout_marginEnd="8dp"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Brush twice daily for 2 minutes with fluoride toothpaste." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="14dp">
+                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check" app:tint="#10B981" android:layout_marginTop="2dp" android:layout_marginEnd="8dp"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Floss at least once a day to remove plaque between teeth." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                    </LinearLayout>
+
+                    <!-- Red urgent box -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_rounded_red_light_bordered"
+                        android:orientation="horizontal"
+                        android:padding="14dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginEnd="10dp"
+                            android:src="@drawable/ic_favorite_border"
+                            app:tint="#EF4444" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="2dp"
+                                android:text="Please consult a dentist soon"
+                                android:textColor="#EF4444"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:lineSpacingMultiplier="1.4"
+                                android:text="Your symptoms (gum pain or frequent bleeding) need professional attention. Book a check-up."
+                                android:textColor="#64748B"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,29 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- Background circle -->
+    <path
+        android:fillColor="#B2EBF2"
+        android:pathData="M60,10A50,50 0 1,1 60,110A50,50 0 1,1 60,10"/>
+
+    <!-- Tooth -->
+    <path
+        android:fillColor="#00BCD4"
+        android:pathData="M60,30
+            C45,30 38,40 38,55
+            C38,67 44,74 47,84
+            C49,92 50,100 56,100
+            C60,100 60,92 64,92
+            C68,92 68,100 74,100
+            C80,100 81,92 83,84
+            C86,74 92,67 92,55
+            C92,40 75,30 60,30Z"/>
+
+    <!-- Shine -->
+    <path
+        android:fillColor="#E0F7FA"
+        android:pathData="M82,32L85,40L93,43L85,46L82,54L79,46L71,43L79,40Z"/>
+</vector>
