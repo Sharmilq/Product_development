@@ -87,7 +87,7 @@
                 android:layout_weight="1"
                 android:layout_marginStart="10dp"
                 android:fontFamily="@font/inter_regular"
-                android:text="Check your email for a 6-digit code from Supabase. It expires in 1 hour."
+                android:text="Check your email for a 6-digit OTP code. It expires in 5 minutes."
                 android:textColor="#0097A7"
                 android:textSize="12sp" />
         </LinearLayout>

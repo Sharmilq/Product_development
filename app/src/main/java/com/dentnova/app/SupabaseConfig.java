@@ -10,4 +10,7 @@ public class SupabaseConfig {
             SUPABASE_URL + "/rest/v1/";
     public static final String STORAGE_URL =
             SUPABASE_URL + "/storage/v1/";
+
+    /** Render-hosted Node.js backend — OTP password-reset flow lives here */
+    public static final String BACKEND_URL = "https://dentnova-ml.onrender.com";
 }

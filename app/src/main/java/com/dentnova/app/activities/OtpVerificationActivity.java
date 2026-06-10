@@ -136,13 +136,11 @@ public class OtpVerificationActivity extends AppCompatActivity {
 
         executor.execute(() -> {
             try {
-                JsonObject result = ApiService.changePassword(this, newPassword);
+                JsonObject result = ApiService.resetPasswordWithOtp(email, verifiedOtp, newPassword);
                 runOnUiThread(() -> {
                     progress.dismiss();
                     if (result.has("success") && result.get("success").getAsBoolean()) {
                         Toast.makeText(this, R.string.otp_reset_success, Toast.LENGTH_LONG).show();
-                        // Clear the temporary reset password session
-                        new com.dentnova.app.utils.SessionManager(this).clearSession();
                         // Exit back to AuthActivity login screen
                         finish();
                     } else {

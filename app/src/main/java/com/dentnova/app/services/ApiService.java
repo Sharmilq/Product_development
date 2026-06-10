@@ -125,69 +125,75 @@ public class ApiService {
 
         return result;
     }
-    //forget password
-    public static JsonObject forgotPassword(String email)
-            throws IOException {
-
-        JsonObject result = new JsonObject();
-
-        // check user exists
-        Request checkReq = new Request.Builder()
-                .url(
-                        SupabaseConfig.REST_URL +
-                                "users?email=eq." + email
-                )
-                .get()
-                .headers(supabaseHeaders())
-                .build();
-
-        String checkRaw =
-                client.newCall(checkReq)
-                        .execute()
-                        .body()
-                        .string();
-
-        JsonArray users =
-                gson.fromJson(
-                        checkRaw,
-                        JsonArray.class
-                );
-
-        if (users.size() == 0) {
-
-            result.addProperty("success", false);
-
-            result.addProperty(
-                    "message",
-                    "Please create an account first"
-            );
-
-            return result;
-        }
-
+    // ── Forgot Password → Backend OTP Flow ─────────────────────────────────
+    // Calls the Render backend which emails a 6-digit OTP (hashed server-side).
+    // NEVER calls Supabase /auth/v1/recover or exposes service_role key.
+    public static JsonObject forgotPassword(String email) throws IOException {
         JsonObject body = new JsonObject();
         body.addProperty("email", email);
 
         Request req = new Request.Builder()
-                .url(SUPABASE_AUTH_URL + "/recover")
+                .url(SupabaseConfig.BACKEND_URL + "/auth/request-password-otp")
                 .post(RequestBody.create(body.toString(), JSON))
-                .addHeader("apikey", SupabaseConfig.SUPABASE_ANON_KEY)
                 .addHeader("Content-Type", "application/json")
                 .build();
 
-        String raw =
-                client.newCall(req)
-                        .execute()
-                        .body()
-                        .string();
+        String raw = client.newCall(req).execute().body().string();
+        android.util.Log.d("OTP_REQUEST", "request-password-otp response: " + raw);
 
-        result.addProperty(
-                "success",
-                !raw.contains("error")
-        );
+        JsonObject data = gson.fromJson(raw, JsonObject.class);
+        JsonObject result = new JsonObject();
+        boolean success = data.has("success") && data.get("success").getAsBoolean();
+        result.addProperty("success", success);
+        result.addProperty("message", data.has("message") ? data.get("message").getAsString() : "");
+        return result;
+    }
 
-        result.addProperty("message", raw);
+    // ── Verify OTP (Backend) ── verifyPasswordOtp() ──────────────────────────
+    public static JsonObject verifyPasswordOtp(String email, String otp) throws IOException {
+        JsonObject body = new JsonObject();
+        body.addProperty("email", email);
+        body.addProperty("otp", otp);
 
+        Request req = new Request.Builder()
+                .url(SupabaseConfig.BACKEND_URL + "/auth/verify-password-otp")
+                .post(RequestBody.create(body.toString(), JSON))
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        String raw = client.newCall(req).execute().body().string();
+        android.util.Log.d("OTP_VERIFY", "verify-password-otp response: " + raw);
+
+        JsonObject data = gson.fromJson(raw, JsonObject.class);
+        JsonObject result = new JsonObject();
+        boolean success = data.has("success") && data.get("success").getAsBoolean();
+        result.addProperty("success", success);
+        result.addProperty("message", data.has("message") ? data.get("message").getAsString() : "");
+        return result;
+    }
+
+    // ── Reset Password with OTP (Backend) ── resetPasswordWithOtp() ──────────
+    public static JsonObject resetPasswordWithOtp(String email, String otp, String newPassword)
+            throws IOException {
+        JsonObject body = new JsonObject();
+        body.addProperty("email", email);
+        body.addProperty("otp", otp);
+        body.addProperty("newPassword", newPassword);
+
+        Request req = new Request.Builder()
+                .url(SupabaseConfig.BACKEND_URL + "/auth/reset-password-with-otp")
+                .post(RequestBody.create(body.toString(), JSON))
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        String raw = client.newCall(req).execute().body().string();
+        android.util.Log.d("OTP_RESET", "reset-password-with-otp response: " + raw);
+
+        JsonObject data = gson.fromJson(raw, JsonObject.class);
+        JsonObject result = new JsonObject();
+        boolean success = data.has("success") && data.get("success").getAsBoolean();
+        result.addProperty("success", success);
+        result.addProperty("message", data.has("message") ? data.get("message").getAsString() : "");
         return result;
     }
     // ── Login ── ApiService.login() ────────────────────────────────────────
@@ -1083,54 +1089,9 @@ public static JsonObject predictToothScan(
         return result;
     }
 
-    // ── Native Supabase OTP Verification for Reset Password ─────────────────
+    // ── Custom Backend OTP Verification for Reset Password ─────────────────
     public static JsonObject verifyResetOtp(Context ctx, String email, String token) throws IOException {
-        JsonObject body = new JsonObject();
-        body.addProperty("type", "recovery");
-        body.addProperty("email", email);
-        body.addProperty("token", token);
-
-        Request req = new Request.Builder()
-                .url(SUPABASE_AUTH_URL + "/verify")
-                .post(RequestBody.create(body.toString(), JSON))
-                .addHeader("apikey", SupabaseConfig.SUPABASE_ANON_KEY)
-                .addHeader("Content-Type", "application/json")
-                .build();
-
-        String raw = client.newCall(req).execute().body().string();
-        JsonObject data = gson.fromJson(raw, JsonObject.class);
-        JsonObject result = new JsonObject();
-
-        if (data.has("access_token")) {
-            String accessToken = data.get("access_token").getAsString();
-            JsonObject user = data.getAsJsonObject("user");
-            String userId = user.get("id").getAsString();
-            int localUserId = userId.hashCode();
-            if (localUserId < 0) {
-                localUserId = -localUserId;
-            }
-            String userName = "";
-            if (user.has("user_metadata")) {
-                JsonObject meta = user.getAsJsonObject("user_metadata");
-                if (meta.has("name")) {
-                    userName = meta.get("name").getAsString();
-                }
-            }
-
-            // Save session temporarily to SharedPreferences
-            new SessionManager(ctx).saveSession(localUserId, accessToken, userName, email);
-            result.addProperty("success", true);
-        } else {
-            result.addProperty("success", false);
-            String errMsg = "Invalid or expired OTP code";
-            if (data.has("error_description")) {
-                errMsg = data.get("error_description").getAsString();
-            } else if (data.has("message")) {
-                errMsg = data.get("message").getAsString();
-            }
-            result.addProperty("message", errMsg);
-        }
-        return result;
+        return verifyPasswordOtp(email, token);
     }
 
     public static class SupabaseLoggingInterceptor implements Interceptor {

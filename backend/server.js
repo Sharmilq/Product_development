@@ -3,6 +3,7 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 const { createClient } = require('@supabase/supabase-js');
 const admin = require('firebase-admin');
+const crypto = require('crypto');
 require('dotenv').config();
 
 const app = express();
@@ -255,6 +256,239 @@ app.post('/api/otp/reset-password', async (req, res) => {
   } catch (error) {
     console.error('Error resetting password:', error);
     res.status(500).json({ success: false, message: 'Failed to update password.' });
+  }
+});
+
+// ── NEW: Custom Password-Reset OTP Flow ─────────────────────────────────────
+// These endpoints replace the Supabase /auth/v1/recover link flow.
+// The Android app ONLY calls these — it never touches service_role APIs.
+
+// Simple in-memory rate limiter: max 3 OTP requests per email per 15 minutes.
+const otpRateLimit = new Map(); // email -> { count, windowStart }
+function isRateLimited(email) {
+  const now = Date.now();
+  const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+  const MAX_REQUESTS = 3;
+  const entry = otpRateLimit.get(email);
+  if (!entry || now - entry.windowStart > WINDOW_MS) {
+    otpRateLimit.set(email, { count: 1, windowStart: now });
+    return false;
+  }
+  if (entry.count >= MAX_REQUESTS) return true;
+  entry.count++;
+  return false;
+}
+
+function sha256(text) {
+  return crypto.createHash('sha256').update(text).digest('hex');
+}
+
+/**
+ * POST /auth/request-password-otp
+ * Body: { "email": "user@example.com" }
+ * Generates a 6-digit OTP, hashes it, stores it with 5-min expiry, sends email.
+ */
+app.post('/auth/request-password-otp', async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ success: false, message: 'Email is required' });
+  }
+
+  // Rate limit check
+  if (isRateLimited(email)) {
+    return res.status(429).json({ success: false, message: 'Too many requests. Please wait 15 minutes before requesting another OTP.' });
+  }
+
+  try {
+    // Check user exists in users table (do not reveal if not found in error msg)
+    const { data: userRows } = await supabase
+      .from('users')
+      .select('email')
+      .eq('email', email)
+      .limit(1);
+
+    // Always respond success to avoid email enumeration — but only send email if user exists
+    const userExists = userRows && userRows.length > 0;
+
+    if (userExists) {
+      // Generate secure 6-digit OTP
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const otpHash = sha256(otp);
+      const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 minutes
+
+      // Upsert into password_reset_otps table
+      const { error: dbError } = await supabase
+        .from('password_reset_otps')
+        .upsert(
+          { email, otp_hash: otpHash, expires_at: expiresAt, used: false },
+          { onConflict: 'email' }
+        );
+
+      if (dbError) {
+        console.error('[OTP] DB error storing OTP:', dbError);
+        return res.status(500).json({ success: false, message: 'Server error. Please try again.' });
+      }
+
+      // Send email
+      const mailOptions = {
+        from: `"DentNova" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+        to: email,
+        subject: 'Your DentNova Password Reset Code',
+        html: `
+          <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;border:1px solid #E0E8EF;border-radius:12px;">
+            <h2 style="color:#00BCD4;text-align:center;margin-top:0;">🦷 DentNova Password Reset</h2>
+            <p>Hello,</p>
+            <p>We received a request to reset your DentNova password. Use the code below — it expires in <strong>5 minutes</strong>.</p>
+            <div style="text-align:center;margin:28px 0;">
+              <span style="display:inline-block;font-size:36px;font-weight:bold;letter-spacing:8px;color:#1A2332;background:#F5F9FA;padding:12px 28px;border-radius:10px;border:2px dashed #00BCD4;">${otp}</span>
+            </div>
+            <p style="font-size:13px;color:#888;">If you did not request this, you can safely ignore this email. Your password will not change.</p>
+            <p style="font-size:13px;color:#888;">— The DentNova Team</p>
+          </div>
+        `
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log(`[OTP] Sent password-reset OTP to ${email}`);
+    } else {
+      console.log(`[OTP] Password reset requested for unknown email: ${email} — no email sent.`);
+    }
+
+    // Always return success to avoid email enumeration
+    res.status(200).json({ success: true, message: 'If this email is registered, you will receive a 6-digit OTP shortly.' });
+  } catch (err) {
+    console.error('[OTP] Error in request-password-otp:', err);
+    res.status(500).json({ success: false, message: 'Failed to send OTP. Please try again.' });
+  }
+});
+
+/**
+ * POST /auth/verify-password-otp
+ * Body: { "email": "user@example.com", "otp": "123456" }
+ * Checks OTP hash match and expiry. Does NOT invalidate OTP yet.
+ */
+app.post('/auth/verify-password-otp', async (req, res) => {
+  const { email, otp } = req.body;
+  if (!email || !otp) {
+    return res.status(400).json({ success: false, message: 'Email and OTP are required' });
+  }
+
+  try {
+    const { data: records, error } = await supabase
+      .from('password_reset_otps')
+      .select('*')
+      .eq('email', email)
+      .limit(1);
+
+    if (error || !records || records.length === 0) {
+      return res.status(400).json({ success: false, message: 'No OTP request found for this email. Please request a new code.' });
+    }
+
+    const record = records[0];
+
+    if (record.used) {
+      return res.status(400).json({ success: false, message: 'This OTP has already been used. Please request a new one.' });
+    }
+
+    if (new Date() > new Date(record.expires_at)) {
+      await supabase.from('password_reset_otps').delete().eq('email', email);
+      return res.status(400).json({ success: false, message: 'OTP has expired. Please request a new code.' });
+    }
+
+    const otpHash = sha256(otp);
+    if (record.otp_hash !== otpHash) {
+      return res.status(400).json({ success: false, message: 'Invalid OTP code. Please check and try again.' });
+    }
+
+    console.log(`[OTP] OTP verified for ${email}`);
+    res.status(200).json({ success: true, message: 'OTP verified successfully' });
+  } catch (err) {
+    console.error('[OTP] Error in verify-password-otp:', err);
+    res.status(500).json({ success: false, message: 'Server error during verification.' });
+  }
+});
+
+/**
+ * POST /auth/reset-password-with-otp
+ * Body: { "email": "user@example.com", "otp": "123456", "newPassword": "abc123" }
+ * Re-verifies OTP, updates password in Supabase auth, marks OTP as used.
+ */
+app.post('/auth/reset-password-with-otp', async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  if (!email || !otp || !newPassword) {
+    return res.status(400).json({ success: false, message: 'email, otp and newPassword are required' });
+  }
+  if (newPassword.length < 6) {
+    return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
+  }
+
+  try {
+    // Re-verify OTP
+    const { data: records, error } = await supabase
+      .from('password_reset_otps')
+      .select('*')
+      .eq('email', email)
+      .limit(1);
+
+    if (error || !records || records.length === 0) {
+      return res.status(400).json({ success: false, message: 'OTP not found. Please request a new code.' });
+    }
+
+    const record = records[0];
+
+    if (record.used) {
+      return res.status(400).json({ success: false, message: 'OTP already used. Please request a new one.' });
+    }
+
+    if (new Date() > new Date(record.expires_at)) {
+      await supabase.from('password_reset_otps').delete().eq('email', email);
+      return res.status(400).json({ success: false, message: 'OTP expired. Please request a new code.' });
+    }
+
+    const otpHash = sha256(otp);
+    if (record.otp_hash !== otpHash) {
+      return res.status(400).json({ success: false, message: 'Invalid OTP.' });
+    }
+
+    // Update Supabase auth password using service role (admin)
+    const { data: listData, error: listError } = await supabase.auth.admin.listUsers();
+    if (listError) throw listError;
+
+    const supabaseUser = listData.users.find(u => u.email === email);
+    if (!supabaseUser) {
+      return res.status(404).json({ success: false, message: 'User account not found in auth system.' });
+    }
+
+    const { error: updateError } = await supabase.auth.admin.updateUserById(
+      supabaseUser.id,
+      { password: newPassword }
+    );
+    if (updateError) throw updateError;
+
+    // Mark OTP as used
+    await supabase
+      .from('password_reset_otps')
+      .update({ used: true })
+      .eq('email', email);
+
+    // Also update Firebase if initialized
+    try {
+      if (admin.apps.length > 0) {
+        const fbUser = await admin.auth().getUserByEmail(email);
+        if (fbUser) {
+          await admin.auth().updateUser(fbUser.uid, { password: newPassword });
+          console.log(`[OTP] Firebase password updated for ${email}`);
+        }
+      }
+    } catch (fbErr) {
+      console.warn('[OTP] Firebase update skipped:', fbErr.message);
+    }
+
+    console.log(`[OTP] Password reset complete for ${email}`);
+    res.status(200).json({ success: true, message: 'Password updated successfully. Please sign in.' });
+  } catch (err) {
+    console.error('[OTP] Error in reset-password-with-otp:', err);
+    res.status(500).json({ success: false, message: 'Failed to update password. Please try again.' });
   }
 });
 
