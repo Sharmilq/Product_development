@@ -12,7 +12,20 @@
           "package_name": "com.dentnova.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "239143893960-9debm3sbkg3dvklinfgejjkglq2pl9g7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dentnova.app",
+            "certificate_hash": "a9a1e0737796df98c0d12127c1eea2f17d7dfc7f"
+          }
+        },
+        {
+          "client_id": "239143893960-nscb41t1a01he1vja4vpq8sfakl2f1lv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAKZOl96CBL1oaVquEVoz0MAh8t5eG70b4"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "239143893960-nscb41t1a01he1vja4vpq8sfakl2f1lv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
