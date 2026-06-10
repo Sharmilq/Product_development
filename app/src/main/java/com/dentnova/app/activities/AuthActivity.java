@@ -71,10 +71,11 @@ public class AuthActivity extends AppCompatActivity {
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 
-        // Configure Google Sign-In
+        // Configure Google Sign-In — requestProfile() forces fresh account chooser
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
+                .requestProfile()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
@@ -82,24 +83,47 @@ public class AuthActivity extends AppCompatActivity {
         googleSignInLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    if (result.getResultCode() == RESULT_OK) {
-                        Intent data = result.getData();
-                        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                    // Re-enable the Google button regardless of outcome
+                    View btnG = findViewById(R.id.btnGoogle);
+                    if (btnG != null) btnG.setEnabled(true);
+
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Task<GoogleSignInAccount> task =
+                                GoogleSignIn.getSignedInAccountFromIntent(result.getData());
                         try {
                             GoogleSignInAccount account = task.getResult(ApiException.class);
                             if (account != null) {
-                                android.util.Log.d("GOOGLE_SIGN_IN", "Google Sign-In account selection success: " + account.getEmail());
-                                firebaseAuthWithGoogle(account.getIdToken());
+                                String idToken = account.getIdToken();
+                                if (idToken == null || idToken.isEmpty()) {
+                                    android.util.Log.e("GOOGLE_AUTH_FAILED", "Google ID Token is null or empty");
+                                    Toast.makeText(this, "Google ID Token is missing. Authentication aborted.", Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+                                android.util.Log.d("GOOGLE_AUTH_SUCCESS", "GOOGLE_AUTH_SUCCESS");
+                                android.util.Log.d("GOOGLE_AUTH_SUCCESS",
+                                        "Account selected: " + account.getEmail());
+                                firebaseAuthWithGoogle(idToken);
                             } else {
-                                android.util.Log.e("GOOGLE_SIGN_IN", "Google Sign-In account chooser returned null account.");
-                                Toast.makeText(this, "Google Sign-In failed: Account is null", Toast.LENGTH_LONG).show();
+                                android.util.Log.e("GOOGLE_AUTH_FAILED",
+                                        "Account chooser returned null account.");
+                                Toast.makeText(this,
+                                        "Google Sign-In failed: no account returned.",
+                                        Toast.LENGTH_LONG).show();
                             }
                         } catch (ApiException e) {
-                            android.util.Log.e("GOOGLE_SIGN_IN", "Google Sign-In account selection failed: " + e.getMessage(), e);
-                            Toast.makeText(this, "Google Sign-In failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            android.util.Log.e("GOOGLE_AUTH_FAILED",
+                                    "ApiException code=" + e.getStatusCode() + " msg=" + e.getMessage(), e);
+                            Toast.makeText(this,
+                                    "Google Sign-In failed (code " + e.getStatusCode() + ").",
+                                    Toast.LENGTH_LONG).show();
                         }
                     } else {
-                        android.util.Log.w("GOOGLE_SIGN_IN", "Google Sign-In chooser closed or failed. Result Code: " + result.getResultCode());
+                        // User cancelled the chooser — stay on AuthActivity
+                        android.util.Log.w("GOOGLE_AUTH_FAILED",
+                                "Google chooser cancelled or closed. ResultCode=" + result.getResultCode());
+                        Toast.makeText(this,
+                                "Google Sign-In cancelled.",
+                                Toast.LENGTH_SHORT).show();
                     }
                 }
         );
@@ -224,7 +248,7 @@ public class AuthActivity extends AppCompatActivity {
                         progress.dismiss();
                         Toast.makeText(
                                 this,
-                                "Failed to send reset link. Please check connection.",
+                                "Failed to connect: " + e.getMessage(),
                                 Toast.LENGTH_LONG
                         ).show();
                     });
@@ -235,14 +259,31 @@ public class AuthActivity extends AppCompatActivity {
         View btnGoogle = findViewById(R.id.btnGoogle);
         if (btnGoogle != null) {
             btnGoogle.setOnClickListener(v -> {
-                android.util.Log.d("GOOGLE_SIGN_IN", "Google Sign-In flow started. Clearing Firebase and Google sessions first...");
-                // Clear previous Firebase session
+                android.util.Log.d("GOOGLE_BUTTON_CLICKED",
+                        "Google Sign-In button tapped. Starting full session clear...");
+
+                // Step 1 — disable button to prevent double-tap
+                btnGoogle.setEnabled(false);
+
+                // Step 2 — sign out of Firebase (synchronous)
+                android.util.Log.d("GOOGLE_SIGN_OUT_STARTED", "Signing out of Firebase Auth...");
                 mAuth.signOut();
-                // Clear previous Google Sign-In session to force account chooser
-                mGoogleSignInClient.signOut().addOnCompleteListener(this, task -> {
-                    android.util.Log.d("GOOGLE_SIGN_IN", "GoogleSignInClient signed out successfully. Launching Google account chooser.");
-                    Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-                    googleSignInLauncher.launch(signInIntent);
+
+                // Step 3 — sign out of Google, then revoke access to force chooser
+                mGoogleSignInClient.signOut().addOnCompleteListener(this, signOutTask -> {
+                    android.util.Log.d("GOOGLE_SIGN_OUT_STARTED",
+                            "Google signOut complete. Revoking access to force account chooser...");
+
+                    mGoogleSignInClient.revokeAccess().addOnCompleteListener(this, revokeTask -> {
+                        android.util.Log.d("GOOGLE_REVOKE_COMPLETED",
+                                "Google revokeAccess complete. Launching account chooser now.");
+
+                        // Step 4 — launch account chooser ONLY after revoke completes
+                        android.util.Log.d("GOOGLE_CHOOSER_LAUNCHED",
+                                "getSignInIntent() called — account chooser should appear.");
+                        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+                        googleSignInLauncher.launch(signInIntent);
+                    });
                 });
             });
         }
@@ -330,9 +371,10 @@ public class AuthActivity extends AppCompatActivity {
     }
 
     private void firebaseAuthWithGoogle(String idToken) {
-        android.util.Log.d("GOOGLE_SIGN_IN", "Starting Firebase Auth with Google Credential...");
+        android.util.Log.d("GOOGLE_AUTH_SUCCESS",
+                "Starting Firebase Auth with Google credential...");
         ProgressDialog progress = new ProgressDialog(this);
-        progress.setMessage("Authenticating with Firebase...");
+        progress.setMessage("Authenticating with Google...");
         progress.setCancelable(false);
         progress.show();
 
@@ -342,68 +384,117 @@ public class AuthActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
-                            android.util.Log.d("GOOGLE_SIGN_IN", "Firebase Auth successful for Google user: " + user.getEmail());
+                            android.util.Log.d("FIREBASE_USER_NULL_CHECK_PASSED", "FIREBASE_USER_NULL_CHECK_PASSED");
                             syncGoogleUserWithSupabase(user, progress);
                         } else {
                             progress.dismiss();
-                            android.util.Log.e("GOOGLE_SIGN_IN", "Firebase Auth succeeded, but FirebaseUser is null.");
-                            Toast.makeText(this, "Authentication failed. User is null.", Toast.LENGTH_LONG).show();
+                            android.util.Log.e("GOOGLE_AUTH_FAILED",
+                                    "Firebase signInWithCredential succeeded but getCurrentUser() is null.");
+                            Toast.makeText(this,
+                                    "Authentication error: user is null. Please try again.",
+                                    Toast.LENGTH_LONG).show();
                         }
                     } else {
                         progress.dismiss();
                         Exception e = task.getException();
-                        android.util.Log.e("GOOGLE_SIGN_IN", "Firebase Auth failed: " + (e != null ? e.getMessage() : "unknown exception"), e);
-                        Toast.makeText(this, "Firebase authentication failed.", Toast.LENGTH_LONG).show();
+                        android.util.Log.e("GOOGLE_AUTH_FAILED",
+                                "Firebase Auth failed: " + (e != null ? e.getMessage() : "unknown"), e);
+                        Toast.makeText(this,
+                                "Google authentication failed. Please try again.",
+                                Toast.LENGTH_LONG).show();
                     }
                 });
     }
 
     private void syncGoogleUserWithSupabase(FirebaseUser user, ProgressDialog progress) {
-        android.util.Log.d("GOOGLE_SIGN_IN", "Syncing Google user with Supabase table: " + user.getEmail());
-        progress.setMessage("Syncing profile with Supabase...");
+        progress.setMessage("Syncing profile...");
 
-        String photoUrl = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "";
+        // Null safety checks before using firebaseUser values
+        String email = user.getEmail();
+        String uid = user.getUid();
+        String displayName = user.getDisplayName();
+        android.net.Uri photoUri = user.getPhotoUrl();
+        String photoUrl = photoUri != null ? photoUri.toString() : "";
+
+        if (uid == null || uid.isEmpty()) {
+            progress.dismiss();
+            android.util.Log.e("GOOGLE_AUTH_FAILED", "Firebase UID is null or empty.");
+            Toast.makeText(this, "Firebase UID is missing. Google Sign-In aborted.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (email == null || email.isEmpty()) {
+            progress.dismiss();
+            android.util.Log.e("GOOGLE_AUTH_FAILED", "Firebase email is null or empty.");
+            Toast.makeText(this, "Firebase email is missing. Google Sign-In aborted.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // If optional fields are null, handle gracefully
+        if (displayName == null) {
+            displayName = "";
+        }
+
+        android.util.Log.d("SUPABASE_SYNC_STARTED", "SUPABASE_SYNC_STARTED");
+
+        final String finalEmail = email;
+        final String finalUid = uid;
+        final String finalDisplayName = displayName;
+        final String finalPhotoUrl = photoUrl;
 
         executor.execute(() -> {
             try {
                 JsonObject result = ApiService.syncGoogleUserWithSupabase(
                         this,
-                        user.getDisplayName(),
-                        user.getEmail(),
-                        user.getUid(),
-                        photoUrl
+                        finalDisplayName,
+                        finalEmail,
+                        finalUid,
+                        finalPhotoUrl
                 );
+
+                android.util.Log.d("SUPABASE_SYNC_RESPONSE", "SUPABASE_SYNC_RESPONSE");
+
                 runOnUiThread(() -> {
                     progress.dismiss();
-                    if (result.has("success") && result.get("success").getAsBoolean()) {
-                        int localUserId = result.get("user_id").getAsInt();
-                        String displayName = result.get("name").getAsString();
+                    if (result != null && result.has("success") && result.get("success").getAsBoolean()) {
+                        int localUserId = result.has("user_id") && !result.get("user_id").isJsonNull() ? result.get("user_id").getAsInt() : -1;
+                        String nameStr = result.has("name") && !result.get("name").isJsonNull() ? result.get("name").getAsString() : finalDisplayName;
 
-                        // Save session — use Firebase UID as token for Google sign-in users
+                        android.util.Log.d("SESSION_SAVE_STARTED", "SESSION_SAVE_STARTED");
+
                         new com.dentnova.app.utils.SessionManager(this).saveSession(
                                 localUserId,
-                                user.getUid(),
-                                displayName,
-                                user.getEmail()
+                                finalUid,
+                                nameStr,
+                                finalEmail
                         );
 
-                        android.util.Log.d("GOOGLE_SIGN_IN", "Google user successfully synced with Supabase. User ID = " + localUserId);
+                        android.util.Log.d("SESSION_SAVE_SUCCESS", "SESSION_SAVE_SUCCESS");
+
                         Toast.makeText(this, "Signed in with Google! 👋", Toast.LENGTH_SHORT).show();
 
-                        // Navigate to Home
-                        startActivity(new Intent(this, HomeActivity.class));
+                        android.util.Log.d("HOME_NAVIGATION_STARTED", "HOME_NAVIGATION_STARTED");
+
+                        Intent home = new Intent(AuthActivity.this, HomeActivity.class);
+                        home.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(home);
+
+                        android.util.Log.d("HOME_NAVIGATION_SUCCESS", "HOME_NAVIGATION_SUCCESS");
                         finish();
                     } else {
-                        String msg = result.has("message") ? result.get("message").getAsString() : "Failed to sync profile with Supabase.";
-                        android.util.Log.e("GOOGLE_SIGN_IN", "Supabase profile sync failed: " + msg);
+                        String msg = (result != null && result.has("message"))
+                                ? result.get("message").getAsString()
+                                : "Failed to sync profile with Supabase.";
+                        android.util.Log.e("SUPABASE_SYNC_FAILED", "Supabase sync FAILED: " + msg);
                         Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
                     }
                 });
             } catch (Exception e) {
-                android.util.Log.e("GOOGLE_SIGN_IN", "Error syncing Google user with Supabase", e);
+                android.util.Log.e("SUPABASE_SYNC_FAILED", "Exception during Supabase sync", e);
                 runOnUiThread(() -> {
                     progress.dismiss();
-                    Toast.makeText(this, "Failed to connect to Supabase. Check your network.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this,
+                            "Network error. Could not connect to Supabase.",
+                            Toast.LENGTH_LONG).show();
                 });
             }
         });

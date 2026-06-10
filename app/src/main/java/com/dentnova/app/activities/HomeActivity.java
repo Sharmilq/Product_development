@@ -83,6 +83,10 @@ public class HomeActivity extends AppCompatActivity {
     // ── Load all data (replicates initState() calls) ──────────────────────
     private void loadData() {
         executor.execute(() -> {
+            int userId = new SessionManager(this).getUserId();
+            String email = new SessionManager(this).getEmail();
+            android.util.Log.d("CURRENT_USER_ID", "CURRENT_USER_ID: " + userId);
+            android.util.Log.d("CURRENT_USER_EMAIL", "CURRENT_USER_EMAIL: " + email);
 
             try {
                 JsonObject profileResponse = ApiService.getProfile(this);
@@ -127,7 +131,7 @@ public class HomeActivity extends AppCompatActivity {
 
                         getSharedPreferences("dentnova_prefs", MODE_PRIVATE)
                                 .edit()
-                                .putString("home_visit_date", latest.get("visit_date").getAsString())
+                                .putString("home_visit_date_" + userId, latest.get("visit_date").getAsString())
                                 .apply();
                     }
                 }
@@ -207,22 +211,37 @@ public class HomeActivity extends AppCompatActivity {
             String photoUrl = profile.get("photo_url").getAsString();
 
             if (!photoUrl.trim().isEmpty()) {
+                if (photoUrl.startsWith("http://") || photoUrl.startsWith("https://")) {
+                    try {
+                        Glide.with(HomeActivity.this)
+                                .load(photoUrl)
+                                .into(civAvatar);
+                    } catch (Exception e) {
+                        android.util.Log.e("HomeActivity", "Error loading photo URL via Glide", e);
+                    }
+                } else {
+                    try {
+                        byte[] decoded =
+                                android.util.Base64.decode(
+                                        photoUrl,
+                                        android.util.Base64.DEFAULT
+                                    );
 
-                byte[] decoded =
-                        android.util.Base64.decode(
-                                photoUrl,
-                                android.util.Base64.DEFAULT
-                        );
+                        android.graphics.Bitmap bmp =
+                                android.graphics.BitmapFactory
+                                        .decodeByteArray(
+                                                decoded,
+                                                0,
+                                                decoded.length
+                                        );
 
-                android.graphics.Bitmap bmp =
-                        android.graphics.BitmapFactory
-                                .decodeByteArray(
-                                        decoded,
-                                        0,
-                                        decoded.length
-                                );
-
-                civAvatar.setImageBitmap(bmp);
+                        civAvatar.setImageBitmap(bmp);
+                    } catch (IllegalArgumentException e) {
+                        android.util.Log.e("HomeActivity", "Bad Base64 photo_url", e);
+                    } catch (Exception e) {
+                        android.util.Log.e("HomeActivity", "Error decoding Base64 photo", e);
+                    }
+                }
             }
         }
 
@@ -260,13 +279,13 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             if (tvNextVisit != null) {
-
+                int userId = new SessionManager(HomeActivity.this).getUserId();
                 String visit =
                         getSharedPreferences(
                                 "dentnova_prefs",
                                 MODE_PRIVATE
                         ).getString(
-                                "home_visit_date",
+                                "home_visit_date_" + userId,
                                 "—"
                         );
 

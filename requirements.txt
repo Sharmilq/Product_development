@@ -7,3 +7,4 @@ joblib
 catboost
 gunicorn
 pillow
+requests

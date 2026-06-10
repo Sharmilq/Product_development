@@ -125,76 +125,178 @@ public class ApiService {
 
         return result;
     }
-    // ── Forgot Password → Backend OTP Flow ─────────────────────────────────
-    // Calls the Render backend which emails a 6-digit OTP (hashed server-side).
-    // NEVER calls Supabase /auth/v1/recover or exposes service_role key.
+    // ── Forgot Password → Render Custom OTP Flow ─────────────────────────────
+    // Calls Render backend /auth/request-password-otp
     public static JsonObject forgotPassword(String email) throws IOException {
+        android.util.Log.d("REQUEST_OTP", "Email entered: " + email);
         JsonObject body = new JsonObject();
         body.addProperty("email", email);
 
+        String url = SupabaseConfig.BACKEND_URL + "/auth/request-password-otp";
+        android.util.Log.d("REQUEST_OTP", "Request URL: " + url);
+        android.util.Log.d("REQUEST_OTP", "HTTP method: POST");
+
         Request req = new Request.Builder()
-                .url(SupabaseConfig.BACKEND_URL + "/auth/request-password-otp")
+                .url(url)
                 .post(RequestBody.create(body.toString(), JSON))
                 .addHeader("Content-Type", "application/json")
                 .build();
 
-        String raw = client.newCall(req).execute().body().string();
-        android.util.Log.d("OTP_REQUEST", "request-password-otp response: " + raw);
+        try {
+            try (okhttp3.Response response = client.newCall(req).execute()) {
+                int code = response.code();
+                android.util.Log.d("REQUEST_OTP", "Response code: " + code);
+                
+                String raw = "";
+                if (response.body() != null) {
+                    raw = response.body().string();
+                }
+                android.util.Log.d("REQUEST_OTP", "Response body: " + raw);
 
-        JsonObject data = gson.fromJson(raw, JsonObject.class);
-        JsonObject result = new JsonObject();
-        boolean success = data.has("success") && data.get("success").getAsBoolean();
-        result.addProperty("success", success);
-        result.addProperty("message", data.has("message") ? data.get("message").getAsString() : "");
-        return result;
+                JsonObject result = new JsonObject();
+                if (response.isSuccessful()) {
+                    android.util.Log.d("OTP_SENT", "OTP email request successful for: " + email);
+                    result.addProperty("success", true);
+                    return result; 
+                } else {
+                    result.addProperty("success", false);
+                    try {
+                        JsonObject data = gson.fromJson(raw, JsonObject.class);
+                        if (data != null && data.has("message")) {
+                            result.addProperty("message", data.get("message").getAsString());
+                        } else {
+                            result.addProperty("message", "HTTP error " + code);
+                        }
+                    } catch (Exception parseEx) {
+                        result.addProperty("message", "HTTP error " + code + " (Backend returned non-JSON response)");
+                    }
+                    result.addProperty("error", "Failed");
+                    return result;
+                }
+            }
+        } catch (Exception e) {
+            android.util.Log.e("REQUEST_OTP", "Exception message: " + e.getMessage());
+            android.util.Log.e("REQUEST_OTP", "Stack trace: ", e);
+            throw new IOException(e);
+        }
     }
 
-    // ── Verify OTP (Backend) ── verifyPasswordOtp() ──────────────────────────
+    // ── Verify OTP → Render Custom OTP Flow ──────────────────────────────────
+    // Calls Render backend /auth/verify-password-otp
     public static JsonObject verifyPasswordOtp(String email, String otp) throws IOException {
+        android.util.Log.d("OTP_VERIFY", "Email entered for verification: " + email + ", OTP: " + otp);
         JsonObject body = new JsonObject();
         body.addProperty("email", email);
         body.addProperty("otp", otp);
 
+        String url = SupabaseConfig.BACKEND_URL + "/auth/verify-password-otp";
+        android.util.Log.d("OTP_VERIFY", "Request URL: " + url);
+        android.util.Log.d("OTP_VERIFY", "HTTP method: POST");
+
         Request req = new Request.Builder()
-                .url(SupabaseConfig.BACKEND_URL + "/auth/verify-password-otp")
+                .url(url)
                 .post(RequestBody.create(body.toString(), JSON))
                 .addHeader("Content-Type", "application/json")
                 .build();
 
-        String raw = client.newCall(req).execute().body().string();
-        android.util.Log.d("OTP_VERIFY", "verify-password-otp response: " + raw);
+        try {
+            try (okhttp3.Response response = client.newCall(req).execute()) {
+                int code = response.code();
+                android.util.Log.d("OTP_VERIFY", "Response code: " + code);
+                
+                String raw = "";
+                if (response.body() != null) {
+                    raw = response.body().string();
+                }
+                android.util.Log.d("OTP_VERIFY", "Response body: " + raw);
 
-        JsonObject data = gson.fromJson(raw, JsonObject.class);
-        JsonObject result = new JsonObject();
-        boolean success = data.has("success") && data.get("success").getAsBoolean();
-        result.addProperty("success", success);
-        result.addProperty("message", data.has("message") ? data.get("message").getAsString() : "");
-        return result;
+                JsonObject result = new JsonObject();
+                if (response.isSuccessful()) {
+                    android.util.Log.d("OTP_VALID", "OTP successfully verified for: " + email);
+                    result.addProperty("success", true);
+                } else {
+                    result.addProperty("success", false);
+                    String msg = "Verification failed.";
+                    try {
+                        JsonObject data = gson.fromJson(raw, JsonObject.class);
+                        if (data != null && data.has("message")) {
+                            msg = data.get("message").getAsString();
+                        } else {
+                            msg = "HTTP error " + code;
+                        }
+                    } catch (Exception parseEx) {
+                        msg = "HTTP error " + code + " (Backend returned non-JSON response)";
+                    }
+                    result.addProperty("message", msg);
+                }
+                return result;
+            }
+        } catch (Exception e) {
+            android.util.Log.e("OTP_VERIFY", "Exception message: " + e.getMessage());
+            android.util.Log.e("OTP_VERIFY", "Stack trace: ", e);
+            throw new IOException(e);
+        }
     }
 
-    // ── Reset Password with OTP (Backend) ── resetPasswordWithOtp() ──────────
+    // ── Reset Password with OTP → Render Custom OTP Flow ───────────────────
+    // Calls Render backend /auth/reset-password-with-otp
     public static JsonObject resetPasswordWithOtp(String email, String otp, String newPassword)
             throws IOException {
+        android.util.Log.d("PASSWORD_RESET", "Email entered for reset: " + email);
         JsonObject body = new JsonObject();
         body.addProperty("email", email);
         body.addProperty("otp", otp);
         body.addProperty("newPassword", newPassword);
 
+        String url = SupabaseConfig.BACKEND_URL + "/auth/reset-password-with-otp";
+        android.util.Log.d("PASSWORD_RESET", "Request URL: " + url);
+        android.util.Log.d("PASSWORD_RESET", "HTTP method: POST");
+
         Request req = new Request.Builder()
-                .url(SupabaseConfig.BACKEND_URL + "/auth/reset-password-with-otp")
+                .url(url)
                 .post(RequestBody.create(body.toString(), JSON))
                 .addHeader("Content-Type", "application/json")
                 .build();
 
-        String raw = client.newCall(req).execute().body().string();
-        android.util.Log.d("OTP_RESET", "reset-password-with-otp response: " + raw);
+        try {
+            try (okhttp3.Response response = client.newCall(req).execute()) {
+                int code = response.code();
+                android.util.Log.d("PASSWORD_RESET", "Response code: " + code);
+                
+                String raw = "";
+                if (response.body() != null) {
+                    raw = response.body().string();
+                }
+                android.util.Log.d("PASSWORD_RESET", "Response body: " + raw);
 
-        JsonObject data = gson.fromJson(raw, JsonObject.class);
-        JsonObject result = new JsonObject();
-        boolean success = data.has("success") && data.get("success").getAsBoolean();
-        result.addProperty("success", success);
-        result.addProperty("message", data.has("message") ? data.get("message").getAsString() : "");
-        return result;
+                JsonObject result = new JsonObject();
+                if (response.isSuccessful()) {
+                    android.util.Log.d("PASSWORD_RESET_SUCCESS", "Password updated successfully for: " + email);
+                    result.addProperty("success", true);
+                    result.addProperty("message", "Password updated successfully");
+                } else {
+                    android.util.Log.d("PASSWORD_RESET_FAILED", "Password update failed for: " + email);
+                    result.addProperty("success", false);
+                    String msg = "Password reset failed.";
+                    try {
+                        JsonObject data = gson.fromJson(raw, JsonObject.class);
+                        if (data != null && data.has("message")) {
+                            msg = data.get("message").getAsString();
+                        } else {
+                            msg = "HTTP error " + code;
+                        }
+                    } catch (Exception parseEx) {
+                        msg = "HTTP error " + code + " (Backend returned non-JSON response)";
+                    }
+                    result.addProperty("message", msg);
+                }
+                return result;
+            }
+        } catch (Exception e) {
+            android.util.Log.d("PASSWORD_RESET_FAILED", "Exception message: " + e.getMessage());
+            android.util.Log.e("PASSWORD_RESET_FAILED", "Stack trace: ", e);
+            throw new IOException(e);
+        }
     }
     // ── Login ── ApiService.login() ────────────────────────────────────────
     public static JsonObject login(Context ctx, String email, String password)
@@ -473,19 +575,42 @@ public class ApiService {
 
     // ── getAssessmentHistory ── ApiService.getAssessmentHistory() ─────────
     public static JsonObject getAssessmentHistory(Context ctx) throws IOException {
+        int userId = new SessionManager(ctx).getUserId();
+        android.util.Log.d("ASSESSMENT_QUERY_USER", "ASSESSMENT_QUERY_USER: " + userId);
 
         Request req = new Request.Builder()
-                .url(SupabaseConfig.REST_URL + "assessments?select=*&order=created_at.desc")
+                .url(SupabaseConfig.REST_URL + "assessments?user_id=eq." + userId + "&select=*&order=created_at.desc")
                 .get()
                 .headers(supabaseHeaders())
                 .build();
 
-        String raw = client.newCall(req).execute().body().string();
+        String raw = "";
+        try (okhttp3.Response response = client.newCall(req).execute()) {
+            if (response.body() != null) {
+                raw = response.body().string();
+            }
+        } catch (Exception e) {
+            android.util.Log.e("SUPABASE_GET_ASSESSMENTS", "Error fetching assessments", e);
+        }
 
         android.util.Log.d("SUPABASE_GET_ASSESSMENTS", raw);
 
-        com.google.gson.JsonArray array =
-                gson.fromJson(raw, com.google.gson.JsonArray.class);
+        com.google.gson.JsonArray array = null;
+        if (!raw.isEmpty()) {
+            try {
+                com.google.gson.JsonElement jsonElement = gson.fromJson(raw, com.google.gson.JsonElement.class);
+                if (jsonElement != null && jsonElement.isJsonArray()) {
+                    array = jsonElement.getAsJsonArray();
+                } else {
+                    android.util.Log.e("SUPABASE_GET_ASSESSMENTS", "Expected JsonArray, but got: " + raw);
+                }
+            } catch (Exception e) {
+                android.util.Log.e("SUPABASE_GET_ASSESSMENTS", "JSON parsing crash from Supabase response (assessments)", e);
+            }
+        }
+        if (array == null) {
+            array = new com.google.gson.JsonArray();
+        }
 
         JsonObject result = new JsonObject();
         result.addProperty("success", true);
@@ -496,17 +621,39 @@ public class ApiService {
 
     // ── getReminders ── ApiService.getReminders() ─────────────────────────
     public static JsonObject getReminders(Context ctx) throws IOException {
+        int userId = new SessionManager(ctx).getUserId();
 
         Request req = new Request.Builder()
-                .url(SupabaseConfig.REST_URL + "reminders?select=*&order=created_at.desc")
+                .url(SupabaseConfig.REST_URL + "reminders?user_id=eq." + userId + "&select=*&order=created_at.desc")
                 .get()
                 .headers(supabaseHeaders())
                 .build();
 
-        String raw = client.newCall(req).execute().body().string();
+        String raw = "";
+        try (okhttp3.Response response = client.newCall(req).execute()) {
+            if (response.body() != null) {
+                raw = response.body().string();
+            }
+        } catch (Exception e) {
+            android.util.Log.e("SUPABASE_GET_REMINDERS", "Error fetching reminders", e);
+        }
 
-        com.google.gson.JsonArray array =
-                gson.fromJson(raw, com.google.gson.JsonArray.class);
+        com.google.gson.JsonArray array = null;
+        if (!raw.isEmpty()) {
+            try {
+                com.google.gson.JsonElement jsonElement = gson.fromJson(raw, com.google.gson.JsonElement.class);
+                if (jsonElement != null && jsonElement.isJsonArray()) {
+                    array = jsonElement.getAsJsonArray();
+                } else {
+                    android.util.Log.e("SUPABASE_GET_REMINDERS", "Expected JsonArray, but got: " + raw);
+                }
+            } catch (Exception e) {
+                android.util.Log.e("SUPABASE_GET_REMINDERS", "JSON parsing crash from Supabase response (reminders)", e);
+            }
+        }
+        if (array == null) {
+            array = new com.google.gson.JsonArray();
+        }
 
         JsonObject result = new JsonObject();
         result.addProperty("success", true);
@@ -945,6 +1092,7 @@ public static JsonObject predictToothScan(
         int userId =
                 new SessionManager(ctx)
                         .getUserId();
+        android.util.Log.d("SCAN_QUERY_USER", "SCAN_QUERY_USER: " + userId);
 
         Request req = new Request.Builder()
                 .url(
@@ -957,11 +1105,14 @@ public static JsonObject predictToothScan(
                 .headers(supabaseHeaders())
                 .build();
 
-        String raw =
-                client.newCall(req)
-                        .execute()
-                        .body()
-                        .string();
+        String raw = "";
+        try (okhttp3.Response response = client.newCall(req).execute()) {
+            if (response.body() != null) {
+                raw = response.body().string();
+            }
+        } catch (Exception e) {
+            android.util.Log.e("SUPABASE_SCAN_HISTORY", "Error fetching tooth scans", e);
+        }
 
         android.util.Log.d(
                 "SUPABASE_SCAN_HISTORY",
@@ -986,15 +1137,22 @@ public static JsonObject predictToothScan(
     //seetings
     public static JsonObject changePassword(Context ctx, String newPassword)
             throws IOException {
+        return changePassword(ctx, newPassword, null);
+    }
+
+    public static JsonObject changePassword(Context ctx, String newPassword, String explicitToken)
+            throws IOException {
 
         JsonObject body = new JsonObject();
         body.addProperty("password", newPassword);
+
+        String token = (explicitToken != null) ? explicitToken : new SessionManager(ctx).getToken();
 
         Request req = new Request.Builder()
                 .url(SUPABASE_AUTH_URL + "/user")
                 .put(RequestBody.create(body.toString(), JSON))
                 .addHeader("apikey", SupabaseConfig.SUPABASE_ANON_KEY)
-                .addHeader("Authorization", "Bearer " + new SessionManager(ctx).getToken())
+                .addHeader("Authorization", "Bearer " + token)
                 .addHeader("Content-Type", "application/json")
                 .build();
 
@@ -1021,9 +1179,30 @@ public static JsonObject predictToothScan(
                 .headers(supabaseHeaders())
                 .build();
 
-        String checkRaw = client.newCall(checkReq).execute().body().string();
+        String checkRaw = "";
+        try (okhttp3.Response response = client.newCall(checkReq).execute()) {
+            if (response.body() != null) {
+                checkRaw = response.body().string();
+            }
+        } catch (Exception e) {
+            android.util.Log.e("SUPABASE_GOOGLE_SYNC", "Error executing check user request", e);
+        }
+
         android.util.Log.d("SUPABASE_GOOGLE_SYNC", "Check user raw: " + checkRaw);
-        JsonArray users = gson.fromJson(checkRaw, JsonArray.class);
+
+        JsonArray users = null;
+        if (!checkRaw.isEmpty()) {
+            try {
+                com.google.gson.JsonElement jsonElement = gson.fromJson(checkRaw, com.google.gson.JsonElement.class);
+                if (jsonElement != null && jsonElement.isJsonArray()) {
+                    users = jsonElement.getAsJsonArray();
+                } else {
+                    android.util.Log.e("SUPABASE_GOOGLE_SYNC", "Expected JsonArray, but got: " + checkRaw);
+                }
+            } catch (Exception e) {
+                android.util.Log.e("SUPABASE_GOOGLE_SYNC", "JSON parsing crash from Supabase response (check)", e);
+            }
+        }
 
         int localUserId;
         String displayName = (name == null || name.trim().isEmpty()) ? email.split("@")[0] : name;
@@ -1031,7 +1210,7 @@ public static JsonObject predictToothScan(
         if (users != null && users.size() > 0) {
             // User already exists — use their existing user_id
             JsonObject existingUser = users.get(0).getAsJsonObject();
-            localUserId = existingUser.get("user_id").getAsInt();
+            localUserId = existingUser.has("user_id") && !existingUser.get("user_id").isJsonNull() ? existingUser.get("user_id").getAsInt() : -1;
             if (existingUser.has("name") && !existingUser.get("name").isJsonNull()) {
                 displayName = existingUser.get("name").getAsString();
             }
@@ -1047,8 +1226,15 @@ public static JsonObject predictToothScan(
                             .patch(RequestBody.create(patchBody.toString(), JSON))
                             .headers(supabaseHeaders())
                             .build();
-                    String patchRaw = client.newCall(patchReq).execute().body().string();
-                    android.util.Log.d("SUPABASE_GOOGLE_SYNC", "Patch photo_url raw: " + patchRaw);
+                    
+                    try (okhttp3.Response response = client.newCall(patchReq).execute()) {
+                        if (response.body() != null) {
+                            String patchRaw = response.body().string();
+                            android.util.Log.d("SUPABASE_GOOGLE_SYNC", "Patch photo_url raw: " + patchRaw);
+                        }
+                    } catch (Exception e) {
+                        android.util.Log.e("SUPABASE_GOOGLE_SYNC", "Error executing patch request", e);
+                    }
                 }
             }
 
@@ -1077,10 +1263,18 @@ public static JsonObject predictToothScan(
                     .headers(supabaseHeaders())
                     .build();
 
-            String insertRaw = client.newCall(insertReq).execute().body().string();
+            String insertRaw = "";
+            try (okhttp3.Response response = client.newCall(insertReq).execute()) {
+                if (response.body() != null) {
+                    insertRaw = response.body().string();
+                }
+            } catch (Exception e) {
+                android.util.Log.e("SUPABASE_GOOGLE_SYNC", "Error executing insert user request", e);
+            }
+
             android.util.Log.d("SUPABASE_GOOGLE_SYNC", "Insert user raw: " + insertRaw);
 
-            result.addProperty("success", !insertRaw.contains("code"));
+            result.addProperty("success", !insertRaw.isEmpty() && !insertRaw.contains("code"));
             result.addProperty("user_id", localUserId);
             result.addProperty("name", displayName);
             result.addProperty("message", insertRaw);

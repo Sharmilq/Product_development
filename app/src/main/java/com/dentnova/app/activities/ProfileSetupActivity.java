@@ -193,24 +193,36 @@ public class ProfileSetupActivity extends AppCompatActivity {
                         spinnerGender.setText(gender, false);
 
                         if (!photoUrl.isEmpty()) {
+                            if (photoUrl.startsWith("http://") || photoUrl.startsWith("https://")) {
+                                try {
+                                    Glide.with(ProfileSetupActivity.this)
+                                            .load(photoUrl)
+                                            .into(civAvatar);
+                                } catch (Exception e) {
+                                    android.util.Log.e("ProfileSetupActivity", "Error loading photo URL via Glide", e);
+                                }
+                            } else {
+                                try {
+                                    byte[] decoded =
+                                            android.util.Base64.decode(
+                                                    photoUrl,
+                                                    android.util.Base64.DEFAULT
+                                            );
 
-                            if (!photoUrl.isEmpty()) {
+                                    android.graphics.Bitmap bmp =
+                                            android.graphics.BitmapFactory
+                                                    .decodeByteArray(
+                                                            decoded,
+                                                            0,
+                                                            decoded.length
+                                                    );
 
-                                byte[] decoded =
-                                        android.util.Base64.decode(
-                                                photoUrl,
-                                                android.util.Base64.DEFAULT
-                                        );
-
-                                android.graphics.Bitmap bmp =
-                                        android.graphics.BitmapFactory
-                                                .decodeByteArray(
-                                                        decoded,
-                                                        0,
-                                                        decoded.length
-                                                );
-
-                                civAvatar.setImageBitmap(bmp);
+                                    civAvatar.setImageBitmap(bmp);
+                                } catch (IllegalArgumentException e) {
+                                    android.util.Log.e("ProfileSetupActivity", "Bad Base64 photo_url", e);
+                                } catch (Exception e) {
+                                    android.util.Log.e("ProfileSetupActivity", "Error decoding Base64 photo", e);
+                                }
                             }
                         }
                     });

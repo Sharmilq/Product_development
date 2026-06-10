@@ -16,6 +16,10 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import com.dentnova.app.R;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -81,21 +85,32 @@ public class ProfileActivity extends AppCompatActivity {
                     }
 
                     runOnUiThread(() -> {
+                        // 1. Clear SharedPreferences session and cached user data
+                        new com.dentnova.app.utils.SessionManager(ProfileActivity.this).clearSession();
+                        
+                        // Keep onboarding state but clear other prefs
+                        android.content.SharedPreferences prefs = getSharedPreferences("dentnova_prefs", MODE_PRIVATE);
+                        boolean seenOnboarding = prefs.getBoolean("has_seen_onboarding", false);
+                        prefs.edit().clear().putBoolean("has_seen_onboarding", seenOnboarding).apply();
 
-                        getSharedPreferences("dentnova_prefs", MODE_PRIVATE)
-                                .edit()
-                                .clear()
-                                .apply();
+                        // 2. Firebase sign out
+                        FirebaseAuth.getInstance().signOut();
 
-                        Intent intent = new Intent(ProfileActivity.this, AuthActivity.class);
-
-                        intent.setFlags(
-                                Intent.FLAG_ACTIVITY_NEW_TASK |
-                                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        // 3. Revoke Google access so account chooser appears next login
+                        GoogleSignInOptions gso =
+                                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                                        .requestEmail().build();
+                        GoogleSignInClient gsc = GoogleSignIn.getClient(ProfileActivity.this, gso);
+                        gsc.signOut().addOnCompleteListener(ProfileActivity.this, t ->
+                                gsc.revokeAccess().addOnCompleteListener(ProfileActivity.this, t2 ->
+                                        android.util.Log.d("LOGOUT", "Google session revoked on logout.")
+                                )
                         );
 
+                        Intent intent = new Intent(ProfileActivity.this, AuthActivity.class);
+                        intent.setFlags(
+                                Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
-
                         finish();
                     });
                 }).start();
@@ -160,19 +175,35 @@ public class ProfileActivity extends AppCompatActivity {
                         tvAssessments.setText(assessmentCount + " Assessments");
 
                         if (!photo.isEmpty()) {
-                            byte[] decoded = android.util.Base64.decode(
-                                    photo,
-                                    android.util.Base64.DEFAULT
-                            );
-
-                            android.graphics.Bitmap bmp =
-                                    android.graphics.BitmapFactory.decodeByteArray(
-                                            decoded,
-                                            0,
-                                            decoded.length
+                            if (photo.startsWith("http://") || photo.startsWith("https://")) {
+                                try {
+                                    Glide.with(ProfileActivity.this)
+                                            .load(photo)
+                                            .into(civAvatar);
+                                } catch (Exception e) {
+                                    android.util.Log.e("ProfileActivity", "Error loading photo URL via Glide", e);
+                                }
+                            } else {
+                                try {
+                                    byte[] decoded = android.util.Base64.decode(
+                                            photo,
+                                            android.util.Base64.DEFAULT
                                     );
 
-                            civAvatar.setImageBitmap(bmp);
+                                    android.graphics.Bitmap bmp =
+                                            android.graphics.BitmapFactory.decodeByteArray(
+                                                    decoded,
+                                                    0,
+                                                    decoded.length
+                                            );
+
+                                    civAvatar.setImageBitmap(bmp);
+                                } catch (IllegalArgumentException e) {
+                                    android.util.Log.e("ProfileActivity", "Bad Base64 photo_url", e);
+                                } catch (Exception e) {
+                                    android.util.Log.e("ProfileActivity", "Error decoding Base64 photo", e);
+                                }
+                            }
                         }
                     });
                 }
@@ -186,23 +217,25 @@ public class ProfileActivity extends AppCompatActivity {
     private void saveHabitProgress() {
         String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                 .format(new Date());
+        int userId = new com.dentnova.app.utils.SessionManager(this).getUserId();
 
         getSharedPreferences("dentnova_prefs", MODE_PRIVATE)
                 .edit()
-                .putBoolean("brush_done_" + today, brushDone)
-                .putBoolean("floss_done_" + today, flossDone)
-                .putString("last_habit_date", today)
+                .putBoolean("brush_done_" + userId + "_" + today, brushDone)
+                .putBoolean("floss_done_" + userId + "_" + today, flossDone)
+                .putString("last_habit_date_" + userId, today)
                 .apply();
     }
     private void loadHabitProgress() {
         String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                 .format(new Date());
+        int userId = new com.dentnova.app.utils.SessionManager(this).getUserId();
 
         brushDone = getSharedPreferences("dentnova_prefs", MODE_PRIVATE)
-                .getBoolean("brush_done_" + today, false);
+                .getBoolean("brush_done_" + userId + "_" + today, false);
 
         flossDone = getSharedPreferences("dentnova_prefs", MODE_PRIVATE)
-                .getBoolean("floss_done_" + today, false);
+                .getBoolean("floss_done_" + userId + "_" + today, false);
     }
     private void updateHabitUI() {
         if (brushDone) {

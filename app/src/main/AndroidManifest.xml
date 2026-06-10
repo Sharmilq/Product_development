@@ -21,23 +21,7 @@
         <receiver
             android:name=".receivers.ReminderReceiver"
             android:exported="false" />
-        <!-- forget password -->
-        <activity
-            android:name=".activities.ResetPasswordActivity"
-            android:exported="true">
 
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:scheme="dentnova"
-                    android:host="reset-password" />
-            </intent-filter>
-
-        </activity>
 
         <!-- OTP Verification -->
         <activity
