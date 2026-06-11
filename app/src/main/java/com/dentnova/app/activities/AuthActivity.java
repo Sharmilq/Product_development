@@ -309,10 +309,22 @@ public class AuthActivity extends AppCompatActivity {
             return;
         }
 
-        // Password length
-        if (password.length() < 6) {
-            Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
-            return;
+        // Password validation
+        if (isLogin) {
+            if (password.length() < 6) {
+                Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } else {
+            if (!isStrongPassword(password)) {
+                etPassword.setError("Weak password");
+                new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Weak Password")
+                    .setMessage("Your password must contain:\n\n• At least 8 characters\n• One uppercase letter\n• One lowercase letter\n• One number\n• One special character")
+                    .setPositiveButton("OK", null)
+                    .show();
+                return;
+            }
         }
 
         // Confirm password (register only)
@@ -496,6 +508,21 @@ public class AuthActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    private boolean isStrongPassword(String password) {
+        if (password.length() < 8) return false;
+        boolean hasUpper = false;
+        boolean hasLower = false;
+        boolean hasDigit = false;
+        boolean hasSpecial = false;
+        for (char c : password.toCharArray()) {
+            if (Character.isUpperCase(c)) hasUpper = true;
+            else if (Character.isLowerCase(c)) hasLower = true;
+            else if (Character.isDigit(c)) hasDigit = true;
+            else if (!Character.isLetterOrDigit(c)) hasSpecial = true;
+        }
+        return hasUpper && hasLower && hasDigit && hasSpecial;
     }
 
     @Override
