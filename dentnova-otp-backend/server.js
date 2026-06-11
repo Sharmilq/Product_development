@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const nodemailer = require('nodemailer');
 const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
 require('dotenv').config();
@@ -20,18 +19,6 @@ if (!supabaseUrl || !supabaseServiceKey) {
   process.exit(1);
 }
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-// Setup Nodemailer SMTP
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true',
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS
-  }
-});
-
 // Request/Response logging middleware
 app.use((req, res, next) => {
   const originalJson = res.json;
@@ -59,6 +46,41 @@ app.use((req, res, next) => {
 
 function sha256(text) {
   return crypto.createHash('sha256').update(text).digest('hex');
+}
+async function sendOtpEmailWithBrevo(toEmail, otp) {
+  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "accept": "application/json",
+      "api-key": process.env.BREVO_API_KEY,
+      "content-type": "application/json"
+    },
+    body: JSON.stringify({
+      sender: {
+        name: process.env.BREVO_FROM_NAME || "DentNova",
+        email: process.env.BREVO_FROM_EMAIL
+      },
+      to: [{ email: toEmail }],
+      subject: "DentNova Password Reset OTP",
+      htmlContent: `
+        <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;border:1px solid #E0E8EF;border-radius:12px;">
+          <h2>DentNova Password Reset OTP</h2>
+          <p>Your DentNova password reset OTP is:</p>
+          <h1 style="letter-spacing:6px;">${otp}</h1>
+          <p>This OTP expires in 5 minutes.</p>
+        </div>
+      `
+    })
+  });
+
+  const data = await response.text();
+
+  if (!response.ok) {
+    console.error("[BREVO_API_ERROR]", response.status, data);
+    throw new Error("Brevo API failed: " + data);
+  }
+
+  console.log("[BREVO_API_SUCCESS]", data);
 }
 
 // 1. GET / Health Check
@@ -132,7 +154,7 @@ app.post('/auth/request-password-otp', async (req, res) => {
       `
     };
 
-    await transporter.sendMail(mailOptions);
+    await sendOtpEmailWithBrevo(email, otp);
     console.log(`[OTP] OTP sent successfully to ${email}`);
 
     return res.status(200).json({ success: true, message: 'OTP sent successfully.' });
