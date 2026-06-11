@@ -211,6 +211,64 @@
                     android:paddingBottom="14dp" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="8dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp">
+
+                <TextView
+                    android:id="@+id/tvRuleMinLength"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="✗ Minimum 8 characters"
+                    android:textColor="#E53935"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/inter_regular" />
+
+                <TextView
+                    android:id="@+id/tvRuleUppercase"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="✗ One uppercase letter"
+                    android:textColor="#E53935"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/inter_regular"
+                    android:layout_marginTop="4dp" />
+
+                <TextView
+                    android:id="@+id/tvRuleLowercase"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="✗ One lowercase letter"
+                    android:textColor="#E53935"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/inter_regular"
+                    android:layout_marginTop="4dp" />
+
+                <TextView
+                    android:id="@+id/tvRuleNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="✗ One number"
+                    android:textColor="#E53935"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/inter_regular"
+                    android:layout_marginTop="4dp" />
+
+                <TextView
+                    android:id="@+id/tvRuleSpecial"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="✗ One special character"
+                    android:textColor="#E53935"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/inter_regular"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
             <Space
                 android:layout_width="0dp"
                 android:layout_height="16dp" />

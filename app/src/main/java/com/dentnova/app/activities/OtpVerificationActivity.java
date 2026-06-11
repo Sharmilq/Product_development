@@ -27,6 +27,7 @@ public class OtpVerificationActivity extends AppCompatActivity {
 
     // Views
     private TextView tvOtpTitle, tvOtpSubtitle;
+    private TextView tvRuleMinLength, tvRuleUppercase, tvRuleLowercase, tvRuleNumber, tvRuleSpecial;
     private LinearLayout layoutOtpState, layoutResetPasswordState;
     private TextInputEditText etOtpCode, etNewPassword, etConfirmNewPassword;
     private MaterialButton btnVerifyOtp, btnResetPassword;
@@ -59,11 +60,35 @@ public class OtpVerificationActivity extends AppCompatActivity {
         etConfirmNewPassword = findViewById(R.id.etConfirmNewPassword);
         btnVerifyOtp = findViewById(R.id.btnVerifyOtp);
         btnResetPassword = findViewById(R.id.btnResetPassword);
+
+        tvRuleMinLength = findViewById(R.id.tvRuleMinLength);
+        tvRuleUppercase = findViewById(R.id.tvRuleUppercase);
+        tvRuleLowercase = findViewById(R.id.tvRuleLowercase);
+        tvRuleNumber = findViewById(R.id.tvRuleNumber);
+        tvRuleSpecial = findViewById(R.id.tvRuleSpecial);
+
+        btnResetPassword.setEnabled(false);
     }
 
     private void setupListeners() {
         btnVerifyOtp.setOnClickListener(v -> handleOtpVerification());
         btnResetPassword.setOnClickListener(v -> handlePasswordReset());
+
+        android.text.TextWatcher passwordWatcher = new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                validatePasswordStrengthLive();
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {}
+        };
+
+        etNewPassword.addTextChangedListener(passwordWatcher);
+        etConfirmNewPassword.addTextChangedListener(passwordWatcher);
     }
 
     private void handleOtpVerification() {
@@ -135,7 +160,7 @@ public class OtpVerificationActivity extends AppCompatActivity {
         String confirmPassword = etConfirmNewPassword.getText() != null ? etConfirmNewPassword.getText().toString() : "";
 
         if (!isStrongPassword(newPassword)) {
-            Toast.makeText(this, "Password must be at least 8 characters and include uppercase, lowercase, number, and special character.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Please complete all password requirements.", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -171,6 +196,46 @@ public class OtpVerificationActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    private void validatePasswordStrengthLive() {
+        String password = etNewPassword.getText() != null ? etNewPassword.getText().toString() : "";
+        String confirmPassword = etConfirmNewPassword.getText() != null ? etConfirmNewPassword.getText().toString() : "";
+
+        boolean minLength = password.length() >= 8;
+        boolean hasUpper = false;
+        boolean hasLower = false;
+        boolean hasDigit = false;
+        boolean hasSpecial = false;
+
+        for (char c : password.toCharArray()) {
+            if (Character.isUpperCase(c)) hasUpper = true;
+            else if (Character.isLowerCase(c)) hasLower = true;
+            else if (Character.isDigit(c)) hasDigit = true;
+            else if (!Character.isLetterOrDigit(c)) hasSpecial = true;
+        }
+
+        updateRuleUI(tvRuleMinLength, minLength, "Minimum 8 characters");
+        updateRuleUI(tvRuleUppercase, hasUpper, "One uppercase letter");
+        updateRuleUI(tvRuleLowercase, hasLower, "One lowercase letter");
+        updateRuleUI(tvRuleNumber, hasDigit, "One number");
+        updateRuleUI(tvRuleSpecial, hasSpecial, "One special character");
+
+        boolean isStrong = minLength && hasUpper && hasLower && hasDigit && hasSpecial;
+        boolean matches = password.equals(confirmPassword) && !confirmPassword.isEmpty();
+
+        btnResetPassword.setEnabled(isStrong && matches);
+    }
+
+    private void updateRuleUI(TextView tv, boolean passed, String ruleText) {
+        if (tv == null) return;
+        if (passed) {
+            tv.setText("✓ " + ruleText);
+            tv.setTextColor(android.graphics.Color.parseColor("#2E7D32")); // Green
+        } else {
+            tv.setText("✗ " + ruleText);
+            tv.setTextColor(android.graphics.Color.parseColor("#E53935")); // Red
+        }
     }
 
     @Override
