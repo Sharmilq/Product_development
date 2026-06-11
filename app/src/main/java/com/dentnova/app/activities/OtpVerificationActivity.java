@@ -160,7 +160,12 @@ public class OtpVerificationActivity extends AppCompatActivity {
         String confirmPassword = etConfirmNewPassword.getText() != null ? etConfirmNewPassword.getText().toString() : "";
 
         if (!isStrongPassword(newPassword)) {
-            Toast.makeText(this, "Please complete all password requirements.", Toast.LENGTH_LONG).show();
+            etNewPassword.setError("Weak password");
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Weak Password")
+                .setMessage("Your password must contain:\n\n• At least 8 characters\n• One uppercase letter\n• One lowercase letter\n• One number\n• One special character")
+                .setPositiveButton("OK", null)
+                .show();
             return;
         }
 
