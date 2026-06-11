@@ -534,6 +534,14 @@ app.post('/auth/reset-password-with-otp', async (req, res) => {
   }
 });
 
+// Health Check Route
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "DentNova OTP backend is running"
+  });
+});
+
 // Start Server
 app.listen(PORT, () => {
   console.log(`DentNova backend server is running on port ${PORT}`);
