@@ -10,6 +10,31 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Request/Response logging middleware
+app.use((req, res, next) => {
+  const originalJson = res.json;
+  const originalSend = res.send;
+  console.log(`[HTTP_REQUEST] URL: ${req.method} ${req.originalUrl}`);
+  if (req.body) {
+    const loggedBody = { ...req.body };
+    if (loggedBody.newPassword) loggedBody.newPassword = '[HIDDEN SECRET]';
+    if (loggedBody.password) loggedBody.password = '[HIDDEN SECRET]';
+    console.log(`[HTTP_REQUEST] Body:`, JSON.stringify(loggedBody));
+  }
+  
+  res.json = function (body) {
+    console.log(`[HTTP_RESPONSE] URL: ${req.method} ${req.originalUrl} - Code: ${res.statusCode} - Body:`, JSON.stringify(body));
+    return originalJson.call(this, body);
+  };
+  
+  res.send = function (body) {
+    console.log(`[HTTP_RESPONSE] URL: ${req.method} ${req.originalUrl} - Code: ${res.statusCode} - Body:`, typeof body === 'object' ? JSON.stringify(body) : body);
+    return originalSend.call(this, body);
+  };
+  
+  next();
+});
+
 const PORT = process.env.PORT || 5000;
 
 // ── SUPABASE CONFIGURATION ────────────────────────────────────────────────
@@ -300,65 +325,64 @@ app.post('/auth/request-password-otp', async (req, res) => {
   }
 
   try {
-    // Check user exists in users table (do not reveal if not found in error msg)
+    // Check user exists in users table
     const { data: userRows } = await supabase
       .from('users')
       .select('email')
       .eq('email', email)
       .limit(1);
 
-    // Always respond success to avoid email enumeration — but only send email if user exists
     const userExists = userRows && userRows.length > 0;
+    console.log(`[OTP] Registered email check result for ${email}: ${userExists ? 'EXISTS' : 'NOT_EXISTS'}`);
 
-    if (userExists) {
-      // Generate secure 6-digit OTP
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      const otpHash = sha256(otp);
-      const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 minutes
-
-      // Upsert into password_reset_otps table
-      const { error: dbError } = await supabase
-        .from('password_reset_otps')
-        .upsert(
-          { email, otp_hash: otpHash, expires_at: expiresAt, used: false },
-          { onConflict: 'email' }
-        );
-
-      if (dbError) {
-        console.error('[OTP] DB error storing OTP:', dbError);
-        return res.status(500).json({ success: false, message: 'Server error. Please try again.' });
-      }
-
-      // Send email
-      const mailOptions = {
-        from: `"DentNova" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
-        to: email,
-        subject: 'Your DentNova Password Reset Code',
-        html: `
-          <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;border:1px solid #E0E8EF;border-radius:12px;">
-            <h2 style="color:#00BCD4;text-align:center;margin-top:0;">🦷 DentNova Password Reset</h2>
-            <p>Hello,</p>
-            <p>We received a request to reset your DentNova password. Use the code below — it expires in <strong>5 minutes</strong>.</p>
-            <div style="text-align:center;margin:28px 0;">
-              <span style="display:inline-block;font-size:36px;font-weight:bold;letter-spacing:8px;color:#1A2332;background:#F5F9FA;padding:12px 28px;border-radius:10px;border:2px dashed #00BCD4;">${otp}</span>
-            </div>
-            <p style="font-size:13px;color:#888;">If you did not request this, you can safely ignore this email. Your password will not change.</p>
-            <p style="font-size:13px;color:#888;">— The DentNova Team</p>
-          </div>
-        `
-      };
-
-      await transporter.sendMail(mailOptions);
-      console.log(`[OTP] Sent password-reset OTP to ${email}`);
-    } else {
-      console.log(`[OTP] Password reset requested for unknown email: ${email} — no email sent.`);
+    if (!userExists) {
+      console.log(`[OTP] Password reset requested for unregistered email: ${email} — no OTP generated.`);
+      return res.status(404).json({
+        success: false,
+        message: "Email is not registered."
+      });
     }
 
-    // Always return success to avoid email enumeration
-    res.status(200).json({ success: true, message: 'If this email is registered, you will receive a 6-digit OTP shortly.' });
+    // Generate secure 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpHash = sha256(otp);
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 minutes
+
+    // Upsert into password_reset_otps table
+    const { error: dbError } = await supabase
+      .from('password_reset_otps')
+      .upsert(
+        { email, otp_hash: otpHash, expires_at: expiresAt, used: false },
+        { onConflict: 'email' }
+      );
+
+    if (dbError) {
+      console.error('[OTP] DB error storing OTP:', dbError);
+      return res.status(500).json({ success: false, message: 'Server error. Please try again.' });
+    }
+
+    // Send email
+    const mailOptions = {
+      from: `"DentNova" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+      to: email,
+      subject: 'DentNova Password Reset OTP',
+      text: `Your DentNova password reset OTP is:\n\n${otp}\n\nThis OTP expires in 5 minutes.`,
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;border:1px solid #E0E8EF;border-radius:12px;">
+          <p>Your DentNova password reset OTP is:</p>
+          <h2 style="font-size:32px;font-weight:bold;color:#1A2332;letter-spacing:5px;">${otp}</h2>
+          <p>This OTP expires in 5 minutes.</p>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`[OTP] OTP sent successfully to ${email}`);
+
+    return res.status(200).json({ success: true, message: 'OTP sent successfully.' });
   } catch (err) {
-    console.error('[OTP] Error in request-password-otp:', err);
-    res.status(500).json({ success: false, message: 'Failed to send OTP. Please try again.' });
+    console.error(`[OTP] OTP failed to send for ${email}:`, err);
+    return res.status(500).json({ success: false, message: 'Failed to send OTP. Please try again.' });
   }
 });
 
@@ -418,8 +442,19 @@ app.post('/auth/reset-password-with-otp', async (req, res) => {
   if (!email || !otp || !newPassword) {
     return res.status(400).json({ success: false, message: 'email, otp and newPassword are required' });
   }
-  if (newPassword.length < 6) {
-    return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
+  
+  // Password strength rule validation
+  const hasUppercase = /[A-Z]/.test(newPassword);
+  const hasLowercase = /[a-z]/.test(newPassword);
+  const hasNumber = /[0-9]/.test(newPassword);
+  const hasSpecial = /[^A-Za-z0-9]/.test(newPassword);
+  const isStrong = newPassword.length >= 8 && hasUppercase && hasLowercase && hasNumber && hasSpecial;
+  
+  if (!isStrong) {
+    return res.status(400).json({
+      success: false,
+      message: "Password must be at least 8 characters and include uppercase, lowercase, number, and special character."
+    });
   }
 
   try {
@@ -452,10 +487,14 @@ app.post('/auth/reset-password-with-otp', async (req, res) => {
 
     // Update Supabase auth password using service role (admin)
     const { data: listData, error: listError } = await supabase.auth.admin.listUsers();
-    if (listError) throw listError;
+    if (listError) {
+      console.error(`[OTP] Password reset failed listing users for ${email}:`, listError.message);
+      throw listError;
+    }
 
     const supabaseUser = listData.users.find(u => u.email === email);
     if (!supabaseUser) {
+      console.log(`[OTP] Password reset failed for ${email}: User account not found in auth system.`);
       return res.status(404).json({ success: false, message: 'User account not found in auth system.' });
     }
 
@@ -463,7 +502,10 @@ app.post('/auth/reset-password-with-otp', async (req, res) => {
       supabaseUser.id,
       { password: newPassword }
     );
-    if (updateError) throw updateError;
+    if (updateError) {
+      console.error(`[OTP] Password reset failed updating user password for ${email}:`, updateError.message);
+      throw updateError;
+    }
 
     // Mark OTP as used
     await supabase
@@ -484,10 +526,10 @@ app.post('/auth/reset-password-with-otp', async (req, res) => {
       console.warn('[OTP] Firebase update skipped:', fbErr.message);
     }
 
-    console.log(`[OTP] Password reset complete for ${email}`);
+    console.log(`[OTP] Password reset result for ${email}: SUCCESS (Supabase Auth password updated)`);
     res.status(200).json({ success: true, message: 'Password updated successfully. Please sign in.' });
   } catch (err) {
-    console.error('[OTP] Error in reset-password-with-otp:', err);
+    console.error(`[OTP] Password reset result for ${email}: FAILED`, err);
     res.status(500).json({ success: false, message: 'Failed to update password. Please try again.' });
   }
 });
