@@ -138,6 +138,9 @@ public class ProfileActivity extends AppCompatActivity {
         updateHabitUI();
     }
     private void loadProfile() {
+        com.dentnova.app.utils.SessionManager session = new com.dentnova.app.utils.SessionManager(ProfileActivity.this);
+        android.util.Log.d("ProfileActivity", "CURRENT_SESSION_USER_ID: " + session.getUserId());
+        android.util.Log.d("ProfileActivity", "CURRENT_SESSION_EMAIL: " + session.getUserEmail());
 
         new Thread(() -> {
 
@@ -157,6 +160,8 @@ public class ProfileActivity extends AppCompatActivity {
                             !profile.get("email").isJsonNull()
                             ? profile.get("email").getAsString()
                             : "No Email";
+                    
+                    android.util.Log.d("ProfileActivity", "PROFILE_FETCH_EMAIL: " + email);
 
                     String photo = profile.has("photo_url") &&
                             !profile.get("photo_url").isJsonNull()

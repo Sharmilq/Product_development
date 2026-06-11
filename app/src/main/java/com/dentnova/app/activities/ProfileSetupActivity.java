@@ -321,6 +321,8 @@ public class ProfileSetupActivity extends AppCompatActivity {
                     btnContinue.setEnabled(true);
 
                     if (result.has("success") && result.get("success").getAsBoolean()) {
+                        com.dentnova.app.utils.SessionManager session = new com.dentnova.app.utils.SessionManager(this);
+                        session.saveSession(session.getUserId(), session.getToken(), name, session.getUserEmail());
                         startActivity(new Intent(this, HomeActivity.class));
                         finish();
                     } else {

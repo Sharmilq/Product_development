@@ -115,12 +115,27 @@ public class OtpVerificationActivity extends AppCompatActivity {
         tvOtpSubtitle.setText(R.string.subtitle_reset_password);
     }
 
+    private boolean isStrongPassword(String password) {
+        if (password.length() < 8) return false;
+        boolean hasUpper = false;
+        boolean hasLower = false;
+        boolean hasDigit = false;
+        boolean hasSpecial = false;
+        for (char c : password.toCharArray()) {
+            if (Character.isUpperCase(c)) hasUpper = true;
+            else if (Character.isLowerCase(c)) hasLower = true;
+            else if (Character.isDigit(c)) hasDigit = true;
+            else if (!Character.isLetterOrDigit(c)) hasSpecial = true;
+        }
+        return hasUpper && hasLower && hasDigit && hasSpecial;
+    }
+
     private void handlePasswordReset() {
         String newPassword = etNewPassword.getText() != null ? etNewPassword.getText().toString() : "";
         String confirmPassword = etConfirmNewPassword.getText() != null ? etConfirmNewPassword.getText().toString() : "";
 
-        if (newPassword.length() < 6) {
-            Toast.makeText(this, R.string.err_short_password, Toast.LENGTH_SHORT).show();
+        if (!isStrongPassword(newPassword)) {
+            Toast.makeText(this, "Password must be at least 8 characters and include uppercase, lowercase, number, and special character.", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -140,7 +155,7 @@ public class OtpVerificationActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     progress.dismiss();
                     if (result.has("success") && result.get("success").getAsBoolean()) {
-                        Toast.makeText(this, R.string.otp_reset_success, Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "Password reset successful. Please login.", Toast.LENGTH_LONG).show();
                         // Exit back to AuthActivity login screen
                         finish();
                     } else {

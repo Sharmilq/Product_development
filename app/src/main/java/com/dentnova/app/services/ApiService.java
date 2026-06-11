@@ -125,8 +125,8 @@ public class ApiService {
 
         return result;
     }
-    // ── Forgot Password → Render Custom OTP Flow ─────────────────────────────
-    // Calls Render backend /auth/request-password-otp
+    // ── Forgot Password → Node.js Render Backend OTP Flow ───────────────────
+    // Calls Render Node.js backend /auth/request-password-otp
     public static JsonObject forgotPassword(String email) throws IOException {
         android.util.Log.d("REQUEST_OTP", "Email entered: " + email);
         JsonObject body = new JsonObject();
@@ -157,7 +157,16 @@ public class ApiService {
                 if (response.isSuccessful()) {
                     android.util.Log.d("OTP_SENT", "OTP email request successful for: " + email);
                     result.addProperty("success", true);
-                    return result; 
+                    try {
+                        JsonObject data = gson.fromJson(raw, JsonObject.class);
+                        if (data != null && data.has("message")) {
+                            result.addProperty("message", data.get("message").getAsString());
+                        } else {
+                            result.addProperty("message", "OTP sent successfully.");
+                        }
+                    } catch (Exception parseEx) {
+                        result.addProperty("message", "OTP sent successfully.");
+                    }
                 } else {
                     result.addProperty("success", false);
                     try {
@@ -170,9 +179,8 @@ public class ApiService {
                     } catch (Exception parseEx) {
                         result.addProperty("message", "HTTP error " + code + " (Backend returned non-JSON response)");
                     }
-                    result.addProperty("error", "Failed");
-                    return result;
                 }
+                return result;
             }
         } catch (Exception e) {
             android.util.Log.e("REQUEST_OTP", "Exception message: " + e.getMessage());
@@ -446,21 +454,25 @@ public class ApiService {
         JsonObject result = new JsonObject();
 
         try {
-
             int userId = new SessionManager(ctx).getUserId();
-            String email =
-                    new SessionManager(ctx)
-                            .getUserEmail();
+            String email = new SessionManager(ctx).getUserEmail();
+
+            android.util.Log.d("ApiService", "CURRENT_SESSION_USER_ID: " + userId);
+            android.util.Log.d("ApiService", "CURRENT_SESSION_EMAIL: " + email);
+            android.util.Log.d("ApiService", "PROFILE_UPDATE_EMAIL: " + email);
 
             JsonObject body = new JsonObject();
-
             body.addProperty("user_id", userId);
             body.addProperty("name", name);
-            body.addProperty("email", email);
+            if (email != null && !email.trim().isEmpty()) {
+                body.addProperty("email", email);
+            }
             body.addProperty("age", age);
             body.addProperty("gender", gender);
             body.addProperty("concerns", concerns);
-            body.addProperty("photo_url", photoBase64);
+            if (photoBase64 != null && !photoBase64.isEmpty()) {
+                body.addProperty("photo_url", photoBase64);
+            }
 
             Request req = new Request.Builder()
                     .url(SupabaseConfig.REST_URL + "users?user_id=eq." + userId)
@@ -479,9 +491,7 @@ public class ApiService {
             result.addProperty("message", raw);
 
         } catch (Exception e) {
-
             e.printStackTrace();
-
             result.addProperty("success", false);
             result.addProperty("message", e.getMessage());
         }

@@ -206,14 +206,16 @@ def request_password_otp():
             if upsert_otp(email, otp_hash, expires_at):
                 if send_otp_email(email, otp):
                     print(f"[OTP_SENT] OTP successfully sent to {email}", flush=True)
+                    return jsonify({"success": True, "message": "OTP sent successfully."})
                 else:
                     print(f"[OTP] Failed to send email to {email}", flush=True)
+                    return jsonify({"success": False, "message": "Failed to send OTP email. Please try again."}), 500
             else:
                 print(f"[OTP] Failed to upsert OTP to database for {email}", flush=True)
+                return jsonify({"success": False, "message": "Failed to generate OTP. Please try again."}), 500
         else:
             print(f"[OTP] Password reset requested for unknown email: {email}", flush=True)
-            
-        return jsonify({"success": True, "message": "If this email is registered, you will receive a 6-digit OTP shortly."})
+            return jsonify({"success": False, "message": "Email is not registered."}), 404
     except Exception as e:
         print(f"[OTP] Error in request-password-otp: {e}", flush=True)
         return jsonify({"success": False, "message": "Failed to request OTP."}), 500

@@ -188,6 +188,7 @@ public class AuthActivity extends AppCompatActivity {
             applyMode();
         });
         tvForgotPassword.setOnClickListener(v -> {
+            android.util.Log.d("AuthActivity", "FORGOT_PASSWORD_CLICKED");
 
             String email =
                     etEmail.getText() != null
@@ -212,9 +213,7 @@ public class AuthActivity extends AppCompatActivity {
                 return;
             }
 
-            ProgressDialog progress =
-                    new ProgressDialog(this);
-
+            ProgressDialog progress = new ProgressDialog(this);
             progress.setMessage("Sending verification code (OTP)...");
             progress.setCancelable(false);
             progress.show();
@@ -224,26 +223,25 @@ public class AuthActivity extends AppCompatActivity {
                     JsonObject result = ApiService.forgotPassword(email);
                     runOnUiThread(() -> {
                         progress.dismiss();
-                        // Supabase returns {} on success — treat any non-error as OTP sent
-                        boolean sent = !result.has("error") && !result.has("error_code");
-                        if (sent) {
+                        boolean success = result.has("success") && result.get("success").getAsBoolean();
+                        if (success) {
                             Toast.makeText(
                                     this,
-                                    R.string.otp_sent_success,
+                                    "OTP sent successfully.",
                                     Toast.LENGTH_LONG
                             ).show();
-
+                            
                             // Navigate to OTP verification screen
                             Intent intent = new Intent(this, OtpVerificationActivity.class);
                             intent.putExtra("email", email);
                             startActivity(intent);
                         } else {
-                            String msg = result.has("message") ? result.get("message").getAsString() : "Email not registered in Supabase.";
+                            String msg = result.has("message") ? result.get("message").getAsString() : "Email is not registered.";
                             Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
                         }
                     });
                 } catch (Exception e) {
-                    android.util.Log.e("AuthActivity", "Error requesting password reset OTP", e);
+                    android.util.Log.e("AuthActivity", "Error requesting password reset", e);
                     runOnUiThread(() -> {
                         progress.dismiss();
                         Toast.makeText(
