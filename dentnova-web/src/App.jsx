@@ -4,6 +4,7 @@ import { supabase } from './supabaseClient'
 import { getJavaHashCode } from './lib/utils'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+import { useRemindersNotifier } from './hooks/useRemindersNotifier'
 
 // Import pages
 import Landing from './pages/Landing'
@@ -31,6 +32,9 @@ export default function App() {
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light')
   const location = useLocation()
   const navigate = useNavigate()
+
+  // Start checking active reminders for notifications
+  useRemindersNotifier(user)
 
   useEffect(() => {
     // Apply theme
