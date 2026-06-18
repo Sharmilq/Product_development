@@ -88,8 +88,7 @@ export default function Reminders() {
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [title, setTitle] = useState('Brushing Reminders')
   const [time, setTime] = useState('08:00')
-  const [days, setDays] = useState('Daily')
-  const [customDays, setCustomDays] = useState([])
+  const [selectedDays, setSelectedDays] = useState([])
   const [replaceDate, setReplaceDate] = useState('')
   const [saving, setSaving] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
@@ -115,6 +114,7 @@ export default function Reminders() {
     const uid = userId ?? appUserId
     if (!uid) return
     setLoading(true)
+    console.log('WEB_REMINDER_FETCH_USER_ID:', uid)
 
     try {
       const { data, error } = await supabase
@@ -126,6 +126,7 @@ export default function Reminders() {
       if (error) {
         console.error('[DentNova] WEB_REMINDERS_ERROR', error)
       } else {
+        console.log('WEB_REMINDER_FETCH_RESULT:', data)
         setReminders(data || [])
       }
     } catch (err) {
@@ -137,6 +138,7 @@ export default function Reminders() {
 
   // ── Toggle enabled flag ───────────────────────────────────────────────────
   const handleToggle = async (id, currentVal) => {
+    console.log('WEB_REMINDER_TOGGLE_ID:', id)
     try {
       const { error } = await supabase
         .from('reminders')
@@ -155,7 +157,7 @@ export default function Reminders() {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this reminder?')) return
 
-    console.log('[DentNova] WEB_REMINDER_DELETE_ID:', id)
+    console.log('WEB_REMINDER_DELETE_ID:', id)
 
     try {
       const { error } = await supabase
@@ -174,9 +176,11 @@ export default function Reminders() {
   }
 
   const handleDaySelect = (day) => {
-    setCustomDays(prev =>
-      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
-    )
+    setSelectedDays(prev => {
+      const updated = prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+      console.log('WEB_REMINDER_SELECTED_DAYS:', updated)
+      return updated
+    })
   }
 
   // ── Save new reminder ─────────────────────────────────────────────────────
@@ -192,7 +196,7 @@ export default function Reminders() {
     }
 
     let finalTime = time
-    let finalDays = days
+    let finalDays = 'ONCE'
 
     if (title === 'Toothbrush Replacement') {
       if (!replaceDate) {
@@ -204,6 +208,12 @@ export default function Reminders() {
       finalTime = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
       finalDays = 'ONCE'
     } else {
+      if (selectedDays.length === 0) {
+        setErrorMsg('Please select at least one day.')
+        setSaving(false)
+        return
+      }
+      
       // Convert 24h → 12h AM/PM
       const [h, m] = time.split(':')
       const hour = parseInt(h, 10)
@@ -211,14 +221,10 @@ export default function Reminders() {
       const adjusted = hour % 12 || 12
       finalTime = `${adjusted.toString().padStart(2, '0')}:${m} ${ampm}`
 
-      if (days === 'Custom') {
-        if (customDays.length === 0) {
-          setErrorMsg('Please select at least one day.')
-          setSaving(false)
-          return
-        }
-        finalDays = customDays.join(', ')
-      }
+      // Order selected days to match Mon -> Sun
+      const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      const orderedDays = dayOrder.filter(d => selectedDays.includes(d))
+      finalDays = orderedDays.join(',')
     }
 
     const body = {
@@ -229,7 +235,7 @@ export default function Reminders() {
       enabled: true
     }
 
-    console.log('[DentNova] WEB_REMINDER_SAVE_BODY:', JSON.stringify(body))
+    console.log('WEB_REMINDER_SAVE_BODY:', body)
 
     try {
       const { data, error } = await supabase
@@ -244,8 +250,7 @@ export default function Reminders() {
       setShowAddDialog(false)
       setTitle('Brushing Reminders')
       setTime('08:00')
-      setDays('Daily')
-      setCustomDays([])
+      setSelectedDays([])
       setReplaceDate('')
       fetchReminders(appUserId)
     } catch (err) {
@@ -330,32 +335,20 @@ export default function Reminders() {
                     />
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Repeat Frequency</label>
-                    <select
-                      value={days}
-                      onChange={(e) => setDays(e.target.value)}
-                      className="w-full p-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-500 text-slate-800 dark:text-slate-200"
-                    >
-                      <option value="Daily">Daily</option>
-                      <option value="Weekdays">Weekdays (Mon–Fri)</option>
-                      <option value="Custom">Custom Days</option>
-                    </select>
-                  </div>
-
-                  {days === 'Custom' && (
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Select Days</label>
                     <div className="flex gap-2 flex-wrap pt-1">
                       {daysOfWeek.map((day) => {
-                        const isSel = customDays.includes(day)
+                        const isSel = selectedDays.includes(day)
                         return (
                           <button
                             key={day}
                             type="button"
                             onClick={() => handleDaySelect(day)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border ${
+                            className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all ${
                               isSel
-                                ? 'bg-cyan-500 border-cyan-500 text-white'
-                                : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                                ? 'bg-cyan-500 border-cyan-500 text-white shadow-md'
+                                : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850'
                             }`}
                           >
                             {day}
@@ -363,7 +356,7 @@ export default function Reminders() {
                         )
                       })}
                     </div>
-                  )}
+                  </div>
                 </>
               )}
 
