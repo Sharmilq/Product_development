@@ -4,15 +4,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="?attr/colorSurface">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:background="#FFFFFF" app:elevation="0dp">
+        android:background="?attr/colorSurface" app:elevation="0dp">
         <androidx.appcompat.widget.Toolbar android:id="@+id/toolbar"
             android:layout_width="match_parent" android:layout_height="?attr/actionBarSize"
-            android:background="#FFFFFF" app:title="Send feedback" app:titleTextColor="#1A2332"
-            app:navigationIcon="@drawable/ic_arrow_back_ios"/>
+            android:background="?attr/colorSurface" app:title="Send feedback" app:titleTextColor="?attr/colorOnSurface"
+            app:navigationIcon="@drawable/ic_arrow_back_ios"
+        app:navigationIconTint="?attr/colorOnSurface"/>
     </com.google.android.material.appbar.AppBarLayout>
 
     <ScrollView android:layout_width="match_parent" android:layout_height="match_parent"
@@ -27,7 +28,7 @@
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:fontFamily="@font/inter_semibold"
                 android:text="How would you rate DentNova?"
-                android:textColor="#1A2332" android:textSize="16sp"/>
+                android:textColor="?attr/colorOnSurface" android:textSize="16sp"/>
 
             <Space android:layout_width="0dp" android:layout_height="20dp"/>
 
@@ -60,7 +61,7 @@
                 android:layout_gravity="center_horizontal"
                 android:fontFamily="@font/inter_semibold"
                 android:text="We're thrilled! 🎉"
-                android:textColor="#1A2332" android:textSize="15sp"
+                android:textColor="?attr/colorOnSurface" android:textSize="15sp"
                 android:visibility="visible"/>
 
             <Space android:layout_width="0dp" android:layout_height="28dp"/>
@@ -69,7 +70,7 @@
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:fontFamily="@font/inter_medium"
                 android:text="Tell us more (optional)"
-                android:textColor="#1A2332" android:textSize="14sp"/>
+                android:textColor="?attr/colorOnSurface" android:textSize="14sp"/>
 
             <Space android:layout_width="0dp" android:layout_height="10dp"/>
 
@@ -79,7 +80,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 app:boxCornerRadiusTopStart="12dp" app:boxCornerRadiusTopEnd="12dp"
                 app:boxCornerRadiusBottomStart="12dp" app:boxCornerRadiusBottomEnd="12dp"
-                app:boxStrokeColor="#E0E8EF" app:boxBackgroundColor="#FFFFFF">
+                app:boxStrokeColor="?attr/colorOutline" app:boxBackgroundColor="?attr/colorSurfaceVariant">
                 <com.google.android.material.textfield.TextInputEditText android:id="@+id/etFeedback"
                     android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:hint="What's on your mind?"
@@ -94,10 +95,10 @@
             <!-- Submit button (shown when not submitted) -->
             <com.google.android.material.button.MaterialButton android:id="@+id/btnSubmitFeedback"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="Submit feedback" android:textColor="#FFFFFF"
+                android:text="Submit feedback" android:textColor="?attr/colorOnSurface"
                 android:fontFamily="@font/inter_semibold"
                 android:paddingTop="14dp" android:paddingBottom="14dp"
-                app:icon="@drawable/ic_send_outlined" app:iconTint="#FFFFFF"
+                app:icon="@drawable/ic_send_outlined" app:iconTint="?attr/colorOnSurface"
                 app:backgroundTint="#00BCD4" app:cornerRadius="12dp" app:elevation="0dp"/>
 
             <!-- Thank you card (shown after submit, hidden initially) -->
@@ -118,11 +119,11 @@
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:fontFamily="@font/inter_bold"
                         android:text="Thank you!"
-                        android:textColor="#1A2332" android:textSize="18sp"/>
+                        android:textColor="?attr/colorOnSurface" android:textSize="18sp"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:fontFamily="@font/inter_regular"
                         android:text="Your feedback helps us improve."
-                        android:textColor="#6B7B8D" android:textSize="13sp"/>
+                        android:textColor="?attr/colorOnSurfaceVariant" android:textSize="13sp"/>
                 </LinearLayout>
             </FrameLayout>
 

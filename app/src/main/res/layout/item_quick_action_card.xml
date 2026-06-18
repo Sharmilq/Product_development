@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent" android:layout_height="wrap_content"
-    app:cardBackgroundColor="#FFFFFF" app:cardCornerRadius="14dp"
+    app:cardBackgroundColor="?attr/colorSurfaceVariant" app:cardCornerRadius="14dp"
     app:cardElevation="2dp" app:cardUseCompatPadding="true">
     <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
         android:orientation="vertical" android:padding="14dp" android:gravity="center">
@@ -18,12 +18,12 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:fontFamily="@font/inter_semibold"
-            android:textColor="#1A2332"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="13sp"
             android:maxLines="2"/>
         <TextView android:id="@+id/tvActionSub"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/inter_regular" android:textColor="#9EAAB8"
+            android:fontFamily="@font/inter_regular" android:textColor="?attr/colorOnSurfaceVariant"
             android:gravity="center"
             android:layout_width="match_parent"
             android:textSize="10sp"/>

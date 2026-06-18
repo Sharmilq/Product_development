@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="?attr/colorSurface"
     android:fillViewport="true">
 
     <LinearLayout
@@ -43,7 +43,7 @@
             android:layout_gravity="center_horizontal"
             android:fontFamily="@font/inter_bold"
             android:text="@string/title_otp_verify"
-            android:textColor="#1A2332"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="24sp" />
 
         <Space
@@ -59,7 +59,7 @@
             android:fontFamily="@font/inter_regular"
             android:gravity="center"
             android:text="@string/subtitle_otp_verify"
-            android:textColor="#6B7B8D"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="13sp" />
 
         <Space
@@ -109,7 +109,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/inter_medium"
                 android:text="Verification Code"
-                android:textColor="#1A2332"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="13sp" />
 
             <Space
@@ -124,8 +124,8 @@
                 app:boxCornerRadiusTopEnd="10dp"
                 app:boxCornerRadiusBottomStart="10dp"
                 app:boxCornerRadiusBottomEnd="10dp"
-                app:boxStrokeColor="#E0E8EF"
-                app:boxBackgroundColor="#FFFFFF"
+                app:boxStrokeColor="?attr/colorOutline"
+                app:boxBackgroundColor="?attr/colorSurfaceVariant"
                 app:startIconDrawable="@drawable/ic_lock_outline"
                 app:startIconTint="#9EAAB8"
                 app:helperText="Enter the 6-digit code from your email"
@@ -155,7 +155,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/btn_verify"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="15sp"
                 android:fontFamily="@font/inter_semibold"
                 android:paddingTop="14dp"
@@ -179,7 +179,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/inter_medium"
                 android:text="@string/new_password_hint"
-                android:textColor="#1A2332"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="13sp" />
 
             <Space
@@ -194,8 +194,8 @@
                 app:boxCornerRadiusTopEnd="10dp"
                 app:boxCornerRadiusBottomStart="10dp"
                 app:boxCornerRadiusBottomEnd="10dp"
-                app:boxStrokeColor="#E0E8EF"
-                app:boxBackgroundColor="#FFFFFF"
+                app:boxStrokeColor="?attr/colorOutline"
+                app:boxBackgroundColor="?attr/colorSurfaceVariant"
                 app:startIconDrawable="@drawable/ic_lock_outline"
                 app:startIconTint="#9EAAB8"
                 app:endIconMode="password_toggle"
@@ -279,7 +279,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/inter_medium"
                 android:text="@string/confirm_password_hint"
-                android:textColor="#1A2332"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="13sp" />
 
             <Space
@@ -294,8 +294,8 @@
                 app:boxCornerRadiusTopEnd="10dp"
                 app:boxCornerRadiusBottomStart="10dp"
                 app:boxCornerRadiusBottomEnd="10dp"
-                app:boxStrokeColor="#E0E8EF"
-                app:boxBackgroundColor="#FFFFFF"
+                app:boxStrokeColor="?attr/colorOutline"
+                app:boxBackgroundColor="?attr/colorSurfaceVariant"
                 app:startIconDrawable="@drawable/ic_lock_outline"
                 app:startIconTint="#9EAAB8"
                 app:endIconMode="password_toggle"
@@ -320,7 +320,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/btn_reset_password"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="15sp"
                 android:fontFamily="@font/inter_semibold"
                 android:paddingTop="14dp"

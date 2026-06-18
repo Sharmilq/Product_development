@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F9FA">
+    android:background="?attr/colorSurface">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -26,7 +26,8 @@
                     android:id="@+id/btnBack"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
-                    android:src="@drawable/ic_arrow_back_ios"/>
+                    android:src="@drawable/ic_arrow_back_ios"
+                    android:tint="?attr/colorOnSurface"/>
 
                 <TextView
                     android:layout_width="0dp"
@@ -34,7 +35,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="Profile"
-                    android:textColor="#1A2332"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="18sp"
                     android:textStyle="bold"/>
 
@@ -42,7 +43,8 @@
                     android:id="@+id/btnSettings"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
-                    android:src="@drawable/ic_settings"/>
+                    android:src="@drawable/ic_settings"
+                    android:tint="?attr/colorOnSurface"/>
             </LinearLayout>
 
             <Space android:layout_width="0dp" android:layout_height="18dp"/>
@@ -50,7 +52,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="#F3FBFF"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="3dp">
 
@@ -84,7 +86,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Your Name"
-                            android:textColor="#1A2332"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="22sp"
                             android:textStyle="bold"/>
 
@@ -93,7 +95,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="example@gmail.com"
-                            android:textColor="#6B7B8D"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="13sp"/>
 
                         <Space
@@ -123,12 +125,12 @@
                             android:layout_height="42dp"
                             android:text="Edit profile"
                             android:textAllCaps="false"
-                            android:textColor="#FFFFFF"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="13sp"
                             app:backgroundTint="#00BCD4"
                             app:cornerRadius="20dp"
                             app:icon="@drawable/ic_edit_outlined"
-                            app:iconTint="#FFFFFF"/>
+                            app:iconTint="?attr/colorOnSurface"/>
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -136,9 +138,10 @@
             <Space android:layout_width="0dp" android:layout_height="18dp"/>
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/cardStreak"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="#D7F8FB"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="2dp">
 
@@ -170,7 +173,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="No streak yet"
-                            android:textColor="#1A2332"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="17sp"
                             android:textStyle="bold"/>
 
@@ -179,7 +182,7 @@
                             android:layout_height="wrap_content"
                             android:text="Healthy habits in motion — keep going!"
                             android:id="@+id/tvStreakSub"
-                            android:textColor="#6B7B8D"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="12sp"/>
                     </LinearLayout>
                 </LinearLayout>
@@ -190,7 +193,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Daily Habits"
-                android:textColor="#1A2332"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="17sp"
                 android:textStyle="bold"/>
 
@@ -209,8 +212,8 @@
                         android:layout_width="0dp"
                         android:layout_height="120dp"
                         android:layout_weight="1"
-                        android:layout_marginEnd="6dp"
-                        app:cardBackgroundColor="#F8FEFF"
+                        android:layout_margin="6dp"
+                        app:cardBackgroundColor="?attr/colorSurfaceVariant"
                         app:cardCornerRadius="18dp"
                         app:cardElevation="3dp">
 
@@ -243,7 +246,7 @@
 
                                 <TextView
                                     android:text="Brushing"
-                                    android:textColor="#1A2332"
+                                    android:textColor="?attr/colorOnSurface"
                                     android:textSize="12sp"
                                     android:textStyle="bold"
                                     android:layout_width="wrap_content"
@@ -269,8 +272,8 @@
                         android:layout_width="0dp"
                         android:layout_height="120dp"
                         android:layout_weight="1"
-                        android:layout_marginStart="6dp"
-                        app:cardBackgroundColor="#F8FEFF"
+                        android:layout_margin="6dp"
+                        app:cardBackgroundColor="?attr/colorSurfaceVariant"
                         app:cardCornerRadius="18dp"
                         app:cardElevation="3dp">
 
@@ -303,7 +306,7 @@
 
                                 <TextView
                                     android:text="Flossing"
-                                    android:textColor="#1A2332"
+                                    android:textColor="?attr/colorOnSurface"
                                     android:textSize="12sp"
                                     android:textStyle="bold"
                                     android:layout_width="wrap_content"
@@ -328,7 +331,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Achievements"
-                android:textColor="#1A2332"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="17sp"
                 android:textStyle="bold"/>
 
@@ -347,7 +350,7 @@
                     android:layout_margin="6dp"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="2dp"
-                    app:cardBackgroundColor="#FFFFFF">
+                    app:cardBackgroundColor="?attr/colorSurfaceVariant">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -361,13 +364,13 @@
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
                         <TextView android:text="Hygiene Star" android:textStyle="bold"
-                            android:textColor="#1A2332" android:textSize="13sp"
+                            android:textColor="?attr/colorOnSurface" android:textSize="13sp"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
                         <TextView
                             android:id="@+id/tvHygieneStatus"
                             android:text="Earned"
-                            android:textColor="#6B7B8D"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="11sp"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                     </LinearLayout>
@@ -380,7 +383,7 @@
                     android:layout_margin="6dp"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="2dp"
-                    app:cardBackgroundColor="#FFFFFF">
+                    app:cardBackgroundColor="?attr/colorSurfaceVariant">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -393,13 +396,13 @@
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
                         <TextView android:text="Consistent" android:textStyle="bold"
-                            android:textColor="#1A2332" android:textSize="13sp"
+                            android:textColor="?attr/colorOnSurface" android:textSize="13sp"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
                         <TextView
                             android:id="@+id/tvConsistentStatus"
                             android:text="Locked"
-                            android:textColor="#6B7B8D"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="11sp"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                     </LinearLayout>
@@ -412,7 +415,7 @@
                     android:layout_margin="6dp"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="2dp"
-                    app:cardBackgroundColor="#FFFFFF">
+                    app:cardBackgroundColor="?attr/colorSurfaceVariant">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -425,13 +428,13 @@
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
                         <TextView android:text="Oral Care Pro" android:textStyle="bold"
-                            android:textColor="#1A2332" android:textSize="13sp"
+                            android:textColor="?attr/colorOnSurface" android:textSize="13sp"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
                         <TextView
                             android:id="@+id/tvProStatus"
                             android:text="Locked"
-                            android:textColor="#6B7B8D"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="11sp"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                     </LinearLayout>
@@ -444,7 +447,7 @@
                     android:layout_margin="6dp"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="2dp"
-                    app:cardBackgroundColor="#FFFFFF">
+                    app:cardBackgroundColor="?attr/colorSurfaceVariant">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -457,10 +460,10 @@
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
                         <TextView android:text="Improver" android:textStyle="bold"
-                            android:textColor="#1A2332" android:textSize="13sp"
+                            android:textColor="?attr/colorOnSurface" android:textSize="13sp"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
-                        <TextView android:id="@+id/tvImproverStatus" android:text="Locked" android:textColor="#6B7B8D"
+                        <TextView android:id="@+id/tvImproverStatus" android:text="Locked" android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="11sp"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                     </LinearLayout>
@@ -473,10 +476,10 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="#FFFFFF"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
                 app:cardCornerRadius="18dp"
                 app:cardElevation="2dp">
-
+ 
                 <TextView
                     android:id="@+id/tvAssessments"
                     android:layout_width="match_parent"
@@ -484,7 +487,7 @@
                     android:gravity="center"
                     android:padding="22dp"
                     android:text="0 Assessments"
-                    android:textColor="#6B7B8D"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="14sp"/>
             </androidx.cardview.widget.CardView>
 
@@ -494,7 +497,7 @@
                 android:id="@+id/rowFeedback"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="#FFFFFF"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp">
 
@@ -503,7 +506,7 @@
                     android:layout_height="wrap_content"
                     android:padding="16dp"
                     android:text="Send feedback  ›"
-                    android:textColor="#1A2332"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="14sp"/>
             </androidx.cardview.widget.CardView>
 
@@ -513,7 +516,7 @@
                 android:id="@+id/rowLogout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="#FFFFFF"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp">
 

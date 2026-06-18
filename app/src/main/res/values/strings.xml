@@ -91,4 +91,5 @@
     <string name="otp_sent_success">OTP sent to your email successfully 📧</string>
     <string name="otp_verification_success">OTP verified successfully!</string>
     <string name="otp_reset_success">Password updated successfully! Please sign in.</string>
+    <string name="default_web_client_id">239143893960-867gt7sas5tnlm4rf8hpfg85ukabefrg.apps.googleusercontent.com</string>
 </resources>

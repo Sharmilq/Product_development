@@ -9,7 +9,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="?attr/colorSurface"
     android:orientation="vertical">
 
     <!-- AppBar -->
@@ -17,7 +17,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="#FFFFFF"
+        android:background="?attr/colorSurface"
         android:elevation="0dp">
 
         <ImageButton
@@ -27,7 +27,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Back"
             android:src="@drawable/ic_arrow_back_ios"
-            android:tint="#1A1A2E" />
+            android:tint="?attr/colorOnSurface" />
 
         <TextView
             android:id="@+id/tvTitle"
@@ -36,7 +36,7 @@
             android:layout_gravity="center"
             android:fontFamily="sans-serif-medium"
             android:text="AI Tooth Scan"
-            android:textColor="#1A1A2E"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="16sp"
             android:textStyle="bold" />
     </androidx.appcompat.widget.Toolbar>

@@ -90,6 +90,12 @@ public class ArticleDetailActivity extends AppCompatActivity {
 
             startActivity(intent);
         });
+
+        findViewById(R.id.btnLearnMore).setOnClickListener(v -> {
+            Intent eduIntent = new Intent(this, EducationActivity.class);
+            eduIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(eduIntent);
+        });
     }
 
     private void addBullets(LinearLayout parent, String[] items) {
@@ -98,7 +104,7 @@ public class ArticleDetailActivity extends AppCompatActivity {
             TextView tv = new TextView(this);
             tv.setText("•  " + item);
             tv.setTextSize(16);
-            tv.setTextColor(0xFF1A2332);
+            tv.setTextColor(com.google.android.material.color.MaterialColors.getColor(parent, com.google.android.material.R.attr.colorOnSurface));
             tv.setPadding(0, 8, 0, 8);
             parent.addView(tv);
         }
@@ -110,7 +116,7 @@ public class ArticleDetailActivity extends AppCompatActivity {
             TextView tv = new TextView(this);
             tv.setText((i + 1) + "   " + items[i]);
             tv.setTextSize(16);
-            tv.setTextColor(0xFF1A2332);
+            tv.setTextColor(com.google.android.material.color.MaterialColors.getColor(parent, com.google.android.material.R.attr.colorOnSurface));
             tv.setPadding(0, 10, 0, 10);
             parent.addView(tv);
         }

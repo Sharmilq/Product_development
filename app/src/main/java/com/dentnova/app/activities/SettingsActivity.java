@@ -34,50 +34,9 @@ public class SettingsActivity extends AppCompatActivity {
         TextView rowTheme = findViewById(R.id.rowTheme);
         TextView rowPrivacy = findViewById(R.id.rowPrivacy);
         TextView rowVersion = findViewById(R.id.rowVersion);
-        TextView rowFeedback =
-                findViewById(R.id.rowFeedback);
+        TextView rowFeedback = findViewById(R.id.rowFeedback);
         rowFeedback.setOnClickListener(v -> {
-
-            EditText input = new EditText(this);
-            input.setHint("Share your feedback");
-
-            new AlertDialog.Builder(this)
-                    .setTitle("DentNova Feedback")
-                    .setView(input)
-                    .setPositiveButton("Send", (d, w) -> {
-
-                        String msg =
-                                input.getText()
-                                        .toString()
-                                        .trim();
-
-                        if (msg.isEmpty()) return;
-
-                        new Thread(() -> {
-
-                            try {
-
-                                ApiService.sendFeedback(
-                                        this,
-                                        msg
-                                );
-
-                                runOnUiThread(() ->
-                                        Toast.makeText(
-                                                this,
-                                                "Feedback sent 💙",
-                                                Toast.LENGTH_LONG
-                                        ).show()
-                                );
-
-                            } catch (Exception e) {
-                                android.util.Log.e("SettingsActivity", "Error sending feedback to Supabase", e);
-                            }
-
-                        }).start();
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();
+            startActivity(new Intent(SettingsActivity.this, FeedbackActivity.class));
         });
 
         btnBack.setOnClickListener(v -> finish());
@@ -89,8 +48,7 @@ public class SettingsActivity extends AppCompatActivity {
             ));
         });
 
-        TextView rowLogout =
-                findViewById(R.id.rowLogout);
+        TextView rowLogout = findViewById(R.id.rowLogout);
         rowLogout.setOnClickListener(v -> {
             new android.app.AlertDialog.Builder(this)
                     .setTitle("Logout")
@@ -103,7 +61,12 @@ public class SettingsActivity extends AppCompatActivity {
                         // Keep onboarding state but clear other prefs
                         SharedPreferences prefs = getSharedPreferences("dentnova_prefs", MODE_PRIVATE);
                         boolean seenOnboarding = prefs.getBoolean("has_seen_onboarding", false);
-                        prefs.edit().clear().putBoolean("has_seen_onboarding", seenOnboarding).apply();
+                        String themeMode = prefs.getString("theme_mode", "system");
+                        prefs.edit().clear()
+                                .putBoolean("has_seen_onboarding", seenOnboarding)
+                                .putString("theme_mode", themeMode)
+                                .apply();
+                        android.util.Log.d("THEME", "SESSION_TOKEN_PRESERVED is false, but theme preserved: " + themeMode);
 
                         // 2. Sign out of Firebase
                         FirebaseAuth.getInstance().signOut();
@@ -128,66 +91,9 @@ public class SettingsActivity extends AppCompatActivity {
                     .setNegativeButton("Cancel", null)
                     .show();
         });
+
         rowPassword.setOnClickListener(v -> {
-
-            LinearLayout layout = new LinearLayout(this);
-            layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setPadding(50, 30, 50, 10);
-
-            EditText newPass = new EditText(this);
-            newPass.setHint("New password");
-            newPass.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-            layout.addView(newPass);
-
-            EditText confirmPass = new EditText(this);
-            confirmPass.setHint("Confirm password");
-            confirmPass.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-            layout.addView(confirmPass);
-
-            AlertDialog dialog = new AlertDialog.Builder(this)
-                    .setTitle("Update Password")
-                    .setMessage("Choose a secure password for your DentNova account.")
-                    .setView(layout)
-                    .setPositiveButton("Update", null)
-                    .setNegativeButton("Cancel", null)
-                    .create();
-
-            dialog.setOnShowListener(d -> {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(btn -> {
-
-                    String p1 = newPass.getText().toString().trim();
-                    String p2 = confirmPass.getText().toString().trim();
-
-                    if (p1.length() < 6) {
-                        newPass.setError("Minimum 6 characters");
-                        return;
-                    }
-
-                    if (!p1.equals(p2)) {
-                        confirmPass.setError("Passwords do not match");
-                        return;
-                    }
-
-                    new Thread(() -> {
-                        try {
-                            ApiService.changePassword(this, p1);
-
-                            runOnUiThread(() -> {
-                                dialog.dismiss();
-                                Toast.makeText(this, "Password updated successfully", Toast.LENGTH_LONG).show();
-                            });
-
-                        } catch (Exception e) {
-                            android.util.Log.e("SettingsActivity", "Error changing password", e);
-                            runOnUiThread(() ->
-                                    Toast.makeText(this, "Password update failed", Toast.LENGTH_LONG).show()
-                            );
-                        }
-                    }).start();
-                });
-            });
-
-            dialog.show();
+            startActivity(new Intent(SettingsActivity.this, ChangePasswordActivity.class));
         });
 
         rowNotifications.setOnClickListener(v -> {
@@ -196,19 +102,9 @@ public class SettingsActivity extends AppCompatActivity {
                     RemindersActivity.class
             ));
         });
-        rowTheme.setOnClickListener(v -> {
-            Toast.makeText(
-                    this,
-                    "Dark mode will be added in the next update 🌙",
-                    Toast.LENGTH_LONG
-            ).show();
-        });
+        rowTheme.setOnClickListener(v -> showThemeDialog());
         rowPrivacy.setOnClickListener(v -> {
-            Toast.makeText(
-                    this,
-                    "DentNova respects your privacy 💙",
-                    Toast.LENGTH_LONG
-            ).show();
+            startActivity(new Intent(SettingsActivity.this, PrivacyPolicyActivity.class));
         });
 
         rowVersion.setOnClickListener(v -> {
@@ -218,5 +114,36 @@ public class SettingsActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT
             ).show();
         });
+    }
+
+    private void showThemeDialog() {
+        String[] themes = {"Light", "Dark", "System Default"};
+
+        new AlertDialog.Builder(this)
+                .setTitle("Choose Theme")
+                .setItems(themes, (dialog, which) -> {
+                    SharedPreferences.Editor editor =
+                            getSharedPreferences("dentnova_prefs", MODE_PRIVATE).edit();
+
+                    if (which == 0) {
+                        android.util.Log.d("THEME", "THEME_SELECTED: Light");
+                        editor.putString("theme_mode", "light");
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                    } else if (which == 1) {
+                        android.util.Log.d("THEME", "THEME_SELECTED: Dark");
+                        editor.putString("theme_mode", "dark");
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                    } else {
+                        android.util.Log.d("THEME", "THEME_SELECTED: System Default");
+                        editor.putString("theme_mode", "system");
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                    }
+
+                    editor.apply();
+                    android.util.Log.d("THEME", "THEME_MODE_SAVED");
+                    android.util.Log.d("THEME", "THEME_APPLIED");
+                    recreate();
+                })
+                .show();
     }
 }

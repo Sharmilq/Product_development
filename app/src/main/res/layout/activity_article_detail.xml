@@ -4,12 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F9FA">
+    android:background="?attr/colorSurface">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="#FFFFFF"
+        android:background="?attr/colorSurface"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="16dp"
@@ -22,7 +22,7 @@
             android:gravity="center"
             android:text="‹"
             android:textSize="34sp"
-            android:textColor="#1A2332"/>
+            android:textColor="?attr/colorOnSurface"/>
 
         <TextView
             android:id="@+id/tvTitle"
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Gum care"
-            android:textColor="#1A2332"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="22sp"
             android:textStyle="bold"/>
     </LinearLayout>
@@ -50,7 +50,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Gum care"
-                android:textColor="#1A2332"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="28sp"
                 android:textStyle="bold"/>
 
@@ -60,7 +60,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="Healthy gums, healthy life"
-                android:textColor="#6B7B8D"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="17sp"/>
 
             <TextView
@@ -68,7 +68,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
-                android:textColor="#1A2332"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="17sp"
                 android:lineSpacingMultiplier="1.35"/>
 
@@ -77,7 +77,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
                 android:text="Key takeaways"
-                android:textColor="#1A2332"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="20sp"
                 android:textStyle="bold"/>
 
@@ -93,7 +93,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
                 android:text="Watch &amp; learn"
-                android:textColor="#1A2332"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="20sp"
                 android:textStyle="bold"/>
 
@@ -102,7 +102,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="170dp"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/bg_card_white">
+                android:background="@drawable/bg_card_surface">
 
                 <TextView
                     android:layout_width="72dp"
@@ -120,7 +120,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
                 android:text="Tips &amp; Best Practices"
-                android:textColor="#1A2332"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="20sp"
                 android:textStyle="bold"/>
 
@@ -138,7 +138,7 @@
                 android:layout_marginTop="28dp"
                 android:text="Learn more topics"
                 android:textAllCaps="false"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/colorOnSurface"
                 android:textStyle="bold"
                 app:backgroundTint="#00BCD4"
                 app:cornerRadius="22dp"/>

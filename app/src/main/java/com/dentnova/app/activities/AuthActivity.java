@@ -71,6 +71,10 @@ public class AuthActivity extends AppCompatActivity {
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 
+        // Log DEFAULT_WEB_CLIENT_ID and GOOGLE_SERVICES_PACKAGE
+        android.util.Log.d("DEFAULT_WEB_CLIENT_ID", "DEFAULT_WEB_CLIENT_ID: " + getString(R.string.default_web_client_id));
+        android.util.Log.d("GOOGLE_SERVICES_PACKAGE", "GOOGLE_SERVICES_PACKAGE: " + getPackageName());
+
         // Configure Google Sign-In — requestProfile() forces fresh account chooser
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -87,43 +91,52 @@ public class AuthActivity extends AppCompatActivity {
                     View btnG = findViewById(R.id.btnGoogle);
                     if (btnG != null) btnG.setEnabled(true);
 
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        Task<GoogleSignInAccount> task =
-                                GoogleSignIn.getSignedInAccountFromIntent(result.getData());
+                    android.util.Log.d("GOOGLE_SIGNIN_RESULT_CODE", "GOOGLE_SIGNIN_RESULT_CODE: " + result.getResultCode());
+
+                    Task<GoogleSignInAccount> task = null;
+                    if (result.getData() != null) {
+                        task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
+                    }
+
+                    if (result.getResultCode() == RESULT_OK && task != null) {
                         try {
                             GoogleSignInAccount account = task.getResult(ApiException.class);
                             if (account != null) {
                                 String idToken = account.getIdToken();
                                 if (idToken == null || idToken.isEmpty()) {
-                                    android.util.Log.e("GOOGLE_AUTH_FAILED", "Google ID Token is null or empty");
+                                    android.util.Log.e("GOOGLE_ID_TOKEN_NULL", "GOOGLE_ID_TOKEN_NULL");
                                     Toast.makeText(this, "Google ID Token is missing. Authentication aborted.", Toast.LENGTH_LONG).show();
                                     return;
                                 }
-                                android.util.Log.d("GOOGLE_AUTH_SUCCESS", "GOOGLE_AUTH_SUCCESS");
-                                android.util.Log.d("GOOGLE_AUTH_SUCCESS",
-                                        "Account selected: " + account.getEmail());
+                                android.util.Log.d("GOOGLE_SIGNIN_STATUS_CODE", "GOOGLE_SIGNIN_STATUS_CODE: 0 (SUCCESS)");
                                 firebaseAuthWithGoogle(idToken);
                             } else {
-                                android.util.Log.e("GOOGLE_AUTH_FAILED",
-                                        "Account chooser returned null account.");
-                                Toast.makeText(this,
-                                        "Google Sign-In failed: no account returned.",
-                                        Toast.LENGTH_LONG).show();
+                                android.util.Log.e("GOOGLE_SIGNIN_EXCEPTION", "Account chooser returned null account.");
+                                Toast.makeText(this, "Google Sign-In failed: no account returned.", Toast.LENGTH_LONG).show();
                             }
                         } catch (ApiException e) {
-                            android.util.Log.e("GOOGLE_AUTH_FAILED",
-                                    "ApiException code=" + e.getStatusCode() + " msg=" + e.getMessage(), e);
-                            Toast.makeText(this,
-                                    "Google Sign-In failed (code " + e.getStatusCode() + ").",
-                                    Toast.LENGTH_LONG).show();
+                            int statusCode = e.getStatusCode();
+                            android.util.Log.e("GOOGLE_SIGNIN_EXCEPTION", "GOOGLE_SIGNIN_EXCEPTION: ApiException code=" + statusCode, e);
+                            android.util.Log.d("GOOGLE_SIGNIN_STATUS_CODE", "GOOGLE_SIGNIN_STATUS_CODE: " + statusCode);
+                            handleGoogleSignInError(statusCode);
                         }
                     } else {
-                        // User cancelled the chooser — stay on AuthActivity
-                        android.util.Log.w("GOOGLE_AUTH_FAILED",
-                                "Google chooser cancelled or closed. ResultCode=" + result.getResultCode());
-                        Toast.makeText(this,
-                                "Google Sign-In cancelled.",
-                                Toast.LENGTH_SHORT).show();
+                        int statusCode = -1;
+                        if (task != null) {
+                            try {
+                                task.getResult(ApiException.class);
+                            } catch (ApiException e) {
+                                statusCode = e.getStatusCode();
+                                android.util.Log.e("GOOGLE_SIGNIN_EXCEPTION", "GOOGLE_SIGNIN_EXCEPTION: ApiException code=" + statusCode, e);
+                            }
+                        }
+                        android.util.Log.d("GOOGLE_SIGNIN_STATUS_CODE", "GOOGLE_SIGNIN_STATUS_CODE: " + statusCode);
+
+                        if (statusCode == 12501 || statusCode == -1) {
+                            Toast.makeText(this, "Google Sign-In cancelled.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            handleGoogleSignInError(statusCode);
+                        }
                     }
                 }
         );
@@ -136,6 +149,21 @@ public class AuthActivity extends AppCompatActivity {
         initViews();
         applyMode();
         setupListeners();
+    }
+
+    private void handleGoogleSignInError(int statusCode) {
+        String errorMsg;
+        if (statusCode == 10) {
+            android.util.Log.e("GOOGLE_SIGNIN_EXCEPTION", "Google Sign-In setup error 10: SHA mismatch / Package mismatch / Wrong google-services.json / Missing OAuth client");
+            errorMsg = "Google Sign-In setup error (Developer Error 10). Please check SHA-1 fingerprints, package name, and Web Client ID setup in Firebase/Google Console.";
+        } else if (statusCode == 12500) {
+            errorMsg = "Google Sign-In failed (Sign-in failed 12500). Ensure Google Play Services are up to date and developer settings are correct.";
+        } else if (statusCode == 12501) {
+            errorMsg = "Google Sign-In cancelled.";
+        } else {
+            errorMsg = "Google Sign-In failed (Error Code: " + statusCode + "). Please try again.";
+        }
+        Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
     }
 
     private void initViews() {
@@ -257,32 +285,14 @@ public class AuthActivity extends AppCompatActivity {
         View btnGoogle = findViewById(R.id.btnGoogle);
         if (btnGoogle != null) {
             btnGoogle.setOnClickListener(v -> {
-                android.util.Log.d("GOOGLE_BUTTON_CLICKED",
-                        "Google Sign-In button tapped. Starting full session clear...");
+                android.util.Log.d("GOOGLE_SIGNIN_CLICKED", "GOOGLE_SIGNIN_CLICKED");
 
-                // Step 1 — disable button to prevent double-tap
+                // Disable button to prevent double-tap
                 btnGoogle.setEnabled(false);
 
-                // Step 2 — sign out of Firebase (synchronous)
-                android.util.Log.d("GOOGLE_SIGN_OUT_STARTED", "Signing out of Firebase Auth...");
-                mAuth.signOut();
-
-                // Step 3 — sign out of Google, then revoke access to force chooser
-                mGoogleSignInClient.signOut().addOnCompleteListener(this, signOutTask -> {
-                    android.util.Log.d("GOOGLE_SIGN_OUT_STARTED",
-                            "Google signOut complete. Revoking access to force account chooser...");
-
-                    mGoogleSignInClient.revokeAccess().addOnCompleteListener(this, revokeTask -> {
-                        android.util.Log.d("GOOGLE_REVOKE_COMPLETED",
-                                "Google revokeAccess complete. Launching account chooser now.");
-
-                        // Step 4 — launch account chooser ONLY after revoke completes
-                        android.util.Log.d("GOOGLE_CHOOSER_LAUNCHED",
-                                "getSignInIntent() called — account chooser should appear.");
-                        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-                        googleSignInLauncher.launch(signInIntent);
-                    });
-                });
+                // Directly launch intent without clearing session beforehand (unless logout happens)
+                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+                googleSignInLauncher.launch(signInIntent);
             });
         }
     }
@@ -339,6 +349,9 @@ public class AuthActivity extends AppCompatActivity {
                 JsonObject result;
                 if (wasLogin) {
                     result = ApiService.login(this, finalEmail, finalPassword);
+                    if (result.has("success") && result.get("success").getAsBoolean()) {
+                        ApiService.updateDailyStreak(this);
+                    }
                 } else {
                     result = ApiService.register(this, finalName, finalEmail, finalPassword);
                 }
@@ -384,13 +397,14 @@ public class AuthActivity extends AppCompatActivity {
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
+                        android.util.Log.d("FIREBASE_AUTH_SUCCESS", "FIREBASE_AUTH_SUCCESS");
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
                             android.util.Log.d("FIREBASE_USER_NULL_CHECK_PASSED", "FIREBASE_USER_NULL_CHECK_PASSED");
                             syncGoogleUserWithSupabase(user, progress);
                         } else {
                             progress.dismiss();
-                            android.util.Log.e("GOOGLE_AUTH_FAILED",
+                            android.util.Log.e("FIREBASE_AUTH_FAILURE",
                                     "Firebase signInWithCredential succeeded but getCurrentUser() is null.");
                             Toast.makeText(this,
                                     "Authentication error: user is null. Please try again.",
@@ -399,7 +413,7 @@ public class AuthActivity extends AppCompatActivity {
                     } else {
                         progress.dismiss();
                         Exception e = task.getException();
-                        android.util.Log.e("GOOGLE_AUTH_FAILED",
+                        android.util.Log.e("FIREBASE_AUTH_FAILURE",
                                 "Firebase Auth failed: " + (e != null ? e.getMessage() : "unknown"), e);
                         Toast.makeText(this,
                                 "Google authentication failed. Please try again.",
@@ -458,6 +472,7 @@ public class AuthActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     progress.dismiss();
                     if (result != null && result.has("success") && result.get("success").getAsBoolean()) {
+                        android.util.Log.d("SUPABASE_SYNC_SUCCESS", "SUPABASE_SYNC_SUCCESS");
                         int localUserId = result.has("user_id") && !result.get("user_id").isJsonNull() ? result.get("user_id").getAsInt() : -1;
                         String nameStr = result.has("name") && !result.get("name").isJsonNull() ? result.get("name").getAsString() : finalDisplayName;
 
@@ -471,6 +486,8 @@ public class AuthActivity extends AppCompatActivity {
                         );
 
                         android.util.Log.d("SESSION_SAVE_SUCCESS", "SESSION_SAVE_SUCCESS");
+                        
+                        executor.execute(() -> ApiService.updateDailyStreak(AuthActivity.this));
 
                         Toast.makeText(this, "Signed in with Google! 👋", Toast.LENGTH_SHORT).show();
 

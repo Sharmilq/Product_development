@@ -4,16 +4,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="?attr/colorSurface">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:background="#FFFFFF" app:elevation="0dp">
+        android:background="?attr/colorSurface" app:elevation="0dp">
         <androidx.appcompat.widget.Toolbar android:id="@+id/toolbar"
             android:layout_width="match_parent" android:layout_height="?attr/actionBarSize"
-            android:background="#FFFFFF" app:title="How DentNova Works"
-            app:titleTextColor="#1A2332"
-            app:navigationIcon="@drawable/ic_arrow_back_ios"/>
+            android:background="?attr/colorSurface" app:title="How DentNova Works"
+            app:titleTextColor="?attr/colorOnSurface"
+            app:navigationIcon="@drawable/ic_arrow_back_ios"
+        app:navigationIconTint="?attr/colorOnSurface"/>
     </com.google.android.material.appbar.AppBarLayout>
 
     <ScrollView android:layout_width="match_parent" android:layout_height="match_parent"
@@ -33,13 +34,13 @@
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:fontFamily="@font/inter_bold" android:gravity="center"
                         android:text="Your pocket dental coach"
-                        android:textColor="#1A2332" android:textSize="20sp"/>
+                        android:textColor="?attr/colorOnSurface" android:textSize="20sp"/>
                     <Space android:layout_width="0dp" android:layout_height="8dp"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:fontFamily="@font/inter_regular" android:gravity="center"
                         android:lineSpacingMultiplier="1.5"
                         android:text="DentNova combines a clinical-style assessment, mock AI scanning and habit reminders into one simple flow."
-                        android:textColor="#6B7B8D" android:textSize="13sp"/>
+                        android:textColor="?attr/colorOnSurfaceVariant" android:textSize="13sp"/>
                 </LinearLayout>
             </FrameLayout>
 
@@ -75,12 +76,12 @@
                     android:orientation="vertical">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:fontFamily="@font/inter_semibold"
-                        android:text="Project note" android:textColor="#1A2332" android:textSize="13sp"/>
+                        android:text="Project note" android:textColor="?attr/colorOnSurface" android:textSize="13sp"/>
                     <Space android:layout_width="0dp" android:layout_height="6dp"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:fontFamily="@font/inter_regular" android:lineSpacingMultiplier="1.5"
                         android:text="This is a clinical prototype — the AI scan\'s simulated for demonstration. The scoring logic, recommendations and badge engine are fully functional."
-                        android:textColor="#6B7B8D" android:textSize="12sp"/>
+                        android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp"/>
                 </LinearLayout>
             </FrameLayout>
 

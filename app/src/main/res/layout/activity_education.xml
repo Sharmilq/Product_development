@@ -5,25 +5,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F8FA">
+    android:background="?attr/colorSurface">
 
     <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="#FFFFFF"
+        android:background="?attr/colorSurface"
         android:elevation="0dp"
-        app:titleTextColor="#1A2B3C"
+        app:titleTextColor="?attr/colorOnSurface"
         app:titleTextAppearance="@style/ToolbarTitleStyle" />
 
     <!-- Scrollable content -->
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_education"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true"
-        android:overScrollMode="never">
+        android:overScrollMode="never"
+        android:paddingBottom="88dp"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -39,12 +41,13 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp"
                 android:text="Learn from bite-sized dental health guides."
-                android:textColor="#7A8FA6"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="13sp"
                 android:fontFamily="@font/inter_regular" />
 
             <!-- Did You Know card -->
             <LinearLayout
+                android:id="@+id/card_did_you_know"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
@@ -53,12 +56,16 @@
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/bg_did_you_know"
                 android:orientation="horizontal"
-                android:padding="14dp">
+                android:padding="14dp"
+                android:clickable="true"
+                android:focusable="true">
 
+                <!-- Tooth icon replaces the plain blue box -->
                 <ImageView
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:src="@drawable/ic_did_you_know"
+                    android:src="@drawable/ic_tooth_outline"
+                    app:tint="?attr/colorPrimary"
                     android:scaleType="fitCenter"/>
 
                 <Space android:layout_width="10dp" android:layout_height="0dp" />
@@ -73,20 +80,33 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="DID YOU KNOW?"
-                        android:textColor="#00BCD4"
+                        android:textColor="?attr/colorOnSurface"
                         android:textSize="10sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.05"
                         android:fontFamily="@font/inter_regular" />
 
                     <TextView
+                        android:id="@+id/tv_did_you_know_fact"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Saliva helps protect your teeth by neutralizing acids from food."
-                        android:textColor="#1A2B3C"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="12sp"
                         android:fontFamily="@font/inter_regular" />
                 </LinearLayout>
+
+                <!-- Refresh hint icon -->
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="6dp"
+                    android:src="@drawable/ic_auto_awesome"
+                    app:tint="?attr/colorPrimary"
+                    android:alpha="0.6"
+                    android:scaleType="fitCenter"/>
+
             </LinearLayout>
 
             <!-- Quiz card -->
@@ -97,7 +117,7 @@
                 android:layout_marginEnd="20dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
-                android:background="@drawable/bg_card_white"
+                android:background="@drawable/bg_card_surface"
                 android:orientation="vertical"
                 android:padding="14dp">
 
@@ -131,54 +151,55 @@
 
                 <!-- Question -->
                 <TextView
+                    android:id="@+id/tv_quiz_question"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="How long should you brush your teeth?"
-                    android:textColor="#1A2B3C"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:fontFamily="@font/inter_regular" />
 
                 <Space android:layout_width="0dp" android:layout_height="10dp" />
 
-                <!-- Answer options (horizontal row) -->
+                <!-- Answer options (vertical column) -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="start">
+                    android:orientation="vertical">
 
                     <!-- Option 0: 1 minute -->
                     <LinearLayout
                         android:id="@+id/btn_opt0"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
                         android:background="@drawable/bg_quiz_option_default"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="14dp"
-                        android:paddingTop="8dp"
-                        android:paddingBottom="8dp"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
                         android:clickable="true"
                         android:focusable="true">
 
                         <TextView
                             android:id="@+id/tv_opt0"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="1 minute"
-                            android:textColor="#1A2B3C"
-                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="13sp"
                             android:textStyle="bold"
                             android:fontFamily="@font/inter_regular" />
 
                         <ImageView
                             android:id="@+id/ic_check0"
-                            android:layout_width="14dp"
-                            android:layout_height="14dp"
-                            android:layout_marginStart="4dp"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_marginStart="8dp"
                             android:src="@drawable/ic_check_circle"
                             app:tint="#10B981"
                             android:visibility="gone" />
@@ -187,34 +208,35 @@
                     <!-- Option 1: 2 minutes -->
                     <LinearLayout
                         android:id="@+id/btn_opt1"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
                         android:background="@drawable/bg_quiz_option_default"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="14dp"
-                        android:paddingTop="8dp"
-                        android:paddingBottom="8dp"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
                         android:clickable="true"
                         android:focusable="true">
 
                         <TextView
                             android:id="@+id/tv_opt1"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="2 minutes"
-                            android:textColor="#1A2B3C"
-                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="13sp"
                             android:textStyle="bold"
                             android:fontFamily="@font/inter_regular" />
 
                         <ImageView
                             android:id="@+id/ic_check1"
-                            android:layout_width="14dp"
-                            android:layout_height="14dp"
-                            android:layout_marginStart="4dp"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_marginStart="8dp"
                             android:src="@drawable/ic_check_circle"
                             app:tint="#10B981"
                             android:visibility="gone" />
@@ -223,33 +245,72 @@
                     <!-- Option 2: 5 minutes -->
                     <LinearLayout
                         android:id="@+id/btn_opt2"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
                         android:background="@drawable/bg_quiz_option_default"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="14dp"
-                        android:paddingTop="8dp"
-                        android:paddingBottom="8dp"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
                         android:clickable="true"
                         android:focusable="true">
 
                         <TextView
                             android:id="@+id/tv_opt2"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="5 minutes"
-                            android:textColor="#1A2B3C"
-                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="13sp"
                             android:textStyle="bold"
                             android:fontFamily="@font/inter_regular" />
 
                         <ImageView
                             android:id="@+id/ic_check2"
-                            android:layout_width="14dp"
-                            android:layout_height="14dp"
-                            android:layout_marginStart="4dp"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_marginStart="8dp"
+                            android:src="@drawable/ic_check_circle"
+                            app:tint="#10B981"
+                            android:visibility="gone" />
+                    </LinearLayout>
+
+                    <!-- Option 3 -->
+                    <LinearLayout
+                        android:id="@+id/btn_opt3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:background="@drawable/bg_quiz_option_default"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:id="@+id/tv_opt3"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Option 3"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/inter_regular" />
+
+                        <ImageView
+                            android:id="@+id/ic_check3"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_marginStart="8dp"
                             android:src="@drawable/ic_check_circle"
                             app:tint="#10B981"
                             android:visibility="gone" />
@@ -289,15 +350,27 @@
                         android:fontFamily="@font/inter_regular" />
                 </LinearLayout>
 
-                <!-- Try again link -->
+                <!-- Explanation TextView (initially GONE) -->
                 <TextView
-                    android:id="@+id/tv_try_again"
+                    android:id="@+id/tv_quiz_explanation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="12sp"
+                    android:lineSpacingMultiplier="1.2"
+                    android:fontFamily="@font/inter_regular"
+                    android:visibility="gone" />
+
+                <!-- Try again link (Next Question) -->
+                <TextView
+                    android:id="@+id/tv_next_question"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="Try again →"
+                    android:layout_marginTop="10dp"
+                    android:text="Next Question →"
                     android:textColor="#00BCD4"
-                    android:textSize="11sp"
+                    android:textSize="13sp"
                     android:textStyle="bold"
                     android:fontFamily="@font/inter_regular"
                     android:clickable="true"
@@ -305,7 +378,7 @@
                     android:visibility="gone" />
             </LinearLayout>
 
-            <!-- Article list (non-scrolling RecyclerView inside ScrollView) -->
+            <!-- Article list (non-scrolling RecyclerView inside NestedScrollView) -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_articles"
                 android:layout_width="match_parent"
@@ -313,10 +386,10 @@
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
                 android:paddingTop="8dp"
-                android:paddingBottom="8dp"
+                android:paddingBottom="0dp"
                 android:clipToPadding="false"
                 android:nestedScrollingEnabled="false" />
 
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </LinearLayout>

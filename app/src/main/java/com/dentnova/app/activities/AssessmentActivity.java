@@ -198,7 +198,7 @@ public class AssessmentActivity extends AppCompatActivity {
                 ivCheck.setVisibility(View.VISIBLE);
             } else {
                 opt.setBackgroundResource(R.drawable.bg_option_unselected);
-                tvText.setTextColor(0xFF1A2332);
+                tvText.setTextColor(com.google.android.material.color.MaterialColors.getColor(llOptions, com.google.android.material.R.attr.colorOnSurface));
                 tvText.setTypeface(android.graphics.Typeface.DEFAULT);
                 radioCircle.setBackgroundResource(R.drawable.bg_radio_unselected);
                 ivCheck.setVisibility(View.GONE);

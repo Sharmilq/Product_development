@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     app:cardCornerRadius="22dp"
     app:cardElevation="2dp"
-    app:cardBackgroundColor="#FFFFFF">
+    app:cardBackgroundColor="?attr/colorSurfaceVariant">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -49,7 +49,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Brushing Reminders"
-                    android:textColor="#1A2332"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="17sp"
                     android:textStyle="bold"/>
 
@@ -59,7 +59,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Add one or more reminders"
-                    android:textColor="#7B8A9A"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="13sp"/>
             </LinearLayout>
         </LinearLayout>
@@ -78,7 +78,7 @@
             android:layout_marginTop="14dp"
             android:text="Add Reminder"
             android:textAllCaps="false"
-            android:textColor="#FFFFFF"
+            android:textColor="?attr/colorOnSurface"
             android:textStyle="bold"
             app:backgroundTint="#00BCD4"
             app:cornerRadius="18dp"/>

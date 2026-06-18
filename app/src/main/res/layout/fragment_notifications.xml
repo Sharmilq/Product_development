@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F9FA"
+    android:background="?attr/colorSurface"
     android:padding="20dp">
 
     <!-- HEADER -->
@@ -22,7 +22,7 @@
             android:layout_height="34dp"
             android:padding="7dp"
             android:src="@drawable/ic_arrow_back_ios"
-            app:tint="#1A2332"/>
+            app:tint="?attr/colorOnSurface"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -32,7 +32,7 @@
             android:textSize="22sp"
             android:textStyle="bold"
             android:fontFamily="@font/inter_bold"
-            android:textColor="#1A2332"/>
+            android:textColor="?attr/colorOnSurface"/>
     </LinearLayout>
 
     <Space
@@ -74,7 +74,7 @@
             android:fontFamily="@font/inter_regular"
             android:gravity="center"
             android:text="No notifications yet"
-            android:textColor="#6B7B8D"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="14sp"/>
     </LinearLayout>
 

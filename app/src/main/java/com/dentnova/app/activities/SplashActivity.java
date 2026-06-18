@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import com.dentnova.app.R;
 import com.dentnova.app.utils.SessionManager;
 
@@ -30,6 +31,18 @@ public class SplashActivity extends AppCompatActivity {
     private boolean hasNavigated = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences prefs = getSharedPreferences("dentnova_prefs", MODE_PRIVATE);
+        String themeMode = prefs.getString("theme_mode", "system");
+
+        if (themeMode.equals("light")) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        } else if (themeMode.equals("dark")) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        }
+        android.util.Log.d("THEME", "THEME_APPLIED on Startup: " + themeMode);
+        android.util.Log.d("THEME", "SESSION_TOKEN_PRESERVED on Startup");
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);

@@ -88,6 +88,9 @@ public class HomeActivity extends AppCompatActivity {
             android.util.Log.d("CURRENT_USER_ID", "CURRENT_USER_ID: " + userId);
             android.util.Log.d("CURRENT_USER_EMAIL", "CURRENT_USER_EMAIL: " + email);
 
+            ApiService.updateDailyStreak(this);
+            ApiService.cleanupExpiredReminders(this);
+
             try {
                 JsonObject profileResponse = ApiService.getProfile(this);
 
@@ -265,9 +268,42 @@ public class HomeActivity extends AppCompatActivity {
             int score = latest.has("score") ? latest.get("score").getAsInt() : 0;
             String label = latest.has("risk") ? latest.get("risk").getAsString() : "";
 
-            if (scoreProgress != null) scoreProgress.setProgress(score);
-            if (tvScore      != null) tvScore.setText(String.valueOf(score));
-            if (tvScoreLabel != null) tvScoreLabel.setText(label);
+            android.util.Log.d("HOME_SCORE", "HOME_SCORE: " + score);
+            android.util.Log.d("HOME_RISK", "HOME_RISK: " + label);
+
+            // Determine color: Red=0-39/High, Orange=40-69/Medium, Green=70-100/Low
+            int scoreColor;
+            String riskUpper = label.toUpperCase();
+            if (score < 40 || riskUpper.contains("HIGH")) {
+                scoreColor = 0xFFEF4444; // Red
+            } else if (score < 70 || riskUpper.contains("MED") || riskUpper.contains("MODERATE")) {
+                scoreColor = 0xFFF59E0B; // Orange/Amber
+            } else {
+                scoreColor = 0xFF10B981; // Green
+            }
+            android.util.Log.d("HOME_SCORE_COLOR_APPLIED",
+                    "HOME_SCORE_COLOR_APPLIED: #" + Integer.toHexString(scoreColor)
+                            + " for score=" + score + " risk=" + label);
+
+            if (tvScore != null) {
+                android.util.Log.d("HOME_SCORE_TEXTVIEW_FOUND", "HOME_SCORE_TEXTVIEW_FOUND: tvScore found");
+            }
+
+            if (scoreProgress != null) {
+                scoreProgress.setProgress(score);
+                scoreProgress.setIndicatorColor(scoreColor);
+                android.util.Log.d("HOME_RING_COLOR_SET", "HOME_RING_COLOR_SET: set ring color to " + Integer.toHexString(scoreColor));
+            }
+            if (tvScore      != null) {
+                tvScore.setText(String.valueOf(score));
+                tvScore.setTextColor(scoreColor);
+                android.util.Log.d("HOME_SCORE_COLOR_SET", "HOME_SCORE_COLOR_SET: set score text color to " + Integer.toHexString(scoreColor));
+            }
+            if (tvScoreLabel != null) {
+                tvScoreLabel.setText(label);
+                tvScoreLabel.setTextColor(scoreColor);
+                android.util.Log.d("HOME_RISK_COLOR_SET", "HOME_RISK_COLOR_SET: set risk color to " + Integer.toHexString(scoreColor));
+            }
             if (tvScoreSub   != null) tvScoreSub.setText("Assessment completed");
             if (tvStartNow   != null) tvStartNow.setText("Re-assess →");
             if (tvLastCheck != null) {

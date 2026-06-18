@@ -260,11 +260,14 @@ public class ProfileSetupActivity extends AppCompatActivity {
                         android.content.res.ColorStateList.valueOf(0xFF00BCD4));
                 } else {
                     selectedConcerns.remove(concern);
+                    int surfaceVariant = com.google.android.material.color.MaterialColors.getColor(chip, com.google.android.material.R.attr.colorSurfaceVariant);
+                    int onSurface = com.google.android.material.color.MaterialColors.getColor(chip, com.google.android.material.R.attr.colorOnSurface);
+                    int outline = com.google.android.material.color.MaterialColors.getColor(chip, com.google.android.material.R.attr.colorOutline);
                     chip.setChipBackgroundColor(
-                        android.content.res.ColorStateList.valueOf(0xFFFFFFFF));
-                    chip.setTextColor(0xFF1A2332);
+                        android.content.res.ColorStateList.valueOf(surfaceVariant));
+                    chip.setTextColor(onSurface);
                     chip.setChipStrokeColor(
-                        android.content.res.ColorStateList.valueOf(0xFFE0E8EF));
+                        android.content.res.ColorStateList.valueOf(outline));
                 }
             });
 

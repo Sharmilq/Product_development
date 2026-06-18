@@ -4,7 +4,7 @@
     android:gravity="center"
     android:orientation="vertical"
     android:padding="24dp"
-    android:background="#F5F9FA">
+    android:background="?attr/colorSurface">
 
     <ProgressBar
         android:layout_width="60dp"
@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="22dp"
         android:text="Analyzing with AI..."
-        android:textColor="#1A2332"
+        android:textColor="?attr/colorOnSurface"
         android:textSize="22sp"
         android:textStyle="bold"/>
 
@@ -25,6 +25,6 @@
         android:gravity="center"
         android:layout_marginTop="10dp"
         android:text="Checking visible signs using your image and assessment answers."
-        android:textColor="#6B7B8D"
+        android:textColor="?attr/colorOnSurfaceVariant"
         android:textSize="14sp"/>
 </LinearLayout>

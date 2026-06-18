@@ -9,7 +9,7 @@
         android:orientation="horizontal" android:gravity="center_vertical">
         <TextView android:layout_width="0dp" android:layout_height="wrap_content"
             android:layout_weight="1" android:fontFamily="@font/inter_bold"
-            android:text="Brushing Timer 🪥" android:textColor="#1A2332" android:textSize="16sp"/>
+            android:text="Brushing Timer 🪥" android:textColor="?attr/colorOnSurface" android:textSize="16sp"/>
         <ImageView
             android:id="@+id/btnCloseTimer"
             android:layout_width="32dp"
@@ -40,7 +40,7 @@
             <TextView android:id="@+id/tvTimerTime"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:fontFamily="@font/inter_extrabold"
-                android:text="02:00" android:textColor="#1A2332" android:textSize="28sp"/>
+                android:text="02:00" android:textColor="?attr/colorOnSurface" android:textSize="28sp"/>
         </LinearLayout>
     </FrameLayout>
 
@@ -49,7 +49,7 @@
     <TextView android:id="@+id/tvTimerHint"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:fontFamily="@font/inter_regular" android:gravity="center"
-        android:text="Ready when you are" android:textColor="#6B7B8D" android:textSize="13sp"/>
+        android:text="Ready when you are" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="13sp"/>
 
     <Space android:layout_width="0dp" android:layout_height="20dp"/>
 
@@ -59,14 +59,14 @@
             android:layout_width="0dp" android:layout_height="wrap_content"
             android:layout_weight="1" android:layout_marginEnd="8dp"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:text="Reset" android:textColor="#6B7B8D"
+            android:text="Reset" android:textColor="?attr/colorOnSurfaceVariant"
             android:fontFamily="@font/inter_semibold"
             android:paddingTop="12dp" android:paddingBottom="12dp"
-            app:strokeColor="#E0E8EF" app:cornerRadius="12dp"/>
+            app:strokeColor="@color/inputBorder" app:cornerRadius="12dp"/>
         <com.google.android.material.button.MaterialButton android:id="@+id/btnStartPause"
             android:layout_width="0dp" android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Start" android:textColor="#FFFFFF"
+            android:text="Start" android:textColor="?attr/colorOnSurface"
             android:fontFamily="@font/inter_semibold"
             android:paddingTop="12dp" android:paddingBottom="12dp"
             app:backgroundTint="#00BCD4" app:cornerRadius="12dp" app:elevation="0dp"/>

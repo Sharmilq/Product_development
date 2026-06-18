@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F9FA"
+    android:background="?attr/colorSurface"
     android:fillViewport="true">
 
     <LinearLayout
@@ -18,14 +18,14 @@
             android:layout_height="38dp"
             android:padding="8dp"
             android:background="@drawable/bg_white_circle"
-            android:src="@drawable/ic_arrow_back_ios"/>
+            android:src="@drawable/ic_arrow_back_ios" android:tint="?attr/colorOnSurface"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="Edit Profile"
-            android:textColor="#1A2332"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="24sp"
             android:textStyle="bold"/>
 
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="Update your information and preferences"
-            android:textColor="#6B7B8D"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="14sp"/>
 
         <Space android:layout_width="0dp" android:layout_height="24dp"/>
@@ -64,7 +64,7 @@
                     android:layout_height="18dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_edit_white"
-                    app:tint="#FFFFFF"/>
+                    app:tint="?attr/colorOnSurface"/>
             </FrameLayout>
         </FrameLayout>
 
@@ -74,7 +74,7 @@
             android:gravity="center"
             android:layout_marginTop="10dp"
             android:text="Tap to change photo"
-            android:textColor="#6B7B8D"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="13sp"/>
 
         <Space android:layout_width="0dp" android:layout_height="24dp"/>
@@ -82,7 +82,7 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="#FFFFFF"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
             app:cardCornerRadius="22dp"
             app:cardElevation="2dp">
 
@@ -96,7 +96,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Personal Information"
-                    android:textColor="#1A2332"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="17sp"
                     android:textStyle="bold"/>
 
@@ -106,7 +106,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Name"
-                    android:textColor="#1A2332"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="13sp"
                     android:textStyle="bold"/>
 
@@ -147,7 +147,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Age"
-                            android:textColor="#1A2332"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="13sp"
                             android:textStyle="bold"/>
 
@@ -184,7 +184,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Gender"
-                            android:textColor="#1A2332"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="13sp"
                             android:textStyle="bold"/>
 
@@ -217,7 +217,7 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="#FFFFFF"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
             app:cardCornerRadius="22dp"
             app:cardElevation="2dp">
 
@@ -231,7 +231,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Dental concerns"
-                    android:textColor="#1A2332"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="17sp"
                     android:textStyle="bold"/>
 
@@ -239,7 +239,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Choose what you want DentNova to focus on."
-                    android:textColor="#6B7B8D"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="12sp"/>
 
                 <Space android:layout_width="0dp" android:layout_height="14dp"/>
@@ -281,7 +281,7 @@
             android:layout_height="54dp"
             android:text="Save changes"
             android:textAllCaps="false"
-            android:textColor="#FFFFFF"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="15sp"
             android:textStyle="bold"
             app:backgroundTint="#00BCD4"

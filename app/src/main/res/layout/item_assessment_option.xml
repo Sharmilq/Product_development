@@ -19,7 +19,7 @@
             android:layout_width="0dp" android:layout_height="wrap_content"
             android:layout_weight="1"
             android:fontFamily="@font/inter_regular"
-            android:textColor="#1A2332" android:textSize="14sp"/>
+            android:textColor="?attr/colorOnSurface" android:textSize="14sp"/>
 
         <!-- Radio circle: 20dp, empty = transparent bg + #D0D8E4 border 2dp -->
         <FrameLayout android:id="@+id/radioCircle"

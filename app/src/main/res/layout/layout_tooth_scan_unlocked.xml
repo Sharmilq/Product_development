@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F9FA">
+    android:background="?attr/colorSurface">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -41,7 +41,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Scan your teeth"
-                    android:textColor="#1A2332"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="20sp"
                     android:textStyle="bold"/>
 
@@ -54,7 +54,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="Take a clear photo of your teeth or upload one. Our AI will analyze it instantly."
-                    android:textColor="#6B7B8D"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="14sp"
                     android:lineSpacingMultiplier="1.25"/>
             </LinearLayout>
@@ -68,13 +68,13 @@
             android:layout_height="58dp"
             android:text="Open Camera"
             android:textAllCaps="false"
-            android:textColor="#FFFFFF"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="15sp"
             android:textStyle="bold"
             app:backgroundTint="#00BCD4"
             app:cornerRadius="22dp"
             app:icon="@drawable/ic_camera_alt"
-            app:iconTint="#FFFFFF"/>
+            app:iconTint="?attr/colorOnSurface"/>
 
         <Space android:layout_width="0dp" android:layout_height="14dp"/>
 
@@ -85,12 +85,12 @@
             android:layout_height="58dp"
             android:text="Upload from gallery"
             android:textAllCaps="false"
-            android:textColor="#1A2332"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="15sp"
             android:textStyle="bold"
             app:cornerRadius="22dp"
             app:icon="@drawable/ic_upload"
-            app:iconTint="#1A2332"
+            app:iconTint="?attr/colorOnSurface"
             app:strokeColor="#E0E8EF"
             app:strokeWidth="1dp"/>
 
@@ -101,7 +101,7 @@
             android:layout_height="wrap_content"
             app:cardCornerRadius="20dp"
             app:cardElevation="1dp"
-            app:cardBackgroundColor="#FFFFFF">
+            app:cardBackgroundColor="?attr/colorSurfaceVariant">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -113,7 +113,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Tips for best results"
-                    android:textColor="#1A2332"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="14sp"
                     android:textStyle="bold"/>
 
@@ -122,7 +122,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
                     android:text="• Use good lighting and a clean background\n• Open your mouth wide and smile\n• Hold the camera steady and close"
-                    android:textColor="#6B7B8D"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="13sp"
                     android:lineSpacingMultiplier="1.25"/>
             </LinearLayout>
@@ -135,7 +135,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Previous scans"
-            android:textColor="#1A2332"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="18sp"
             android:textStyle="bold"/>
 
@@ -156,7 +156,7 @@
             android:gravity="center"
             android:padding="18dp"
             android:text="No previous scans yet"
-            android:textColor="#6B7B8D"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="14sp"/>
     </LinearLayout>
 </ScrollView>

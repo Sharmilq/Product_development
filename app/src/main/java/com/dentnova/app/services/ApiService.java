@@ -15,6 +15,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Calendar;
 
 /**
  * ApiService.java — exact Java equivalent of api_service.dart
@@ -413,32 +417,49 @@ public class ApiService {
         int userId = new SessionManager(ctx).getUserId();
         String email = new SessionManager(ctx).getUserEmail();
 
+        android.util.Log.d("SUPABASE_PROFILE", "ANDROID_CURRENT_USER_ID: " + userId);
+        android.util.Log.d("SUPABASE_PROFILE", "ANDROID_CURRENT_EMAIL: " + email);
+
+        String url = SupabaseConfig.REST_URL + "users?user_id=eq." + userId + "&select=*";
+        android.util.Log.d("SUPABASE_PROFILE", "ANDROID_PROFILE_REQUEST_URL: " + url);
+
         Request req = new Request.Builder()
-                .url(SupabaseConfig.REST_URL + "users?user_id=eq." + userId + "&select=*")
+                .url(url)
                 .get()
                 .headers(supabaseHeaders())
                 .build();
 
-        String raw = client.newCall(req).execute().body().string();
+        String raw = "";
+        try (okhttp3.Response response = client.newCall(req).execute()) {
+            int code = response.code();
+            android.util.Log.d("SUPABASE_PROFILE", "ANDROID_PROFILE_RESPONSE_CODE: " + code);
+            
+            if (response.body() != null) {
+                raw = response.body().string();
+            }
+            android.util.Log.d("SUPABASE_PROFILE", "ANDROID_PROFILE_RESPONSE_BODY: " + raw);
 
-        android.util.Log.d("SUPABASE_PROFILE", raw);
+            if (!response.isSuccessful() || raw.contains("\"code\"")) {
+                android.util.Log.e("SUPABASE_PROFILE", "ANDROID_SUPABASE_ERROR: " + raw);
+            }
 
-        com.google.gson.JsonArray arr =
-                gson.fromJson(raw, com.google.gson.JsonArray.class);
+            com.google.gson.JsonArray arr =
+                    gson.fromJson(raw, com.google.gson.JsonArray.class);
 
-        JsonObject result = new JsonObject();
+            JsonObject result = new JsonObject();
 
-        if (arr.size() > 0) {
+            if (arr != null && arr.size() > 0) {
+                result.addProperty("success", true);
+                result.add("profile", arr.get(0).getAsJsonObject());
+            } else {
+                result.addProperty("success", false);
+            }
 
-            result.addProperty("success", true);
-            result.add("profile", arr.get(0).getAsJsonObject());
-
-        } else {
-
-            result.addProperty("success", false);
+            return result;
+        } catch (Exception e) {
+            android.util.Log.e("SUPABASE_PROFILE", "ANDROID_SUPABASE_ERROR: " + e.getMessage(), e);
+            throw e;
         }
-
-        return result;
     }
 
     // ── updateProfile ── ApiService.updateProfile() ───────────────────────
@@ -693,8 +714,20 @@ public class ApiService {
         android.util.Log.d("SUPABASE_ADD_REMINDER", raw);
 
         JsonObject result = new JsonObject();
-        result.addProperty("success", true);
+        boolean success = !raw.contains("code");
+        result.addProperty("success", success);
         result.addProperty("raw", raw);
+        if (success) {
+            try {
+                com.google.gson.JsonArray arr = gson.fromJson(raw, com.google.gson.JsonArray.class);
+                if (arr != null && arr.size() > 0) {
+                    int reminderId = arr.get(0).getAsJsonObject().get("id").getAsInt();
+                    result.addProperty("id", reminderId);
+                }
+            } catch (Exception e) {
+                android.util.Log.e("addReminder", "Error parsing reminder ID", e);
+            }
+        }
 
         return result;
     }
@@ -794,43 +827,127 @@ public class ApiService {
 
         return result;
     }
+
+    public static void cleanupExpiredReminders(Context ctx) {
+        android.util.Log.d("REMINDER_CLEANUP_STARTED", "REMINDER_CLEANUP_STARTED");
+
+        SimpleDateFormat todaySdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        String todayStr = todaySdf.format(new java.util.Date());
+        android.util.Log.d("TODAY_DATE", "TODAY_DATE: " + todayStr);
+
+        try {
+            JsonObject response = getReminders(ctx);
+            if (response.has("success") && response.get("success").getAsBoolean()) {
+                JsonArray reminders = response.getAsJsonArray("reminders");
+                Calendar todayCal = Calendar.getInstance();
+                todayCal.set(Calendar.HOUR_OF_DAY, 0);
+                todayCal.set(Calendar.MINUTE, 0);
+                todayCal.set(Calendar.SECOND, 0);
+                todayCal.set(Calendar.MILLISECOND, 0);
+
+                SimpleDateFormat parser = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+
+                for (int i = 0; i < reminders.size(); i++) {
+                    JsonObject r = reminders.get(i).getAsJsonObject();
+                    int id = r.get("id").getAsInt();
+                    String title = r.get("title").getAsString();
+                    String timeStr = r.get("time").getAsString();
+                    String days = r.get("days").getAsString();
+
+                    boolean isExpired = false;
+                    if ("ONCE".equalsIgnoreCase(days) || (!timeStr.contains(":") && !timeStr.contains("AM") && !timeStr.contains("PM"))) {
+                        try {
+                            java.util.Date reminderDate = parser.parse(timeStr);
+                            if (reminderDate != null) {
+                                Calendar reminderCal = Calendar.getInstance();
+                                reminderCal.setTime(reminderDate);
+                                reminderCal.set(Calendar.HOUR_OF_DAY, 0);
+                                reminderCal.set(Calendar.MINUTE, 0);
+                                reminderCal.set(Calendar.SECOND, 0);
+                                reminderCal.set(Calendar.MILLISECOND, 0);
+
+                                if (reminderCal.before(todayCal)) {
+                                    isExpired = true;
+                                }
+                            }
+                        } catch (Exception e) {
+                            // ignore parse error
+                        }
+                    }
+
+                    if (isExpired) {
+                        android.util.Log.d("EXPIRED_REMINDER_FOUND", "EXPIRED_REMINDER_FOUND: ID=" + id);
+                        
+                        // Disable in Supabase
+                        toggleReminder(ctx, id, false);
+                        android.util.Log.d("EXPIRED_REMINDER_DISABLED", "EXPIRED_REMINDER_DISABLED: ID=" + id);
+
+                        // Delete from Supabase
+                        deleteReminder(ctx, id);
+                        android.util.Log.d("EXPIRED_REMINDER_DELETED", "EXPIRED_REMINDER_DELETED: ID=" + id);
+
+                        // Cancel alarm
+                        com.dentnova.app.utils.ReminderScheduler.cancelReminderAlarm(ctx, id);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            android.util.Log.e("cleanupExpiredReminders", "Error running reminders cleanup", e);
+        }
+    }
+
     //feedback
     public static JsonObject sendFeedback(
             Context ctx,
             String message
     ) throws IOException {
 
+        SessionManager session = new SessionManager(ctx);
+        int userId = session.getUserId();
+        String email = session.getUserEmail();
+        String finalEmail = (email != null) ? email : "";
+
+        android.util.Log.d("FEEDBACK_START", "Starting feedback submission");
+        android.util.Log.d("FEEDBACK_USER_ID", String.valueOf(userId));
+        android.util.Log.d("FEEDBACK_USER_EMAIL", finalEmail);
+        android.util.Log.d("FEEDBACK_MESSAGE", message);
+
         JsonObject body = new JsonObject();
+        body.addProperty("user_id", userId);
+        body.addProperty("user_email", finalEmail);
+        body.addProperty("message", message);
 
-        body.addProperty(
-                "user_id",
-                new SessionManager(ctx).getUserId()
-        );
-
-        body.addProperty(
-                "message",
-                message
-        );
+        String url = SupabaseConfig.REST_URL + "feedback";
+        android.util.Log.d("FEEDBACK_REQUEST_URL", url);
+        android.util.Log.d("FEEDBACK_REQUEST_BODY", body.toString());
 
         Request req = new Request.Builder()
-                .url(SupabaseConfig.REST_URL + "feedback")
+                .url(url)
                 .post(RequestBody.create(body.toString(), JSON))
                 .headers(supabaseHeaders())
                 .build();
 
-        String raw =
-                client.newCall(req)
-                        .execute()
-                        .body()
-                        .string();
+        JsonObject result = new JsonObject();
+        try {
+            okhttp3.Response response = client.newCall(req).execute();
+            int code = response.code();
+            String raw = response.body() != null ? response.body().string() : "";
 
-        JsonObject result =
-                new JsonObject();
+            android.util.Log.d("FEEDBACK_RESPONSE_CODE", String.valueOf(code));
+            android.util.Log.d("FEEDBACK_RESPONSE_BODY", raw);
 
-        result.addProperty(
-                "success",
-                !raw.contains("code")
-        );
+            boolean success = code >= 200 && code < 300;
+            result.addProperty("success", success);
+            if (!success) {
+                result.addProperty("error", raw);
+            } else {
+                android.util.Log.d("FEEDBACK_INSERT_SUCCESS", "true");
+            }
+        } catch (Exception e) {
+            android.util.Log.e("FEEDBACK_EXCEPTION", "Exception in sendFeedback", e);
+            result.addProperty("success", false);
+            result.addProperty("error", e.getMessage());
+        }
 
         return result;
     }
@@ -868,13 +985,49 @@ public class ApiService {
         android.util.Log.d("SUPABASE_VISIT_SAVE", raw);
 
         JsonObject result = new JsonObject();
-
-        result.addProperty(
-                "success",
-                !raw.contains("code")
-        );
-
+        boolean success = !raw.contains("code");
+        result.addProperty("success", success);
         result.addProperty("message", raw);
+        if (success) {
+            try {
+                com.google.gson.JsonArray arr = gson.fromJson(raw, com.google.gson.JsonArray.class);
+                if (arr != null && arr.size() > 0) {
+                    int visitId = arr.get(0).getAsJsonObject().get("id").getAsInt();
+                    result.addProperty("id", visitId);
+                }
+            } catch (Exception e) {
+                android.util.Log.e("saveVisitReminder", "Error parsing insert id", e);
+            }
+        }
+
+        return result;
+    }
+
+    // ── deleteVisitReminder ── ApiService.deleteVisitReminder() ───────────
+    public static JsonObject deleteVisitReminder(
+            Context ctx,
+            int id
+    ) throws IOException {
+
+        Request req = new Request.Builder()
+                .url(
+                        SupabaseConfig.REST_URL +
+                                "visits?id=eq." + id
+                )
+                .delete()
+                .headers(supabaseHeaders())
+                .build();
+
+        String raw =
+                client.newCall(req)
+                        .execute()
+                        .body()
+                        .string();
+
+        JsonObject result =
+                new JsonObject();
+
+        result.addProperty("success", true);
 
         return result;
     }
@@ -1298,6 +1451,178 @@ public static JsonObject predictToothScan(
         return verifyPasswordOtp(email, token);
     }
 
+    // ── getHabitStatus ── ApiService.getHabitStatus() ─────────────────────
+    public static JsonObject getHabitStatus(Context ctx) throws IOException {
+        int userId = new SessionManager(ctx).getUserId();
+        Request req = new Request.Builder()
+                .url(SupabaseConfig.REST_URL + "users?user_id=eq." + userId
+                        + "&select=brushing_done,flossing_done,habit_date,streak_count,last_streak_date")
+                .get()
+                .headers(supabaseHeaders())
+                .build();
+        String raw = client.newCall(req).execute().body().string();
+        android.util.Log.d("HABIT_STATUS", "Raw Supabase response: " + raw);
+        JsonArray arr = gson.fromJson(raw, JsonArray.class);
+        JsonObject result = new JsonObject();
+        if (arr != null && arr.size() > 0) {
+            result.addProperty("success", true);
+            result.add("data", arr.get(0).getAsJsonObject());
+        } else {
+            result.addProperty("success", false);
+        }
+        return result;
+    }
+
+    // ── updateStreakInSupabase ── patches streak_count + last_streak_date ──
+    public static JsonObject updateStreakInSupabase(
+            Context ctx, int streakCount, String lastStreakDate
+    ) throws IOException {
+        int userId = new SessionManager(ctx).getUserId();
+        JsonObject body = new JsonObject();
+        body.addProperty("streak_count", streakCount);
+        body.addProperty("last_streak_date", lastStreakDate);
+        Request req = new Request.Builder()
+                .url(SupabaseConfig.REST_URL + "users?user_id=eq." + userId)
+                .patch(RequestBody.create(body.toString(), JSON))
+                .headers(supabaseHeaders())
+                .build();
+        String raw = client.newCall(req).execute().body().string();
+        android.util.Log.d("STREAK_UPDATE", "Patch raw: " + raw);
+        JsonObject result = new JsonObject();
+        result.addProperty("success", !raw.contains("code"));
+        return result;
+    }
+
+    // ── updateHabitStatus ── ApiService.updateHabitStatus() ───────────────
+    public static JsonObject updateHabitStatus(
+            Context ctx,
+            boolean brushingDone,
+            boolean flossingDone,
+            String habitDate
+    ) throws IOException {
+        int userId = new SessionManager(ctx).getUserId();
+        JsonObject body = new JsonObject();
+        body.addProperty("brushing_done", brushingDone);
+        body.addProperty("flossing_done", flossingDone);
+        body.addProperty("habit_date", habitDate);
+        Request req = new Request.Builder()
+                .url(SupabaseConfig.REST_URL + "users?user_id=eq." + userId)
+                .patch(RequestBody.create(body.toString(), JSON))
+                .headers(supabaseHeaders())
+                .build();
+        String raw = client.newCall(req).execute().body().string();
+        android.util.Log.d("HABIT_UPDATE", "Patch raw: " + raw);
+        JsonObject result = new JsonObject();
+        result.addProperty("success", !raw.contains("code"));
+        return result;
+    }
+
+    public static void updateDailyStreak(Context ctx) {
+        int userId = new SessionManager(ctx).getUserId();
+        if (userId <= 0) {
+            android.util.Log.d("DAILY_STREAK", "Invalid or dummy user ID: " + userId);
+            return;
+        }
+
+        try {
+            // 1. Fetch current streak and last active date
+            Request req = new Request.Builder()
+                    .url(SupabaseConfig.REST_URL + "users?user_id=eq." + userId + "&select=streak_count,last_active_date")
+                    .get()
+                    .headers(supabaseHeaders())
+                    .build();
+
+            String raw = client.newCall(req).execute().body().string();
+            android.util.Log.d("DAILY_STREAK", "Fetch user streak raw response: " + raw);
+            JsonArray arr = gson.fromJson(raw, JsonArray.class);
+            if (arr == null || arr.size() == 0) {
+                android.util.Log.e("DAILY_STREAK", "User not found in users table for ID: " + userId);
+                return;
+            }
+
+            JsonObject userObj = arr.get(0).getAsJsonObject();
+            int currentStreak = 0;
+            if (userObj.has("streak_count") && !userObj.get("streak_count").isJsonNull()) {
+                currentStreak = userObj.get("streak_count").getAsInt();
+            }
+
+            String lastActiveDateStr = "";
+            if (userObj.has("last_active_date") && !userObj.get("last_active_date").isJsonNull()) {
+                lastActiveDateStr = userObj.get("last_active_date").getAsString();
+            }
+
+            // 2. Compute today's date in local time "yyyy-MM-dd"
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+            String todayStr = sdf.format(new Date());
+
+            // 3. Compute new streak count based on rules
+            int newStreak = currentStreak;
+            if (lastActiveDateStr == null || lastActiveDateStr.trim().isEmpty()) {
+                newStreak = 1;
+            } else {
+                int diff = getDaysDifference(lastActiveDateStr, todayStr);
+                if (diff == 1) {
+                    newStreak = currentStreak + 1;
+                } else if (diff == 0) {
+                    newStreak = currentStreak; // stays same
+                } else {
+                    newStreak = 1; // resets to 1 if older than yesterday
+                }
+            }
+
+            // 4. Update the user row in Supabase
+            JsonObject body = new JsonObject();
+            body.addProperty("streak_count", newStreak);
+            body.addProperty("last_active_date", todayStr);
+
+            Request patchReq = new Request.Builder()
+                    .url(SupabaseConfig.REST_URL + "users?user_id=eq." + userId)
+                    .patch(RequestBody.create(body.toString(), JSON))
+                    .headers(supabaseHeaders())
+                    .build();
+
+            String patchRaw = client.newCall(patchReq).execute().body().string();
+            android.util.Log.d("DAILY_STREAK", "Patch user streak raw response: " + patchRaw);
+
+            // 5. Add logs as requested
+            android.util.Log.d("DAILY_STREAK", "CURRENT_USER_ID: " + userId);
+            android.util.Log.d("DAILY_STREAK", "LAST_ACTIVE_DATE: " + lastActiveDateStr);
+            android.util.Log.d("DAILY_STREAK", "TODAY_DATE: " + todayStr);
+            android.util.Log.d("DAILY_STREAK", "UPDATED_STREAK_COUNT: " + newStreak);
+
+        } catch (Exception e) {
+            android.util.Log.e("DAILY_STREAK", "Error updating daily streak", e);
+        }
+    }
+
+    private static int getDaysDifference(String dateStr1, String dateStr2) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+            java.util.Date date1 = sdf.parse(dateStr1);
+            java.util.Date date2 = sdf.parse(dateStr2);
+            if (date1 == null || date2 == null) return -1;
+            
+            java.util.Calendar cal1 = java.util.Calendar.getInstance();
+            cal1.setTime(date1);
+            cal1.set(java.util.Calendar.HOUR_OF_DAY, 0);
+            cal1.set(java.util.Calendar.MINUTE, 0);
+            cal1.set(java.util.Calendar.SECOND, 0);
+            cal1.set(java.util.Calendar.MILLISECOND, 0);
+            
+            java.util.Calendar cal2 = java.util.Calendar.getInstance();
+            cal2.setTime(date2);
+            cal2.set(java.util.Calendar.HOUR_OF_DAY, 0);
+            cal2.set(java.util.Calendar.MINUTE, 0);
+            cal2.set(java.util.Calendar.SECOND, 0);
+            cal2.set(java.util.Calendar.MILLISECOND, 0);
+            
+            long diff = cal2.getTimeInMillis() - cal1.getTimeInMillis();
+            return (int) (diff / (24L * 60L * 60L * 1000L));
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
     public static class SupabaseLoggingInterceptor implements Interceptor {
         private static final String TAG = "SUPABASE_HTTP";
 
@@ -1345,6 +1670,7 @@ public static JsonObject predictToothScan(
                 response = chain.proceed(request);
             } catch (IOException e) {
                 android.util.Log.e(TAG, "==================== SUPABASE EXCEPTION ====================");
+                android.util.Log.e(TAG, "ANDROID_SUPABASE_ERROR: Exception during call to: " + url + " - " + e.getMessage());
                 android.util.Log.e(TAG, "Exception during call to: " + url, e);
                 android.util.Log.e(TAG, "Exception Message: " + e.getMessage());
                 // Log the stack trace elements
@@ -1362,6 +1688,10 @@ public static JsonObject predictToothScan(
             android.util.Log.d(TAG, "Response Message: " + response.message());
             android.util.Log.d(TAG, "Time taken: " + String.format("%.1f", durationMs) + "ms");
 
+            if (!response.isSuccessful()) {
+                android.util.Log.e(TAG, "ANDROID_SUPABASE_ERROR: HTTP " + response.code() + " " + response.message());
+            }
+
             if (response.body() != null) {
                 try {
                     BufferedSource source = response.body().source();
@@ -1369,6 +1699,9 @@ public static JsonObject predictToothScan(
                     Buffer buffer = source.getBuffer();
                     String body = buffer.clone().readString(Charset.forName("UTF-8"));
                     android.util.Log.d(TAG, "Response Body: " + body);
+                    if (body.contains("\"code\"") && (body.contains("\"message\"") || body.contains("\"hint\""))) {
+                        android.util.Log.e(TAG, "ANDROID_SUPABASE_ERROR: " + body);
+                    }
                 } catch (Exception e) {
                     android.util.Log.e(TAG, "Failed to read/log response body: " + e.getMessage());
                 }

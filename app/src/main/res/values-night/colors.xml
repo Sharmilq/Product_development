@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Night-mode overrides -->
+    <color name="cardBg">#1E293B</color>
+    <color name="inputBorder">#334155</color>
+    <color name="background">#0F172A</color>
+    <color name="inputBg">#1E293B</color>
+    <color name="white">#0F172A</color>
+    <color name="textPrimary">#F8FAFC</color>
+    <color name="textSecondary">#94A3B8</color>
+    <color name="textLight">#64748B</color>
+    <color name="surfaceBg">#1E293B</color>
+    <color name="divider">#334155</color>
+    <color name="black">#F8FAFC</color>
+    <color name="text_primary">#F8FAFC</color>
+    <color name="text_secondary">#94A3B8</color>
+
+    <!-- Tag backgrounds for dark mode -->
+    <color name="tagBlue">#1E3A5F</color>
+    <color name="tagRed">#3B1C1C</color>
+    <color name="tagOrange">#3B2C1C</color>
+    <color name="tagGreen">#1C3B2C</color>
+
+    <!-- Step icon backgrounds for dark mode -->
+    <color name="stepBlueBg">#1E3A5F</color>
+    <color name="stepGreenBg">#1C3B2C</color>
+    <color name="stepPurpleBg">#2D1B5E</color>
+    <color name="stepCyanBg">#0D3B42</color>
+    <color name="stepGrayBg">#2D2D2D</color>
+
+    <!-- Misc -->
+    <color name="noteBg">#3B3520</color>
+    <color name="infoBg">#0D3B42</color>
+    <color name="splashBg">#0F172A</color>
+</resources>

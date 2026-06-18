@@ -16,9 +16,9 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="#FFFFFF"
+            android:background="?attr/colorSurface"
             android:elevation="0dp"
-            app:titleTextColor="#1E293B" />
+            app:titleTextColor="?attr/colorOnSurface" />
 
         <!-- ══ BODY PADDING ══ -->
         <LinearLayout
@@ -51,7 +51,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:letterSpacing="0.08"
-                        android:text="ORAL HEALTH SCORE"
+                        android:text="🦷 ORAL HEALTH SCORE"
                         android:textColor="#B3FFFFFF"
                         android:textSize="11sp"
                         android:textStyle="bold" />
@@ -138,7 +138,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                app:cardBackgroundColor="#FFFFFF"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp">
 
@@ -169,7 +169,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Oral Health Risk Summary"
-                            android:textColor="#1E293B"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="15sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -216,22 +216,22 @@
                         <!-- 4 bullet items -->
                         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="4dp">
                             <View android:layout_width="6dp" android:layout_height="6dp" android:background="@drawable/bg_circle_red" android:layout_marginEnd="8dp"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Frequent gum bleeding" android:textColor="#1E293B" android:textSize="13sp"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Frequent gum bleeding" android:textColor="?attr/colorOnSurface" android:textSize="13sp"/>
                         </LinearLayout>
 
                         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="4dp">
                             <View android:layout_width="6dp" android:layout_height="6dp" android:background="@drawable/bg_circle_red" android:layout_marginEnd="8dp"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tooth sensitivity" android:textColor="#1E293B" android:textSize="13sp"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tooth sensitivity" android:textColor="?attr/colorOnSurface" android:textSize="13sp"/>
                         </LinearLayout>
 
                         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="4dp">
                             <View android:layout_width="6dp" android:layout_height="6dp" android:background="@drawable/bg_circle_red" android:layout_marginEnd="8dp"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Very high sugar intake" android:textColor="#1E293B" android:textSize="13sp"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Very high sugar intake" android:textColor="?attr/colorOnSurface" android:textSize="13sp"/>
                         </LinearLayout>
 
                         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
                             <View android:layout_width="6dp" android:layout_height="6dp" android:background="@drawable/bg_circle_red" android:layout_marginEnd="8dp"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Occasional tobacco use" android:textColor="#1E293B" android:textSize="13sp"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Occasional tobacco use" android:textColor="?attr/colorOnSurface" android:textSize="13sp"/>
                         </LinearLayout>
 
                     </LinearLayout>
@@ -264,7 +264,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="We recommend visiting a dentist soon"
-                                android:textColor="#1E293B"
+                                android:textColor="?attr/colorOnSurface"
                                 android:textSize="13sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -274,7 +274,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="10dp"
                             android:text="Your answers indicate signs that benefit from a professional check-up."
-                            android:textColor="#64748B"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="12sp" />
 
                         <com.google.android.material.button.MaterialButton
@@ -302,7 +302,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp"
                         android:text="Risk indicators"
-                        android:textColor="#1E293B"
+                        android:textColor="?attr/colorOnSurface"
                         android:textSize="13sp"
                         android:textStyle="bold" />
 
@@ -375,7 +375,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                app:cardBackgroundColor="#FFFFFF"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp">
 
@@ -405,7 +405,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Your Improvement Plan"
-                            android:textColor="#1E293B"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="15sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -414,7 +414,7 @@
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="12dp">
                         <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_orange" android:layout_marginTop="5dp" android:layout_marginEnd="10dp"/>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Floss at least once a day" android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Floss at least once a day" android:textColor="?attr/colorOnSurface" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="MEDIUM PRIORITY" android:textColor="#F57C00" android:textSize="10sp" android:textStyle="bold" android:layout_marginTop="2dp"/>
                         </LinearLayout>
                     </LinearLayout>
@@ -423,7 +423,7 @@
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="12dp">
                         <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_red" android:layout_marginTop="5dp" android:layout_marginEnd="10dp"/>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Switch to soft bristles and book a dental check-up for bleeding gums" android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Switch to soft bristles and book a dental check-up for bleeding gums" android:textColor="?attr/colorOnSurface" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="HIGH PRIORITY" android:textColor="#EF4444" android:textSize="10sp" android:textStyle="bold" android:layout_marginTop="2dp"/>
                         </LinearLayout>
                     </LinearLayout>
@@ -432,7 +432,7 @@
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="12dp">
                         <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_red" android:layout_marginTop="5dp" android:layout_marginEnd="10dp"/>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Reduce sugary snacks and rinse with water after sweets" android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Reduce sugary snacks and rinse with water after sweets" android:textColor="?attr/colorOnSurface" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="HIGH PRIORITY" android:textColor="#EF4444" android:textSize="10sp" android:textStyle="bold" android:layout_marginTop="2dp"/>
                         </LinearLayout>
                     </LinearLayout>
@@ -441,7 +441,7 @@
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="12dp">
                         <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_red" android:layout_marginTop="5dp" android:layout_marginEnd="10dp"/>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Cut down on tobacco &#8212; major risk for gums" android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Cut down on tobacco &#8212; major risk for gums" android:textColor="?attr/colorOnSurface" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="HIGH PRIORITY" android:textColor="#EF4444" android:textSize="10sp" android:textStyle="bold" android:layout_marginTop="2dp"/>
                         </LinearLayout>
                     </LinearLayout>
@@ -450,7 +450,7 @@
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="12dp">
                         <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_red" android:layout_marginTop="5dp" android:layout_marginEnd="10dp"/>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Schedule a dental check-up soon" android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Schedule a dental check-up soon" android:textColor="?attr/colorOnSurface" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="HIGH PRIORITY" android:textColor="#EF4444" android:textSize="10sp" android:textStyle="bold" android:layout_marginTop="2dp"/>
                         </LinearLayout>
                     </LinearLayout>
@@ -459,7 +459,7 @@
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
                         <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_orange" android:layout_marginTop="5dp" android:layout_marginEnd="10dp"/>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Ask your dentist about a night guard for grinding" android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Ask your dentist about a night guard for grinding" android:textColor="?attr/colorOnSurface" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="MEDIUM PRIORITY" android:textColor="#F57C00" android:textSize="10sp" android:textStyle="bold" android:layout_marginTop="2dp"/>
                         </LinearLayout>
                     </LinearLayout>
@@ -474,7 +474,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                app:cardBackgroundColor="#FFFFFF"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp">
 
@@ -504,34 +504,34 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Key issues"
-                            android:textColor="#1E293B"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="15sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
                         <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_orange" android:layout_marginTop="5dp" android:layout_marginEnd="8dp"/>
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Frequent bleeding requires a dental visit." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Frequent bleeding requires a dental visit." android:textColor="?attr/colorOnSurface" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
                     </LinearLayout>
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
                         <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_orange" android:layout_marginTop="5dp" android:layout_marginEnd="8dp"/>
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="High sugar exposure puts you at high risk for cavities." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="High sugar exposure puts you at high risk for cavities." android:textColor="?attr/colorOnSurface" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
                     </LinearLayout>
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
                         <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_orange" android:layout_marginTop="5dp" android:layout_marginEnd="8dp"/>
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Tobacco stains teeth and harms gums." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Tobacco stains teeth and harms gums." android:textColor="?attr/colorOnSurface" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
                     </LinearLayout>
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
                         <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_orange" android:layout_marginTop="5dp" android:layout_marginEnd="8dp"/>
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Yearly checkups help catch issues early." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Yearly checkups help catch issues early." android:textColor="?attr/colorOnSurface" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
                     </LinearLayout>
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
                         <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle_orange" android:layout_marginTop="5dp" android:layout_marginEnd="8dp"/>
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Grinding wears enamel; consider a night guard." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Grinding wears enamel; consider a night guard." android:textColor="?attr/colorOnSurface" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
                     </LinearLayout>
 
                 </LinearLayout>
@@ -544,7 +544,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                app:cardBackgroundColor="#FFFFFF"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp">
 
@@ -574,39 +574,39 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Recommendations"
-                            android:textColor="#1E293B"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="15sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
                         <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check" app:tint="#10B981" android:layout_marginTop="2dp" android:layout_marginEnd="8dp"/>
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Bleeding gums detected &#8212; consider booking a dental consultation." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Bleeding gums detected &#8212; consider booking a dental consultation." android:textColor="?attr/colorOnSurface" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
                     </LinearLayout>
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
                         <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check" app:tint="#10B981" android:layout_marginTop="2dp" android:layout_marginEnd="8dp"/>
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Cut back on sugar and rinse with water after sweets." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Cut back on sugar and rinse with water after sweets." android:textColor="?attr/colorOnSurface" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
                     </LinearLayout>
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
                         <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check" app:tint="#10B981" android:layout_marginTop="2dp" android:layout_marginEnd="8dp"/>
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Tobacco harms your gums and stains teeth &#8212; quitting helps fast." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Tobacco harms your gums and stains teeth &#8212; quitting helps fast." android:textColor="?attr/colorOnSurface" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
                     </LinearLayout>
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
                         <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check" app:tint="#10B981" android:layout_marginTop="2dp" android:layout_marginEnd="8dp"/>
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Schedule a dental checkup &#8212; early detection prevents bigger issues." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Schedule a dental checkup &#8212; early detection prevents bigger issues." android:textColor="?attr/colorOnSurface" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
                     </LinearLayout>
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="10dp">
                         <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check" app:tint="#10B981" android:layout_marginTop="2dp" android:layout_marginEnd="8dp"/>
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Brush twice daily for 2 minutes with fluoride toothpaste." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Brush twice daily for 2 minutes with fluoride toothpaste." android:textColor="?attr/colorOnSurface" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
                     </LinearLayout>
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="14dp">
                         <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check" app:tint="#10B981" android:layout_marginTop="2dp" android:layout_marginEnd="8dp"/>
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Floss at least once a day to remove plaque between teeth." android:textColor="#1E293B" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Floss at least once a day to remove plaque between teeth." android:textColor="?attr/colorOnSurface" android:textSize="13sp" android:lineSpacingMultiplier="1.4"/>
                     </LinearLayout>
 
                     <!-- Red urgent box -->
@@ -644,7 +644,7 @@
                                 android:layout_height="wrap_content"
                                 android:lineSpacingMultiplier="1.4"
                                 android:text="Your symptoms (gum pain or frequent bleeding) need professional attention. Book a check-up."
-                                android:textColor="#64748B"
+                                android:textColor="?attr/colorOnSurfaceVariant"
                                 android:textSize="12sp" />
                         </LinearLayout>
                     </LinearLayout>

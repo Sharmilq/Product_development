@@ -330,6 +330,11 @@ public class AssessmentResultActivity extends AppCompatActivity {
         parent.addView(box);
     }
     private void bindScoreCard() {
+        if (tvScoreNumber != null) {
+            android.util.Log.d("AssessmentResultActivity", "ASSESSMENT_RESULT_SCORE_TEXTVIEW_FOUND");
+        }
+        android.util.Log.d("AssessmentResultActivity", "ASSESSMENT_RESULT_SCORE_VALUE: " + score);
+
         // Score number
         tvScoreNumber.setText(String.valueOf(score));
 
@@ -337,22 +342,31 @@ public class AssessmentResultActivity extends AppCompatActivity {
         tvRiskLabel.setText(label.toUpperCase());
 
         // Subtitle
-        tvWhyScore.setText("Some areas need attention. Let\u2019s improve together.");
+        tvWhyScore.setText("😁 Keep taking care of your smile! Let's improve together.");
 
-        // Circular progress color based on score
-        int color;
-        if (score < 30) {
-            color = getResources().getColor(R.color.risk_red, getTheme());
-        } else if (score < 60) {
-            color = getResources().getColor(R.color.warning_orange, getTheme());
+        // Required logic: Red=0-39, Orange=40-69, Green=70-100
+        int scoreColor;
+        if (score <= 39) {
+            scoreColor = androidx.core.content.ContextCompat.getColor(this, R.color.risk_high_red);
+        } else if (score <= 69) {
+            scoreColor = androidx.core.content.ContextCompat.getColor(this, R.color.risk_medium_orange);
         } else {
-            color = getResources().getColor(R.color.success_green, getTheme());
+            scoreColor = androidx.core.content.ContextCompat.getColor(this, R.color.risk_low_green);
         }
 
+        scoreTextViewSetColor(scoreColor);
+
         scoreProgress.setProgress(score);
-        scoreProgress.setIndicatorColor(color);
+        scoreProgress.setIndicatorColor(scoreColor);
+
+        android.util.Log.d("AssessmentResultActivity", "ASSESSMENT_RESULT_SCORE_COLOR_APPLIED");
+    }
+
+    private void scoreTextViewSetColor(int scoreColor) {
+        tvScoreNumber.setTextColor(scoreColor);
+        tvRiskLabel.setTextColor(scoreColor);
         tvRiskLabel.setBackgroundTintList(
-                android.content.res.ColorStateList.valueOf(color));
+                android.content.res.ColorStateList.valueOf(scoreColor));
     }
     private File createAssessmentPdf() throws Exception {
 
