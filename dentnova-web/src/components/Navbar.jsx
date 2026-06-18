@@ -180,18 +180,20 @@ export default function Navbar({ user, profile, streak, theme, toggleTheme }) {
                     }}
                     className="flex items-center gap-2 focus:outline-none"
                   >
-                    {hasAvatar ? (
-                      <img
-                        src={avatarUrl.startsWith('data:') || avatarUrl.startsWith('http') ? avatarUrl : `data:image/jpeg;base64,${avatarUrl}`}
-                        alt="Profile"
-                        className="w-8 h-8 rounded-full object-cover border-2 border-cyan-500"
-                        onError={() => setImgError(true)}
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-cyan-500 flex items-center justify-center text-white font-bold text-sm">
-                        {getInitials()}
-                      </div>
-                    )}
+                    <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center border-2 border-cyan-500 bg-slate-100 dark:bg-slate-800 shrink-0 relative">
+                      {hasAvatar ? (
+                        <img
+                          src={avatarUrl.startsWith('data:') || avatarUrl.startsWith('http') ? avatarUrl : `data:image/jpeg;base64,${avatarUrl}`}
+                          alt="Profile"
+                          className="w-full h-full object-cover rounded-full"
+                          onError={() => setImgError(true)}
+                        />
+                      ) : (
+                        <span className="font-extrabold text-xs text-cyan-600 dark:text-cyan-400 select-none">
+                          {getInitials()}
+                        </span>
+                      )}
+                    </div>
                   </button>
 
                   {dropdownOpen && (

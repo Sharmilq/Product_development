@@ -328,29 +328,33 @@ export default function Profile({ profile, onProfileUpdate }) {
           )}
 
           <form onSubmit={handleSaveProfile} className="space-y-6">
-            {/* Avatar */}
-            <div className="flex flex-col sm:flex-row items-center gap-6 pb-2 border-b border-slate-100 dark:border-slate-800">
-              <div className="relative group">
-                {hasAvatar ? (
-                  <img
-                    src={avatarSrc.startsWith('data:') || avatarSrc.startsWith('http') ? avatarSrc : `data:image/jpeg;base64,${avatarSrc}`}
-                    alt="Avatar"
-                    className="w-24 h-24 rounded-full object-cover border-4 border-slate-100 dark:border-slate-800 shadow"
-                    onError={() => setImgError(true)}
-                  />
-                ) : (
-                  <div className="w-24 h-24 rounded-full bg-cyan-500/10 text-cyan-500 flex items-center justify-center font-bold text-2xl border-4 border-slate-100 dark:border-slate-800 shadow">
-                    {getInitials()}
-                  </div>
-                )}
-                <label className="absolute bottom-0 right-0 p-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full cursor-pointer shadow-md transition hover:scale-105">
+            {/* Avatar Section */}
+            <div className="flex flex-col sm:flex-row items-center gap-6 py-6 border-b border-slate-100 dark:border-slate-800 mb-8">
+              <div className="relative group shrink-0">
+                <div className="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center border-4 border-slate-100 dark:border-slate-800 shadow-md bg-slate-100 dark:bg-slate-900 relative">
+                  {hasAvatar ? (
+                    <img
+                      src={avatarSrc.startsWith('data:') || avatarSrc.startsWith('http') ? avatarSrc : `data:image/jpeg;base64,${avatarSrc}`}
+                      alt="Avatar"
+                      className="w-full h-full object-cover rounded-full"
+                      onError={() => setImgError(true)}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center font-extrabold text-2xl text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 rounded-full select-none">
+                      {getInitials()}
+                    </div>
+                  )}
+                </div>
+                <label className="absolute bottom-0 right-0 p-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full cursor-pointer shadow-md transition hover:scale-110 flex items-center justify-center z-10">
                   <Camera className="w-4 h-4" />
                   <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
                 </label>
               </div>
-              <div className="space-y-1 text-center sm:text-left">
-                <h4 className="font-extrabold text-slate-800 dark:text-slate-200 text-sm">Upload Avatar Photo</h4>
-                <p className="text-xs text-slate-400">JPG or PNG, max 2 MB.</p>
+              <div className="space-y-1.5 text-center sm:text-left">
+                <h4 className="font-extrabold text-slate-800 dark:text-slate-200 text-base">Profile Picture</h4>
+                <p className="text-xs text-slate-400 dark:text-slate-500 leading-relaxed">
+                  Upload a high-resolution JPG or PNG. The avatar will be automatically updated across your dashboard.
+                </p>
               </div>
             </div>
 
