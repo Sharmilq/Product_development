@@ -12,17 +12,17 @@ jobs:
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Setup Node.js Environment
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
         cache-dependency-path: 'dentnova-web/package.json'
 
     - name: Setup Python Environment
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
         cache: 'pip'
@@ -54,25 +54,17 @@ jobs:
         cd backend
         npm test || echo "No Jest tests configured"
 
-    - name: Run API Validation Tests
+    - name: Run All-in-One QA Suite and Report Generator
       env:
         TEST_OTP_URL: 'http://localhost:5000'
         TEST_ML_URL: 'https://dentnova-ml.onrender.com'
       run: |
-        pytest tests/api/test_api.py --html=tests/reports/html/api_report.html --junit-xml=tests/reports/junit/api_report.xml || echo "API tests had failures"
-
-    - name: Run Security Configuration Verification
-      run: |
-        python tests/security/zap_scan.py || echo "Security check failed"
-
-    - name: Run Schema Integration Tests
-      run: |
-        pytest tests/integration/test_sync.py --html=tests/reports/html/sync_report.html --junit-xml=tests/reports/junit/sync_report.xml || echo "Sync tests failed"
+        python tests/run_all_tests.py
 
     - name: Upload Test Reports Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: dentnova-qa-reports
         path: |
-          tests/reports/html/
-          tests/reports/junit/
+          tests/reports/
+
