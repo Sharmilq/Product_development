@@ -1,28 +1,19 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import { supabase } from '../supabaseClient'
 
 /**
- * Custom Hook to handle browser notifications for DentNova reminders.
- * Runs in the background, checks active reminders, and triggers a Notification when due.
+ * Custom Hook — Browser notifications for DentNova reminders.
+ *
+ * Uses a ref for the reminders array so the interval callback always sees
+ * the latest data (avoids React stale-closure problem with setInterval).
  */
 export function useRemindersNotifier(user) {
-  const [reminders, setReminders] = useState([])
-  const timerRef = useRef(null)
-  const lastFetchedUserId = useRef(null)
+  const remindersRef = useRef([])
+  const tickerRef = useRef(null)
+  const fetchIntervalRef = useRef(null)
 
-  // 1. Request Notification Permission
-  useEffect(() => {
-    if (user && 'Notification' in window) {
-      if (Notification.permission === 'default') {
-        Notification.requestPermission().then((permission) => {
-          console.log('[DentNova Notifications] Permission status:', permission)
-        })
-      }
-    }
-  }, [user])
-
-  // 2. Fetch Active Reminders from Supabase
-  const fetchReminders = async () => {
+  // ── Fetch enabled reminders from Supabase ─────────────────────────────────
+  const fetchReminders = useCallback(async () => {
     const userIdStr = localStorage.getItem('dentnova_user_id')
     if (!userIdStr) return
     const userId = parseInt(userIdStr, 10)
@@ -36,152 +27,163 @@ export function useRemindersNotifier(user) {
         .eq('enabled', true)
 
       if (!error && data) {
-        setReminders(data)
-        lastFetchedUserId.current = userId
-        console.log(`[DentNova Notifications] Fetched ${data.length} active reminders.`)
+        remindersRef.current = data
+        console.log('WEB_REMINDER_CHECK:', `Fetched ${data.length} active reminders for user ${userId}`)
       } else if (error) {
-        console.error('[DentNova Notifications] Error fetching reminders:', error)
+        console.error('WEB_REMINDER_CHECK: Error fetching reminders:', error)
       }
     } catch (err) {
-      console.error('[DentNova Notifications] Fetch exception:', err)
+      console.error('WEB_REMINDER_CHECK: Fetch exception:', err)
     }
-  }
+  }, [])
 
-  // Fetch immediately when user/profile becomes available
+  // ── Request Notification Permission on mount (when user exists) ───────────
   useEffect(() => {
-    if (user) {
-      fetchReminders()
-      
-      // Setup periodic polling every 2 minutes to get fresh list of reminders
-      const fetchInterval = setInterval(fetchReminders, 2 * 60 * 1000)
-      return () => clearInterval(fetchInterval)
-    } else {
-      setReminders([])
-      lastFetchedUserId.current = null
-    }
-  }, [user])
-
-  // Helper to trigger standard browser notification
-  const triggerNotification = (title, body) => {
-    if (!('Notification' in window) || Notification.permission !== 'granted') return
-
-    try {
-      new Notification(title, {
-        body,
-        icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦷</text></svg>',
-        tag: `dentnova-reminder-${Date.now()}`
-      })
-      console.log(`[DentNova Notifications] Displayed: "${title}" - "${body}"`)
-    } catch (err) {
-      console.error('[DentNova Notifications] Failed to show Notification:', err)
-    }
-  }
-
-  // 3. Ticker: runs every 15 seconds to check if a reminder is due
-  useEffect(() => {
-    if (!user) {
-      if (timerRef.current) clearInterval(timerRef.current)
+    if (!user) return
+    if (!('Notification' in window)) {
+      console.log('WEB_NOTIFICATION_PERMISSION: Browser does not support notifications')
       return
     }
 
-    timerRef.current = setInterval(() => {
-      if (reminders.length === 0) return
+    const perm = Notification.permission
+    console.log('WEB_NOTIFICATION_PERMISSION: Current status =', perm)
 
-      const now = new Date()
-      const daysOfWeekShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-      const currentDayShort = daysOfWeekShort[now.getDay()] // e.g., "Thu"
-      const isWeekday = now.getDay() >= 1 && now.getDay() <= 5 // Mon-Fri
+    if (perm === 'default') {
+      Notification.requestPermission().then((result) => {
+        console.log('WEB_NOTIFICATION_PERMISSION: User responded =', result)
+      })
+    }
+  }, [user])
 
-      // Format current time to "hh:mm AM/PM" (e.g. "08:00 AM")
-      let hours = now.getHours()
-      const minutes = String(now.getMinutes()).padStart(2, '0')
-      const ampm = hours >= 12 ? 'PM' : 'AM'
-      hours = hours % 12 || 12
-      const formattedHours = String(hours).padStart(2, '0')
-      const currentFormattedTime = `${formattedHours}:${minutes} ${ampm}`
+  // ── Show a browser notification and handle click ──────────────────────────
+  const showNotification = useCallback((title, body, reminderId) => {
+    if (!('Notification' in window) || Notification.permission !== 'granted') {
+      console.log('WEB_NOTIFICATION_SHOWN: BLOCKED — permission is', Notification.permission)
+      return
+    }
 
-      // Format current date to "dd MMM yyyy" (e.g. "18 Jun 2026")
-      const day = String(now.getDate()).padStart(2, '0')
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-      const month = months[now.getMonth()]
-      const year = now.getFullYear()
-      const currentFormattedDate = `${day} ${month} ${year}`
-
-      // Retrieve already triggered reminders list from localStorage to handle page refreshes/tabs
-      let triggeredMap = {}
-      try {
-        triggeredMap = JSON.parse(localStorage.getItem('dentnova_triggered_reminders') || '{}')
-      } catch {
-        triggeredMap = {}
-      }
-
-      // Cleanup triggeredMap entries older than 2 days to save space
-      const twoDaysAgo = Date.now() - 2 * 24 * 60 * 60 * 1000
-      Object.keys(triggeredMap).forEach((key) => {
-        if (triggeredMap[key] < twoDaysAgo) {
-          delete triggeredMap[key]
-        }
+    try {
+      const n = new Notification(title, {
+        body,
+        icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦷</text></svg>',
+        tag: `dentnova-${reminderId}-${Date.now()}`
       })
 
-      let updated = false
+      console.log('WEB_NOTIFICATION_SHOWN:', title, '—', body)
 
-      reminders.forEach((r) => {
-        const isReplacement = r.title?.toLowerCase().includes('replacement') || r.days === 'ONCE'
+      n.onclick = () => {
+        console.log('WEB_NOTIFICATION_CLICKED: reminder id =', reminderId)
+        window.focus()
+        window.location.href = '/reminders'
+      }
+    } catch (err) {
+      console.error('WEB_NOTIFICATION_SHOWN: Error creating notification:', err)
+    }
+  }, [])
+
+  // ── Main ticker: check every 30 seconds if any reminder matches now ───────
+  useEffect(() => {
+    if (!user) {
+      // Cleanup
+      if (tickerRef.current) clearInterval(tickerRef.current)
+      if (fetchIntervalRef.current) clearInterval(fetchIntervalRef.current)
+      remindersRef.current = []
+      return
+    }
+
+    // Fetch immediately, then every 60 seconds
+    fetchReminders()
+    fetchIntervalRef.current = setInterval(fetchReminders, 60 * 1000)
+
+    // Ticker every 30 seconds
+    tickerRef.current = setInterval(() => {
+      const list = remindersRef.current
+      if (!list || list.length === 0) return
+
+      const now = new Date()
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+      const currentDay = dayNames[now.getDay()]
+
+      // Build current time string in "hh:mm AM/PM" format
+      let h = now.getHours()
+      const m = String(now.getMinutes()).padStart(2, '0')
+      const ampm = h >= 12 ? 'PM' : 'AM'
+      h = h % 12 || 12
+      const currentTime = `${String(h).padStart(2, '0')}:${m} ${ampm}`
+
+      // Build current date in "dd MMM yyyy" format for toothbrush replacements
+      const dd = String(now.getDate()).padStart(2, '0')
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      const currentDate = `${dd} ${monthNames[now.getMonth()]} ${now.getFullYear()}`
+
+      // De-duplication map from localStorage
+      let triggered = {}
+      try {
+        triggered = JSON.parse(localStorage.getItem('dentnova_triggered_reminders') || '{}')
+      } catch {
+        triggered = {}
+      }
+
+      // Prune entries older than 24 hours
+      const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000
+      for (const k of Object.keys(triggered)) {
+        if (triggered[k] < oneDayAgo) delete triggered[k]
+      }
+
+      const todayKey = now.toISOString().split('T')[0] // "2026-06-18"
+      let didUpdate = false
+
+      for (const r of list) {
+        const isReplacement = r.days === 'ONCE' || r.title?.toLowerCase().includes('replacement')
 
         if (isReplacement) {
-          // Replacement reminder matches the exact date (r.time is the date)
-          if (r.time === currentFormattedDate) {
-            // Trigger replacement reminders around morning (e.g., at any time they open the app on that day)
-            const triggerKey = `replace-${r.id}-${currentFormattedDate}`
-            if (!triggeredMap[triggerKey]) {
-              triggerNotification(
-                '🦷 ' + r.title,
-                `Today is your scheduled toothbrush replacement date (${r.time})! Keep your smile clean.`
+          // For toothbrush replacement: r.time holds the date string
+          if (r.time === currentDate) {
+            const key = `replace-${r.id}-${todayKey}`
+            if (!triggered[key]) {
+              console.log('WEB_REMINDER_MATCH_FOUND:', r.title, '| date =', currentDate)
+              showNotification(
+                '🦷 DentNova Reminder',
+                `Time for: ${r.title}\nToday is your scheduled replacement date.`,
+                r.id
               )
-              triggeredMap[triggerKey] = Date.now()
-              updated = true
+              triggered[key] = Date.now()
+              didUpdate = true
             }
           }
         } else {
-          // Regular brushing/flossing reminders matching day and time
-          let dayMatches = false
+          // Regular reminder: check day match
           const daysStr = r.days || ''
+          const daysList = daysStr.split(',').map(s => s.trim())
+          const dayMatches = daysList.includes(currentDay)
 
-          if (daysStr === 'Daily') {
-            dayMatches = true
-          } else if (daysStr === 'Weekdays') {
-            dayMatches = isWeekday
-          } else {
-            // Custom days list e.g., "Mon, Tue"
-            const customDaysList = daysStr.split(',').map((s) => s.trim())
-            dayMatches = customDaysList.includes(currentDayShort)
-          }
+          // Check time match
+          const timeMatches = r.time === currentTime
 
-          if (dayMatches && r.time === currentFormattedTime) {
-            // Key format: reminderId-date-time (unique for that specific minute check)
-            const todayStr = now.toISOString().split('T')[0]
-            const triggerKey = `reminder-${r.id}-${todayStr}-${currentFormattedTime}`
-
-            if (!triggeredMap[triggerKey]) {
-              const emoji = r.title?.toLowerCase().includes('floss') ? '🧵' : '🪥'
-              triggerNotification(
-                `${emoji} ${r.title}`,
-                `It's time for your scheduled oral care: ${r.title} (${r.time})!`
+          if (dayMatches && timeMatches) {
+            const key = `reminder-${r.id}-${todayKey}-${currentTime}`
+            if (!triggered[key]) {
+              console.log('WEB_REMINDER_MATCH_FOUND:', r.title, '| day =', currentDay, '| time =', currentTime)
+              showNotification(
+                '🦷 DentNova Reminder',
+                `Time for: ${r.title}`,
+                r.id
               )
-              triggeredMap[triggerKey] = Date.now()
-              updated = true
+              triggered[key] = Date.now()
+              didUpdate = true
             }
           }
         }
-      })
-
-      if (updated) {
-        localStorage.setItem('dentnova_triggered_reminders', JSON.stringify(triggeredMap))
       }
-    }, 15000) // Ticker runs every 15 seconds
+
+      if (didUpdate) {
+        localStorage.setItem('dentnova_triggered_reminders', JSON.stringify(triggered))
+      }
+    }, 30 * 1000) // every 30 seconds
 
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current)
+      if (tickerRef.current) clearInterval(tickerRef.current)
+      if (fetchIntervalRef.current) clearInterval(fetchIntervalRef.current)
     }
-  }, [reminders, user])
+  }, [user, fetchReminders, showNotification])
 }

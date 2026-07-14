@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const nodemailer = require('nodemailer');
 const { createClient } = require('@supabase/supabase-js');
 const admin = require('firebase-admin');
 const crypto = require('crypto');
@@ -21,17 +20,17 @@ app.use((req, res, next) => {
     if (loggedBody.password) loggedBody.password = '[HIDDEN SECRET]';
     console.log(`[HTTP_REQUEST] Body:`, JSON.stringify(loggedBody));
   }
-  
+
   res.json = function (body) {
     console.log(`[HTTP_RESPONSE] URL: ${req.method} ${req.originalUrl} - Code: ${res.statusCode} - Body:`, JSON.stringify(body));
     return originalJson.call(this, body);
   };
-  
+
   res.send = function (body) {
     console.log(`[HTTP_RESPONSE] URL: ${req.method} ${req.originalUrl} - Code: ${res.statusCode} - Body:`, typeof body === 'object' ? JSON.stringify(body) : body);
     return originalSend.call(this, body);
   };
-  
+
   next();
 });
 
@@ -74,61 +73,18 @@ try {
   console.warn('Firebase password resets will be skipped.');
 }
 
-// ── NODEMAILER EMAIL CONFIGURATION ────────────────────────────────────────
-// Setup SMTP transporter based on environment variables
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
-  auth: {
-    user: process.env.SMTP_USER, // e.g. your email
-    pass: process.env.SMTP_PASS  // e.g. email App Password
-  }
-});
-
-// Verify email setup
-transporter.verify((error, success) => {
-  if (error) {
-    console.warn('WARNING: SMTP email transporter configuration failed:', error.message);
-  } else {
-    console.log('SMTP transporter is ready to send emails.');
-  }
-});
-
-// ── ENDPOINTS ─────────────────────────────────────────────────────────────
-
 /**
  * 1. Send OTP Endpoint
  * Generates a secure 6-digit OTP, stores it in Supabase 'otps' table, and sends it via email.
  */
-app.post('/api/otp/send', async (req, res) => {
-  const { email } = req.body;
 
-  if (!email) {
-    return res.status(400).json({ success: false, message: 'Email is required' });
-  }
 
-  try {
-    // Generate secure 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 minutes expiry
-
-    // Save/Upsert OTP details in the Supabase 'otps' table
-    const { error: dbError } = await supabase
-      .from('otps')
-      .upsert({ email, otp, expires_at: expiresAt }, { onConflict: 'email' });
-
-    if (dbError) {
-      console.error('Database error storing OTP:', dbError);
-      return res.status(500).json({ success: false, message: 'Failed to generate verification code in database' });
-    }
-
-    // Email content
-    const mailOptions = {
-      from: `"DentNova" <${process.env.SMTP_USER}>`,
-      to: email,
-      subject: 'DentNova Verification Code',
-      html: `
+// Email content
+const mailOptions = {
+  from: `"DentNova" <${process.env.SMTP_USER}>`,
+  to: email,
+  subject: 'DentNova Verification Code',
+  html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #E0E8EF; border-radius: 12dp;">
           <h2 style="color: #00BCD4; text-align: center;">DentNova Verification Code</h2>
           <p>Hello,</p>
@@ -140,153 +96,7 @@ app.post('/api/otp/send', async (req, res) => {
           <p>Best regards,<br>The DentNova Team</p>
         </div>
       `
-    };
-
-    // Send email
-    await transporter.sendMail(mailOptions);
-    console.log(`OTP (${otp}) successfully sent to ${email}`);
-
-    res.status(200).json({ success: true, message: 'Verification code sent successfully' });
-  } catch (error) {
-    console.error('Error sending OTP:', error);
-    res.status(500).json({ success: false, message: 'Failed to send verification code. Try again later.' });
-  }
-});
-
-/**
- * 2. Verify OTP Endpoint
- * Checks if the OTP entered by the user is correct and not expired.
- */
-app.post('/api/otp/verify', async (req, res) => {
-  const { email, otp } = req.body;
-
-  if (!email || !otp) {
-    return res.status(400).json({ success: false, message: 'Email and OTP code are required' });
-  }
-
-  try {
-    const { data: records, error } = await supabase
-      .from('otps')
-      .select('*')
-      .eq('email', email);
-
-    if (error || !records || records.length === 0) {
-      return res.status(400).json({ success: false, message: 'No verification code requested for this email' });
-    }
-
-    const record = records[0];
-
-    // Expiry check
-    if (new Date() > new Date(record.expires_at)) {
-      // Clean up expired OTP
-      await supabase.from('otps').delete().eq('email', email);
-      return res.status(400).json({ success: false, message: 'Verification code has expired. Please request a new one.' });
-    }
-
-    // Match check
-    if (record.otp !== otp) {
-      return res.status(400).json({ success: false, message: 'Invalid verification code' });
-    }
-
-    res.status(200).json({ success: true, message: 'Verification code verified successfully' });
-  } catch (error) {
-    console.error('Error verifying OTP:', error);
-    res.status(500).json({ success: false, message: 'Server error during verification.' });
-  }
-});
-
-/**
- * 3. Reset Password Endpoint
- * Validates the OTP one final time, updates the password securely in Supabase / Firebase, and deletes the OTP.
- */
-app.post('/api/otp/reset-password', async (req, res) => {
-  const { email, otp, newPassword } = req.body;
-
-  if (!email || !otp || !newPassword) {
-    return res.status(400).json({ success: false, message: 'Missing required parameters' });
-  }
-
-  if (newPassword.length < 6) {
-    return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
-  }
-
-  try {
-    // 1. Verify OTP first
-    const { data: records, error } = await supabase
-      .from('otps')
-      .select('*')
-      .eq('email', email);
-
-    if (error || !records || records.length === 0) {
-      return res.status(400).json({ success: false, message: 'OTP verification failed' });
-    }
-
-    const record = records[0];
-
-    if (new Date() > new Date(record.expires_at)) {
-      await supabase.from('otps').delete().eq('email', email);
-      return res.status(400).json({ success: false, message: 'OTP expired. Request a new one.' });
-    }
-
-    if (record.otp !== otp) {
-      return res.status(400).json({ success: false, message: 'Invalid OTP' });
-    }
-
-    // 2. Perform updates in authentication services
-    let supabaseSuccess = false;
-    let firebaseSuccess = false;
-
-    // A. Update in Supabase
-    try {
-      const { data: listData, error: listError } = await supabase.auth.admin.listUsers();
-      if (listError) throw listError;
-
-      const supabaseUser = listData.users.find(u => u.email === email);
-      if (supabaseUser) {
-        const { error: updateError } = await supabase.auth.admin.updateUserById(
-          supabaseUser.id,
-          { password: newPassword }
-        );
-        if (updateError) throw updateError;
-        supabaseSuccess = true;
-        console.log(`Supabase password updated for user: ${email}`);
-      }
-    } catch (sbError) {
-      console.warn('Supabase password update failed or skipped:', sbError.message);
-    }
-
-    // B. Update in Firebase (if initialised)
-    try {
-      if (admin.apps.length > 0) {
-        const firebaseUser = await admin.auth().getUserByEmail(email);
-        if (firebaseUser) {
-          await admin.auth().updateUser(firebaseUser.uid, { password: newPassword });
-          firebaseSuccess = true;
-          console.log(`Firebase password updated for user: ${email}`);
-        }
-      }
-    } catch (fbError) {
-      console.warn('Firebase password update failed or skipped:', fbError.message);
-    }
-
-    // If both failed to update (user not found in either system)
-    if (!supabaseSuccess && !firebaseSuccess) {
-      return res.status(404).json({ success: false, message: 'User account not found' });
-    }
-
-    // 3. Success, clean up OTP record
-    await supabase.from('otps').delete().eq('email', email);
-
-    res.status(200).json({ success: true, message: 'Password updated successfully' });
-  } catch (error) {
-    console.error('Error resetting password:', error);
-    res.status(500).json({ success: false, message: 'Failed to update password.' });
-  }
-});
-
-// ── NEW: Custom Password-Reset OTP Flow ─────────────────────────────────────
-// These endpoints replace the Supabase /auth/v1/recover link flow.
-// The Android app ONLY calls these — it never touches service_role APIs.
+};
 
 // Simple in-memory rate limiter: max 3 OTP requests per email per 15 minutes.
 const otpRateLimit = new Map(); // email -> { count, windowStart }
@@ -313,6 +123,41 @@ function sha256(text) {
  * Body: { "email": "user@example.com" }
  * Generates a 6-digit OTP, hashes it, stores it with 5-min expiry, sends email.
  */
+async function sendOtpEmailWithBrevo(toEmail, otp) {
+  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "accept": "application/json",
+      "api-key": process.env.BREVO_API_KEY,
+      "content-type": "application/json"
+    },
+    body: JSON.stringify({
+      sender: {
+        name: process.env.BREVO_FROM_NAME || "DentNova",
+        email: process.env.BREVO_FROM_EMAIL
+      },
+      to: [{ email: toEmail }],
+      subject: "DentNova Password Reset OTP",
+      htmlContent: `
+        <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;border:1px solid #E0E8EF;border-radius:12px;">
+          <h2>DentNova Password Reset OTP</h2>
+          <p>Your DentNova password reset OTP is:</p>
+          <h1 style="letter-spacing:6px;">${otp}</h1>
+          <p>This OTP expires in 5 minutes.</p>
+        </div>
+      `
+    })
+  });
+
+  const data = await response.text();
+
+  if (!response.ok) {
+    console.error("[BREVO_API_ERROR]", response.status, data);
+    throw new Error("Brevo API failed: " + data);
+  }
+
+  console.log("[BREVO_API_SUCCESS]", data);
+}
 app.post('/auth/request-password-otp', async (req, res) => {
   const { email } = req.body;
   if (!email) {
@@ -376,7 +221,7 @@ app.post('/auth/request-password-otp', async (req, res) => {
       `
     };
 
-    await transporter.sendMail(mailOptions);
+    await sendOtpEmailWithBrevo(email, otp);
     console.log(`[OTP] OTP sent successfully to ${email}`);
 
     return res.status(200).json({ success: true, message: 'OTP sent successfully.' });
@@ -442,14 +287,14 @@ app.post('/auth/reset-password-with-otp', async (req, res) => {
   if (!email || !otp || !newPassword) {
     return res.status(400).json({ success: false, message: 'email, otp and newPassword are required' });
   }
-  
+
   // Password strength rule validation
   const hasUppercase = /[A-Z]/.test(newPassword);
   const hasLowercase = /[a-z]/.test(newPassword);
   const hasNumber = /[0-9]/.test(newPassword);
   const hasSpecial = /[^A-Za-z0-9]/.test(newPassword);
   const isStrong = newPassword.length >= 8 && hasUppercase && hasLowercase && hasNumber && hasSpecial;
-  
+
   if (!isStrong) {
     return res.status(400).json({
       success: false,
