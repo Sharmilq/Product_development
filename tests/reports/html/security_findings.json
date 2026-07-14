@@ -1,0 +1,9 @@
+{
+  "target": "http://localhost:5174",
+  "vulnerabilities": [
+    "Missing X-Frame-Options header (risk: Clickjacking)",
+    "Missing X-Content-Type-Options header (risk: MIME sniffing)",
+    "Missing Content-Security-Policy header (risk: XSS)",
+    "Missing Strict-Transport-Security header (risk: MITM)"
+  ]
+}
