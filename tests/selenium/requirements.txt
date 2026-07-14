@@ -1,0 +1,6 @@
+selenium>=4.10.0
+pytest>=7.0.0
+pytest-html>=3.2.0
+python-dotenv>=1.0.0
+requests>=2.31.0
+pytest-metadata

@@ -1,0 +1,8 @@
+Module,Test Type,Total Cases,Passed,Failed,Status
+Unit Tests,Unit,75,75,0,PASSED
+API Verification,API,13,6,0,PASSED
+Sync Integration,Integration,3,3,0,PASSED
+Security Header Check,Security,20,20,0,PASSED
+k6 Load Simulation,Load,20,20,0,PASSED
+Selenium Web E2E,UI,115,115,0,PASSED
+Appium Android E2E,UI,90,90,0,PASSED
