@@ -16,7 +16,25 @@ from email.mime.multipart import MIMEMultipart
 
 app = Flask(__name__)
 CORS(app)
+model = None
+interpreter = None
+input_details = None
+output_details = None
+@app.route("/", methods=["GET", "HEAD"])
+def home():
+    return jsonify({
+        "success": True,
+        "message": "DentNova ML backend is running"
+    }), 200
 
+
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({
+        "status": "healthy",
+        "assessment_model": model is not None,
+        "tooth_model": interpreter is not None
+    }), 200
 # Env config for Supabase
 supabase_url = os.environ.get("SUPABASE_URL", "https://kxuwskwwmrpoilrxngha.supabase.co")
 supabase_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
@@ -93,21 +111,45 @@ def send_otp_email(to_email, otp):
         return False
 
 print("Loading assessment model...")
-model = joblib.load("dentnova_catboost_model_v2.pkl")
-print("Assessment model loaded")
+
+model = None
+
+try:
+    model = joblib.load("dentnova_catboost_model_v2.pkl")
+    print("Assessment model loaded")
+except Exception as e:
+    print(f"Failed to load assessment model: {e}")
 
 print("Loading tooth model...")
-interpreter = tf.lite.Interpreter(model_path="dentnova_mobilenetv2.tflite")
-interpreter.allocate_tensors()
-input_details = interpreter.get_input_details()
-output_details = interpreter.get_output_details()
-print("Tooth model loaded")
+
+interpreter = None
+input_details = None
+output_details = None
+
+try:
+    interpreter = tf.lite.Interpreter(
+        model_path="dentnova_mobilenetv2.tflite"
+    )
+    interpreter.allocate_tensors()
+
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+
+    print("Tooth model loaded")
+
+except Exception as e:
+    print(f"Failed to load tooth model: {e}")
 
 CLASS_NAMES = ["Calculus", "Gingivitis", "Healthy"]
 
 
 @app.route("/predict", methods=["POST"])
 def predict():
+    if model is None:
+        return jsonify({
+            "success": False,
+            "message": "Assessment backend is not loaded."
+        }), 503
     data = request.json
     sample = pd.DataFrame([data])
 
@@ -130,6 +172,12 @@ def predict():
 
 @app.route("/predict-tooth", methods=["POST"])
 def predict_tooth():
+    if interpreter is None:
+        return jsonify({
+            "success": False,
+            "message": "Tooth scan backend is not loaded."
+        }), 503
+
     if "image" not in request.files:
         return jsonify({"success": False, "message": "Image required"})
 
