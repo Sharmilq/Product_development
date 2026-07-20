@@ -72,3 +72,11 @@ Thumbs.db
 # JVM crash logs
 hs_err_pid*.log
 replay_pid*.log
+
+# Testing Framework Ignore
+Testing/node_modules/
+Testing/Web_Selenium/screenshots/
+Testing/Web_Selenium/reports/
+Testing/Android_Appium/screenshots/
+Testing/Android_Appium/reports/
+node-bin/

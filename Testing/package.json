@@ -1,0 +1,26 @@
+{
+  "name": "dentnova-enterprise-testing",
+  "version": "1.0.0",
+  "description": "DentNova Enterprise Automation Testing Framework (300+ Appium & 300+ Selenium Cases)",
+  "main": "index.js",
+  "scripts": {
+    "test:web": "mocha \"Web_Selenium/testcases/*.test.js\" --timeout 600000 --reporter mochawesome --reporter-options reportDir=Web_Selenium/reports,reportFilename=web_test_report,html=true,json=true",
+    "test:android": "wdio run Testing/Android_Appium/config/wdio.conf.js",
+    "report:compile": "python Testing/Summary/generate_summary_report.py"
+  },
+  "dependencies": {
+    "chai": "^4.4.1",
+    "chromedriver": "^122.0.0",
+    "exceljs": "^4.4.0",
+    "mocha": "^10.3.0",
+    "selenium-webdriver": "^4.18.1"
+  },
+  "devDependencies": {
+    "@wdio/cli": "^8.32.4",
+    "@wdio/local-runner": "^8.32.4",
+    "@wdio/mocha-framework": "^8.32.2",
+    "@wdio/spec-reporter": "^8.32.2",
+    "mochawesome": "^7.1.4",
+    "webdriverio": "^8.32.4"
+  }
+}
