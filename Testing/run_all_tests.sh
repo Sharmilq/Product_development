@@ -18,7 +18,4 @@ else
     echo "k6 could not be found, skipping load tests."
 fi
 
-echo "4. Generating Summary Reports..."
-npm run report:compile
-
 echo "Testing Pipeline Execution Complete!"

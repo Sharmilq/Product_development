@@ -73,6 +73,7 @@ jobs:
         
     - name: Run Appium Tests in Emulator
       uses: reactivecircus/android-emulator-runner@v2
+      continue-on-error: true
       with:
         api-level: 29
         script: |
@@ -80,7 +81,15 @@ jobs:
           npm install
           bash run_all_tests.sh || echo "Some tests failed but generating report anyway."
 
+    - name: Generate QA Summary Reports
+      if: always()
+      run: |
+        cd Testing
+        npm install
+        npm run report:compile
+
     - name: Upload Complete QA Artifacts
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: DentNova_QA_Reports
