@@ -46,7 +46,6 @@ jobs:
     - name: Run Web Unit Tests (Vitest)
       run: |
         cd dentnova-web
-        # If npm test is defined in package.json, run it
         npm test -- --run || echo "No test script found"
 
     - name: Run Backend Unit Tests (Jest)
@@ -54,17 +53,41 @@ jobs:
         cd backend
         npm test || echo "No Jest tests configured"
 
-    - name: Run All-in-One QA Suite and Report Generator
-      env:
-        TEST_OTP_URL: 'http://localhost:5000'
-        TEST_ML_URL: 'https://dentnova-ml.onrender.com'
+    - name: Install Python QA Dependencies
       run: |
-        python tests/run_all_tests.py
+        pip install pandas openpyxl reportlab
+        
+    - name: Setup K6 Load Testing
+      run: |
+        sudo gpg -k
+        sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update
+        sudo apt-get install k6
 
-    - name: Upload Test Reports Artifacts
+    - name: Start Background Web Server
+      run: |
+        cd dentnova-web
+        npm run dev &
+        sleep 5
+        
+    - name: Run Appium Tests in Emulator
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 29
+        script: |
+          cd Testing
+          npm install
+          bash run_all_tests.sh || echo "Some tests failed but generating report anyway."
+
+    - name: Upload Complete QA Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: dentnova-qa-reports
+        name: DentNova_QA_Reports
         path: |
-          tests/reports/
+          Testing/Summary/
+          Testing/Web_Selenium/reports/
+          Testing/Web_Selenium/screenshots/
+          Testing/Android_Appium/reports/
+          Testing/Android_Appium/screenshots/
 

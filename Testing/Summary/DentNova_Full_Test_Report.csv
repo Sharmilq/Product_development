@@ -1,12 +1,14 @@
-Module,Suite,Test Case,Status,Duration (ms)
-Web Selenium,Authentication Web Tests,should display login form by default,PASS,6232
-Web Selenium,Authentication Web Tests,should switch to register form,FAIL,752
-Web Selenium,Authentication Web Tests,should show error for missing fields on login,PASS,667
-Web Selenium,Authentication Web Tests,should show error for missing name on register,PASS,1143
-Web Selenium,Authentication Web Tests,should show invalid credentials error for bad login,PASS,2908
-Web Selenium,Dashboard Web Tests,should load dashboard and display user greeting,FAIL,10885
-Web Selenium,Dashboard Web Tests,should have daily habits checkboxes,FAIL,10265
-Web Selenium,Dashboard Web Tests,should display streak count,FAIL,10388
-Web Selenium,Dashboard Web Tests,should display quick action cards,FAIL,10358
-Web Selenium,Dashboard Web Tests,should navigate to brushing timer on practice click,FAIL,10318
-Web Selenium,Profile Web Tests,should load profile page,PASS,657
+Module,Suite,Test Case,Actual Result,Status,Duration (ms)
+Web Selenium,Authentication Web Tests,should display login form by default,Executed in 6232 ms. Application behaved correctly.,PASS,6232
+Web Selenium,Authentication Web Tests,should switch to register form,Executed in 752 ms. Error: AssertionError: expected 'Welcome Back' to equal 'Create Account',FAIL,752
+Web Selenium,Authentication Web Tests,should show error for missing fields on login,Executed in 667 ms. Application behaved correctly.,PASS,667
+Web Selenium,Authentication Web Tests,should show error for missing name on register,Executed in 1143 ms. Application behaved correctly.,PASS,1143
+Web Selenium,Authentication Web Tests,should show invalid credentials error for bad login,Executed in 2908 ms. Application behaved correctly.,PASS,2908
+Web Selenium,Dashboard Web Tests,should load dashboard and display user greeting,"Executed in 10885 ms. Error: TimeoutError: Waiting for element to be located By(xpath, //h1[contains(text(), 'Hello')])
+Wait time",FAIL,10885
+Web Selenium,Dashboard Web Tests,should have daily habits checkboxes,"Executed in 10265 ms. Error: TimeoutError: Waiting for element to be located By(xpath, //span[contains(text(), 'Brushing Done')]/",FAIL,10265
+Web Selenium,Dashboard Web Tests,should display streak count,"Executed in 10388 ms. Error: TimeoutError: Waiting for element to be located By(xpath, //p[contains(text(), 'Days')])
+Wait timed ",FAIL,10388
+Web Selenium,Dashboard Web Tests,should display quick action cards,"Executed in 10358 ms. Error: TimeoutError: Waiting for element to be located By(xpath, //h3[text()='Practice Brushing']/ancestor:",FAIL,10358
+Web Selenium,Dashboard Web Tests,should navigate to brushing timer on practice click,"Executed in 10318 ms. Error: TimeoutError: Waiting for element to be located By(xpath, //h3[text()='Practice Brushing']/ancestor:",FAIL,10318
+Web Selenium,Profile Web Tests,should load profile page,Executed in 657 ms. Application behaved correctly.,PASS,657
