@@ -187,7 +187,7 @@
             android:layout_height="54dp"
             android:text="Share PDF report"
             android:textAllCaps="false"
-            android:textColor="?attr/colorOnSurface"
+            android:textColor="#FFFFFF"
             android:textSize="15sp"
             android:textStyle="bold"
             app:backgroundTint="#1A2332"
