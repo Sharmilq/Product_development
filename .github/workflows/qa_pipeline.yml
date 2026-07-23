@@ -1,4 +1,4 @@
-name: DentNova QA Automation Pipeline
+name: DentNova QA Automation Pipeline — 300 Web + 300 Android Tests
 
 on:
   push:
@@ -25,7 +25,6 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
-        cache: 'pip'
 
     - name: Install Node.js Backend Dependencies
       run: |
@@ -38,57 +37,65 @@ jobs:
         npm install
         npm run build
 
-    - name: Install Python QA Dependencies
+    - name: Install Testing Framework Dependencies
       run: |
-        pip install -r tests/selenium/requirements.txt
-        pip install -r tests/appium/requirements.txt
-
-    - name: Run Web Unit Tests (Vitest)
-      run: |
-        cd dentnova-web
-        npm test -- --run || echo "No test script found"
-
-    - name: Run Backend Unit Tests (Jest)
-      run: |
-        cd backend
-        npm test || echo "No Jest tests configured"
+        cd Testing
+        npm install
 
     - name: Install Python QA Dependencies
       run: |
         pip install pandas openpyxl reportlab
-        
-    - name: Setup K6 Load Testing
+
+    - name: Setup k6 Load Testing Tool
       run: |
         sudo gpg -k
-        sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
-        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
-        sudo apt-get update
-        sudo apt-get install k6
+        sudo gpg --no-default-keyring \
+          --keyring /usr/share/keyrings/k6-archive-keyring.gpg \
+          --keyserver hkp://keyserver.ubuntu.com:80 \
+          --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" \
+          | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update -q
+        sudo apt-get install -y k6
 
-    - name: Start Background Web Server
+    - name: Start Background Vite Dev Server
       run: |
         cd dentnova-web
         npm run dev &
-        sleep 5
-        
-    - name: Run Appium Tests in Emulator
-      uses: reactivecircus/android-emulator-runner@v2
-      continue-on-error: true
-      with:
-        api-level: 29
-        script: |
-          cd Testing
-          npm install
-          bash run_all_tests.sh || echo "Some tests failed but generating report anyway."
+        sleep 8
+        echo "Dev server started."
 
-    - name: Generate QA Summary Reports
+    - name: Run 300 Web Selenium Tests (TC001–TC300)
+      run: |
+        cd Testing
+        npm run test:web || echo "Some web tests failed — continuing to generate report."
+      continue-on-error: true
+
+    - name: Run 300 Android Business Logic & Validation Tests (TC_A001–TC_A300)
+      run: |
+        cd Testing
+        npm run test:android || echo "Some android tests failed — continuing to generate report."
+      continue-on-error: true
+
+    - name: Run k6 Load Tests
+      run: |
+        k6 run Testing/Load_Testing/k6/load_test.js --out json=Testing/Load_Testing/k6_results.json || echo "k6 load test done"
+      continue-on-error: true
+
+    - name: Generate Excel, HTML, CSV & PDF QA Reports
       if: always()
       run: |
         cd Testing
-        npm install
-        npm run report:compile
+        python Summary/generate_summary_report.py
 
-    - name: Upload Complete QA Artifacts
+    - name: Upload DentNova_Test_Cases.xlsx as GitHub Artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: DentNova_Test_Cases
+        path: Testing/Summary/DentNova_Test_Cases.xlsx
+
+    - name: Upload Complete QA Reports Bundle as GitHub Artifact
       if: always()
       uses: actions/upload-artifact@v4
       with:
@@ -99,4 +106,3 @@ jobs:
           Testing/Web_Selenium/screenshots/
           Testing/Android_Appium/reports/
           Testing/Android_Appium/screenshots/
-

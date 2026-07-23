@@ -140,7 +140,12 @@ try:
 except Exception as e:
     print(f"Failed to load tooth model: {e}")
 
-CLASS_NAMES = ["Calculus", "Gingivitis", "Healthy"]
+CLASS_NAMES = [
+    "Calculus",
+    "Gingivitis",
+    "Healthy",
+    "Invalid"
+]
 
 
 @app.route("/predict", methods=["POST"])
@@ -200,6 +205,12 @@ def predict_tooth():
     print("Predicted:", class_name, flush=True)
     print("Confidence:", confidence, flush=True)
     print("All predictions:", preds.tolist(), flush=True)
+
+    if class_name == "Invalid" or confidence < 0.70:
+        return jsonify({
+            "success": False,
+            "message": "Please upload a valid tooth image."
+        }), 400
 
     if class_name == "Healthy":
        inflammation_score = 0

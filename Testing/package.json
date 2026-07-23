@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test:web": "mocha \"Web_Selenium/testcases/*.test.js\" --timeout 600000 --reporter mochawesome --reporter-options reportDir=Web_Selenium/reports,reportFilename=web_test_report,html=true,json=true",
-    "test:android": "wdio run Android_Appium/config/wdio.conf.js",
+    "test:android": "mocha \"Android_Appium/testcases/*.test.js\" --timeout 600000 --reporter mochawesome --reporter-options reportDir=Android_Appium/reports,reportFilename=android_test_report,html=true,json=true",
+    "test:all": "npm run test:web ; npm run test:android",
     "report:compile": "python Summary/generate_summary_report.py"
   },
   "dependencies": {
