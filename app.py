@@ -206,7 +206,7 @@ def predict_tooth():
     print("Confidence:", confidence, flush=True)
     print("All predictions:", preds.tolist(), flush=True)
 
-    if class_name == "Invalid" or confidence < 0.70:
+    if class_name == "Invalid":
         return jsonify({
             "success": False,
             "message": "Please upload a valid tooth image."
