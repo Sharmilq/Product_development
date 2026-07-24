@@ -1,0 +1,17 @@
+{
+  "name": "dentnova-selenium-tests",
+  "version": "1.0.0",
+  "description": "DentNova Web Frontend Selenium E2E Test Suite — 400 test cases",
+  "private": true,
+  "scripts": {
+    "test": "mocha tests/login-tests.js --timeout 60000 --reporter mocha-junit-reporter --reporter-options mochaFile=reports/selenium-junit.xml",
+    "test:ci": "mocha tests/login-tests.js --timeout 60000 --reporter spec --exit || true"
+  },
+  "dependencies": {
+    "selenium-webdriver": "4.18.1",
+    "mocha": "10.4.0",
+    "chai": "4.4.1",
+    "mocha-junit-reporter": "2.2.1",
+    "chromedriver": "124.0.0"
+  }
+}

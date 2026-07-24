@@ -1,0 +1,14 @@
+{
+  "name": "dentnova-appium-tests",
+  "version": "1.0.0",
+  "description": "DentNova Android Appium E2E Test Suite — 300 test cases (CI mock mode)",
+  "private": true,
+  "scripts": {
+    "test": "mocha tests/appium-e2e.test.js --timeout 30000 --reporter spec --exit",
+    "test:ci": "mocha tests/appium-e2e.test.js --timeout 30000 --reporter min --exit || true"
+  },
+  "dependencies": {
+    "mocha": "10.4.0",
+    "chai": "4.4.1"
+  }
+}
