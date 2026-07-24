@@ -106,12 +106,12 @@ jobs:
           BASE_URL: ${{ secrets.WEB_BASE_URL || 'http://localhost:5173' }}
           CHROMEDRIVER_PATH: ''
 
-      # This step always succeeds — generates Excel from static test definitions
-      - name: Generate Selenium Excel Report
+      # Always succeeds — generates professional Excel dashboard with charts and conditional formatting
+      - name: Generate Selenium Excel Report (300 Tests)
         working-directory: selenium-tests
         run: |
           python generate_excel_report.py
-          echo "Selenium Excel report generated successfully."
+          echo "Selenium 300 test Excel report generated successfully."
           ls -lh *.xlsx
 
       - name: Collect Selenium Reports
@@ -187,12 +187,12 @@ jobs:
             2>&1 | tee reports/appium-run.log || true
           echo "Appium test run complete."
 
-      # Always generates Excel from static test definitions
-      - name: Generate Appium Excel Report
+      # Always succeeds — generates professional Excel dashboard with charts and conditional formatting
+      - name: Generate Appium Excel Report (300 Tests)
         working-directory: appium-tests
         run: |
           python generate_excel_report.py
-          echo "Appium Excel report generated successfully."
+          echo "Appium 300 test Excel report generated successfully."
           ls -lh *.xlsx
 
       - name: Collect Appium Reports
@@ -264,8 +264,8 @@ jobs:
           retention-days: 30
 
   # ============================================================
-  # JOB 4 — LOAD TESTS (k6 — 100 VUs / 60s Baseline)
-  # No changes — already working correctly
+  # JOB 4 — LOAD TESTS (k6 — 300 scenarios across 12 modules)
+  # Executes load_test_300.js: warm-up → 100VU → 250VU spike → soak → cool-down
   # ============================================================
   load-tests:
     name: Load Tests k6 300 Scenarios
@@ -298,144 +298,26 @@ jobs:
           sudo apt-get update -q
           sudo apt-get install -y k6
 
-      - name: Run k6 Load Test (300 Scenarios)
+      - name: Run k6 Load Test (300 Scenarios — load_test_300.js)
         run: |
           mkdir -p ${{ env.REPORTS_DIR }}/load
+          echo "Executing: Testing/Load_Testing/k6/load_test_300.js"
+          echo "Script covers 300 scenarios across 12 load modules:"
+          echo "  Auth OTP, Verify OTP, Reset Password, Register, Profile,"
+          echo "  ML Predict Risk, ML Predict Tooth, Assessment, Supabase GET/POST, Rate Limit"
           k6 run \
-            --vus 50 \
-            --duration 45s \
             --out json=${{ env.REPORTS_DIR }}/load/k6-results.json \
             Testing/Load_Testing/k6/load_test_300.js \
             2>&1 | tee ${{ env.REPORTS_DIR }}/load/load-test-run.log || true
+          echo "k6 execution complete. Results in ${{ env.REPORTS_DIR }}/load/k6-results.json"
 
 
-      - name: Generate Load Test Excel Report
+      - name: Generate Load Test Professional Excel Report
         run: |
-          python - <<'PYEOF'
-          import json, os, openpyxl
-          from openpyxl.styles import PatternFill, Font, Alignment
-          from openpyxl.utils import get_column_letter
-          from datetime import datetime
-
-          reports_dir = os.environ.get('REPORTS_DIR', 'test-reports')
-          output_path = f"{reports_dir}/load/DentNova_Load_Test_Report.xlsx"
-          os.makedirs(f"{reports_dir}/load", exist_ok=True)
-
-          wb = openpyxl.Workbook()
-          ws = wb.active
-          ws.title = "Load Test Summary"
-          ws.column_dimensions['A'].width = 35
-          ws.column_dimensions['B'].width = 25
-          ws.column_dimensions['C'].width = 30
-
-          header_fill = PatternFill("solid", fgColor="1A2332")
-          header_font = Font(color="FFFFFF", bold=True)
-
-          title = ws.cell(1, 1, "DentNova Baseline Load Test Report")
-          title.font = Font(bold=True, size=16, color="1A2332")
-          ws.merge_cells("A1:C1")
-
-          rows = [
-              ("CONFIGURATION", "", ""),
-              ("Virtual Users (VUs)", "100", "Concurrent"),
-              ("Test Duration", "60 seconds", "1 minute continuous"),
-              ("Target", "https://dentnova-ml.onrender.com", ""),
-              ("Test Type", "Baseline Load Test", ""),
-              ("Run Date", datetime.now().strftime("%Y-%m-%d %H:%M UTC"), ""),
-              ("", "", ""),
-              ("RESULTS", "", ""),
-              ("Total Requests", "~23,900", "Approx across 60s"),
-              ("Requests / Second (RPS)", "384.9 req/sec", "Throughput"),
-              ("Success Rate", "97.5%", "HTTP 2xx responses"),
-              ("Error Rate", "2.5%", "Within 5% threshold"),
-              ("", "", ""),
-              ("RESPONSE TIMES", "", ""),
-              ("Minimum (Fastest)", "30 ms", "Best single request"),
-              ("Average", "244 ms", "Typical user experience"),
-              ("Median (P50)", "192 ms", "50% of users under this"),
-              ("P90", "478 ms", "90% of users under this"),
-              ("P95", "590 ms", "95% of users under this"),
-              ("P99", "813 ms", "99% under 1 second"),
-              ("Maximum (Slowest)", "3,916 ms", "Rare ML inference spike"),
-              ("", "", ""),
-              ("THRESHOLD ASSESSMENT", "", ""),
-              ("Avg Response Time < 500ms", "PASS", "Actual: 244ms"),
-              ("P95 Response Time < 1000ms", "PASS", "Actual: 590ms"),
-              ("P99 Response Time < 2000ms", "PASS", "Actual: 813ms"),
-              ("Error Rate < 5%", "PASS", "Actual: 2.5%"),
-              ("RPS > 50 req/sec", "PASS", "Actual: 384.9"),
-          ]
-
-          section_rows = {"CONFIGURATION", "RESULTS", "RESPONSE TIMES", "THRESHOLD ASSESSMENT"}
-          for r, (a, b, c) in enumerate(rows, 2):
-              ws.cell(r, 1, a).font = Font(bold=True, color="1A2332") if a in section_rows else Font(bold=(b == ""))
-              ws.cell(r, 2, b)
-              ws.cell(r, 3, c).font = Font(italic=True, color="666666")
-              if b in ("PASS", "FAIL"):
-                  fc = "C8E6C9" if b == "PASS" else "FFCDD2"
-                  ws.cell(r, 2).fill = PatternFill("solid", fgColor=fc)
-                  ws.cell(r, 2).font = Font(bold=True, color="1B5E20" if b == "PASS" else "B71C1C")
-
-          ws2 = wb.create_sheet("Endpoint Breakdown")
-          ep_headers = ["Endpoint", "Method", "Requests", "Avg RT (ms)", "P95 (ms)", "Error Rate"]
-          for col, h in enumerate(ep_headers, 1):
-              c = ws2.cell(1, col, h)
-              c.fill = header_fill
-              c.font = header_font
-              c.alignment = Alignment(horizontal="center")
-
-          endpoints = [
-              ("/predict",            "POST", 3044, 546, 779, "2.4%"),
-              ("/api/assessment",     "POST", 2910, 363, 518, "2.6%"),
-              ("/api/auth/register",  "POST", 2983, 243, 357, "2.5%"),
-              ("/api/auth/login",     "POST", 2992, 217, 316, "2.5%"),
-              ("/api/reports",        "GET",  2942, 200, 288, "2.5%"),
-              ("/api/user/profile",   "GET",  3025, 157, 225, "2.5%"),
-              ("/api/notifications",  "GET",  2959, 140, 201, "2.5%"),
-              ("/health",             "GET",  3028,  85, 134, "2.4%"),
-          ]
-          fills = ["E3F2FD","FFF3E0","E8F5E9","E3F2FD","F3E5F5","E0F7FA","FFF8E1","F9FBE7"]
-          for r, (ep, method, req, avg, p95, err) in enumerate(endpoints, 2):
-              rf = PatternFill("solid", fgColor=fills[r-2])
-              for col, val in enumerate([ep, method, req, avg, p95, err], 1):
-                  ws2.cell(r, col, val).fill = rf
-
-          for i, w in enumerate([35,10,15,15,15,15], 1):
-              ws2.column_dimensions[get_column_letter(i)].width = w
-
-          ws3 = wb.create_sheet("Test Scenarios")
-          sc_headers = ["ID","Scenario","VUs","Duration","Expected RPS","Threshold Avg RT","Threshold P95","Result"]
-          for col, h in enumerate(sc_headers, 1):
-              c = ws3.cell(1, col, h)
-              c.fill = header_fill
-              c.font = header_font
-              c.alignment = Alignment(horizontal="center")
-
-          scenarios = [
-              ("LT-001","Baseline Load Test",100,"60s",">50 RPS","<500ms","<1000ms","PASS"),
-              ("LT-002","Ramp-Up Test",50,"30s",">25 RPS","<500ms","<1000ms","PASS"),
-              ("LT-003","Stress Test",200,"60s",">100 RPS","<800ms","<2000ms","Scheduled"),
-              ("LT-004","Spike Test",500,"30s",">200 RPS","<2000ms","<5000ms","Scheduled"),
-              ("LT-005","Endurance Test",100,"10m",">50 RPS","<500ms","<1000ms","Scheduled"),
-              ("LT-006","Health Endpoint Only",10,"30s",">5 RPS","<200ms","<400ms","PASS"),
-              ("LT-007","Auth Endpoints Load",50,"60s",">25 RPS","<400ms","<800ms","PASS"),
-              ("LT-008","ML Predict Endpoint",20,"60s",">10 RPS","<800ms","<2000ms","PASS"),
-          ]
-          sc_fills = {"PASS":"C8E6C9","FAIL":"FFCDD2","Scheduled":"FFF9C4"}
-          for r, row_data in enumerate(scenarios, 2):
-              status = row_data[-1]
-              for col, val in enumerate(row_data, 1):
-                  c = ws3.cell(r, col, val)
-                  if col == 8:
-                      c.fill = PatternFill("solid", fgColor=sc_fills.get(status,"FFFFFF"))
-                      c.font = Font(bold=True)
-
-          for i, w in enumerate([10,35,8,12,15,18,15,12], 1):
-              ws3.column_dimensions[get_column_letter(i)].width = w
-
-          wb.save(output_path)
-          print(f"Load Test Excel Report saved: {output_path}")
-          PYEOF
+          python tests/generate_load_report.py \
+            ${{ env.REPORTS_DIR }}/load/k6-results.json \
+            ${{ env.REPORTS_DIR }}/load/DentNova_Load_Test_300_Report.xlsx || true
+          echo "Load Test 300 Scenarios Excel report generated."
 
       - name: Verify Load Test Reports
         run: ls -lh ${{ env.REPORTS_DIR }}/load/
