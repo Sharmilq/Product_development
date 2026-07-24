@@ -268,7 +268,7 @@ jobs:
   # No changes — already working correctly
   # ============================================================
   load-tests:
-    name: Load Tests k6 Baseline 100VUs 60s
+    name: Load Tests k6 300 Scenarios
     runs-on: ubuntu-latest
     timeout-minutes: 15
     if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.run_load_test == 'true' }}

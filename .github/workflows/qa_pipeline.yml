@@ -79,7 +79,7 @@ jobs:
 
     - name: Run k6 Load Tests
       run: |
-        k6 run Testing/Load_Testing/k6/load_test.js --out json=Testing/Load_Testing/k6_results.json || echo "k6 load test done"
+        k6 run Testing/Load_Testing/k6/load_test_300.js --out json=Testing/Load_Testing/k6_results.json || echo "k6 load test done"
       continue-on-error: true
 
     - name: Generate Excel, HTML, CSV & PDF QA Reports
