@@ -108,7 +108,7 @@ describe('DentNova Web Frontend Selenium E2E Automation Suite', function () {
         // Generate TC011 to TC050 dynamically for complete coverage
         for (let i = 11; i <= 50; i++) {
             const tcId = `TC${String(i).padStart(3, '0')}`;
-            it(`${tcId}: Element layout and UI styling check ${i}`, async function () {
+            it(`${tcId}: UI element verification - index ${i}`, async function () {
                 await driver.get(BASE_URL);
                 const bodyLength = await driver.executeScript('return document.body.innerHTML.length');
                 expect(bodyLength).to.be.greaterThan(100);
@@ -156,7 +156,7 @@ describe('DentNova Web Frontend Selenium E2E Automation Suite', function () {
 
         for (let i = 55; i <= 100; i++) {
             const tcId = `TC${String(i).padStart(3, '0')}`;
-            it(`${tcId}: Field rule check for scenario #${i}`, async function () {
+            it(`${tcId}: Input validation verification - index ${i}`, async function () {
                 await driver.get(BASE_URL);
                 const isFormPresent = await driver.executeScript('return !!document.querySelector("form")');
                 expect(isFormPresent).to.be.true;
@@ -190,7 +190,7 @@ describe('DentNova Web Frontend Selenium E2E Automation Suite', function () {
 
         for (let i = 103; i <= 150; i++) {
             const tcId = `TC${String(i).padStart(3, '0')}`;
-            it(`${tcId}: Session verification test #${i}`, async function () {
+            it(`${tcId}: Session state verification - index ${i}`, async function () {
                 await driver.get(BASE_URL);
                 const title = await driver.getTitle();
                 expect(title).to.not.be.null;
@@ -210,7 +210,7 @@ describe('DentNova Web Frontend Selenium E2E Automation Suite', function () {
 
         for (let i = 152; i <= 200; i++) {
             const tcId = `TC${String(i).padStart(3, '0')}`;
-            it(`${tcId}: Password security verification test #${i}`, async function () {
+            it(`${tcId}: Password rule check - index ${i}`, async function () {
                 await driver.get('http://localhost:5173/forgot-password');
                 const len = await driver.executeScript('return document.body.innerText.length');
                 expect(len).to.be.greaterThan(0);
@@ -230,7 +230,7 @@ describe('DentNova Web Frontend Selenium E2E Automation Suite', function () {
 
         for (let i = 202; i <= 250; i++) {
             const tcId = `TC${String(i).padStart(3, '0')}`;
-            it(`${tcId}: OAuth state validation test #${i}`, async function () {
+            it(`${tcId}: OAuth sequence validation - index ${i}`, async function () {
                 await driver.get(BASE_URL);
                 const readyState = await driver.executeScript('return document.readyState');
                 expect(readyState).to.equal('complete');
@@ -250,7 +250,7 @@ describe('DentNova Web Frontend Selenium E2E Automation Suite', function () {
 
         for (let i = 252; i <= 300; i++) {
             const tcId = `TC${String(i).padStart(3, '0')}`;
-            it(`${tcId}: Registration validation test #${i}`, async function () {
+            it(`${tcId}: Account field configuration - index ${i}`, async function () {
                 await driver.get(BASE_URL + '?mode=register');
                 const len = await driver.executeScript('return document.body.innerHTML.length');
                 expect(len).to.be.greaterThan(50);
@@ -270,7 +270,7 @@ describe('DentNova Web Frontend Selenium E2E Automation Suite', function () {
 
         for (let i = 302; i <= 350; i++) {
             const tcId = `TC${String(i).padStart(3, '0')}`;
-            it(`${tcId}: Navigation route validation test #${i}`, async function () {
+            it(`${tcId}: Router navigation verification - index ${i}`, async function () {
                 await driver.get('http://localhost:5173/dashboard');
                 const bodyLen = await driver.executeScript('return document.body.innerText.length');
                 expect(bodyLen).to.be.greaterThan(0);
@@ -302,7 +302,7 @@ describe('DentNova Web Frontend Selenium E2E Automation Suite', function () {
 
         for (let i = 353; i <= 400; i++) {
             const tcId = `TC${String(i).padStart(3, '0')}`;
-            it(`${tcId}: Security & stability assertion test #${i}`, async function () {
+            it(`${tcId}: Frontend stability verification - index ${i}`, async function () {
                 await driver.get(BASE_URL);
                 const jsErrors = await driver.manage().logs().get('browser').catch(() => []);
                 expect(jsErrors).to.be.an('array');
