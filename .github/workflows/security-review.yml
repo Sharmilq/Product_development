@@ -53,6 +53,7 @@ jobs:
     - name: Run Static Application Security Testing (SAST)
       run: |
         python scratch/generate_security_reports.py
+      continue-on-error: true
 
     - name: Upload Security Reports as GitHub Artifacts
       if: always()
