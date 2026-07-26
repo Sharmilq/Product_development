@@ -37,7 +37,7 @@ jobs:
       - name: Upload Android Build APK
         uses: actions/upload-artifact@v4
         with:
-          name: android-debug-apk
+          name: Android Debug APK
           path: app/build/outputs/apk/debug/
 
   api-testing:
@@ -63,7 +63,7 @@ jobs:
       - name: Upload API Reports
         uses: actions/upload-artifact@v4
         with:
-          name: api-report
+          name: API Test Report
           path: reports/
 
   selenium-testing:
@@ -94,7 +94,7 @@ jobs:
       - name: Upload Selenium Reports
         uses: actions/upload-artifact@v4
         with:
-          name: selenium-report
+          name: Web Selenium Test Report
           path: reports/
 
   appium-testing:
@@ -120,7 +120,7 @@ jobs:
       - name: Upload Appium Reports
         uses: actions/upload-artifact@v4
         with:
-          name: appium-report
+          name: Android Appium Test Report
           path: reports/
 
   security-testing:
@@ -146,7 +146,7 @@ jobs:
       - name: Upload Security Reports
         uses: actions/upload-artifact@v4
         with:
-          name: security-report
+          name: Security Assessment Report
           path: reports/
 
   load-testing:
@@ -167,7 +167,7 @@ jobs:
       - name: Upload Load Reports
         uses: actions/upload-artifact@v4
         with:
-          name: load-report
+          name: Performance & Load Test Report
           path: reports/
 
   generate-summary:
@@ -204,7 +204,7 @@ jobs:
       - name: Upload Quality Reports Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: final-quality-reports
+          name: QA Summary Reports
           path: final-reports/
 
       - name: Generate Consolidated Step Summary

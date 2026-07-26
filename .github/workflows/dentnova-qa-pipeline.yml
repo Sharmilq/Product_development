@@ -127,7 +127,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Selenium-Web-E2E-Reports
+          name: Web Selenium Test Report
           path: ${{ env.REPORTS_DIR }}/selenium/
           retention-days: 30
 
@@ -207,7 +207,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Appium-Android-E2E-Reports
+          name: Android Appium Test Report
           path: ${{ env.REPORTS_DIR }}/appium/
           retention-days: 30
 
@@ -259,7 +259,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: API-Functional-Test-Reports
+          name: API Test Report
           path: ${{ env.REPORTS_DIR }}/api/
           retention-days: 30
 
@@ -317,7 +317,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Load-Test-Reports
+          name: Performance & Load Test Report
           path: ${{ env.REPORTS_DIR }}/load/
           retention-days: 30
 
@@ -338,28 +338,28 @@ jobs:
       - name: Download Selenium Reports
         uses: actions/download-artifact@v4
         with:
-          name: Selenium-Web-E2E-Reports
+          name: Web Selenium Test Report
           path: all-reports/selenium/
         continue-on-error: true
 
       - name: Download Appium Reports
         uses: actions/download-artifact@v4
         with:
-          name: Appium-Android-E2E-Reports
+          name: Android Appium Test Report
           path: all-reports/appium/
         continue-on-error: true
 
       - name: Download API Reports
         uses: actions/download-artifact@v4
         with:
-          name: API-Functional-Test-Reports
+          name: API Test Report
           path: all-reports/api/
         continue-on-error: true
 
       - name: Download Load Test Reports
         uses: actions/download-artifact@v4
         with:
-          name: Load-Test-Reports
+          name: Performance & Load Test Report
           path: all-reports/load/
         continue-on-error: true
 
@@ -415,6 +415,6 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: All-DentNova-QA-Reports
+          name: QA Summary Reports
           path: all-reports/
           retention-days: 90

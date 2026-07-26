@@ -83,14 +83,14 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: DentNova_Test_Cases
+        name: QA Summary Reports
         path: Testing/Summary/DentNova_Test_Cases.xlsx
 
     - name: Upload Complete QA Reports Bundle as GitHub Artifact
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: DentNova_QA_Reports
+        name: QA Summary Reports
         path: |
           Testing/Summary/
           Testing/Web_Selenium/reports/
