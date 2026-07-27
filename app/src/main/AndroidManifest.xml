@@ -91,6 +91,11 @@
             android:name=".activities.ToothScanActivity"
             android:exported="false" />
 
+        <!-- Scan Detail (history card details screen) -->
+        <activity
+            android:name=".activities.ScanDetailActivity"
+            android:exported="false" />
+
         <!-- Education -->
         <activity
             android:name=".activities.EducationActivity"

@@ -118,11 +118,14 @@ public class ToothScanActivity extends AppCompatActivity {
 
     private void loadScanHistory(View scanView) {
 
-        android.widget.LinearLayout llHistory =
+        androidx.recyclerview.widget.RecyclerView rvHistory =
                 scanView.findViewById(R.id.llScanHistory);
 
         android.widget.TextView tvNoScans =
                 scanView.findViewById(R.id.tvNoScans);
+
+        rvHistory.setLayoutManager(
+                new androidx.recyclerview.widget.LinearLayoutManager(this));
 
         new Thread(() -> {
 
@@ -137,40 +140,35 @@ public class ToothScanActivity extends AppCompatActivity {
                     com.google.gson.JsonArray scans =
                             result.getAsJsonArray("scans");
 
+                    // Debug Log: Supabase and Android counts (before UI thread dispatch)
+                    int supabaseRows = scans != null ? scans.size() : 0;
+                    android.util.Log.d("SCAN_HISTORY_DEBUG", "Total rows returned from Supabase: " + supabaseRows);
+                    android.util.Log.d("SCAN_HISTORY_DEBUG", "Total rows received by Android: " + supabaseRows);
+
                     runOnUiThread(() -> {
 
-                        llHistory.removeAllViews();
-
-                        if (scans.size() == 0) {
+                        if (scans == null || scans.size() == 0) {
                             tvNoScans.setVisibility(View.VISIBLE);
+                            rvHistory.setVisibility(View.GONE);
                             return;
                         }
 
                         tvNoScans.setVisibility(View.GONE);
+                        rvHistory.setVisibility(View.VISIBLE);
 
-                        for (int i = 0; i < scans.size(); i++) {
+                        com.dentnova.app.adapters.ToothScanAdapter adapter =
+                                new com.dentnova.app.adapters.ToothScanAdapter(this, scans);
 
-                            com.google.gson.JsonObject scan =
-                                    scans.get(i).getAsJsonObject();
+                        rvHistory.setAdapter(adapter);
 
-                            android.widget.TextView item =
-                                    new android.widget.TextView(this);
+                        // Call notifyDataSetChanged() after adapter is loaded/bound
+                        adapter.notifyDataSetChanged();
 
-                            String label =
-                                    scan.get("result_label").getAsString();
-
-                            String date =
-                                    scan.get("created_at").getAsString();
-
-                            item.setText(
-                                    "• " + label + "\n" + date
-                            );
-
-                            item.setTextSize(14f);
-                            item.setPadding(0, 0, 0, 32);
-
-                            llHistory.addView(item);
-                        }
+                        // Debug Log: Adapter and RecyclerView counts (after UI thread dispatch)
+                        int adapterRows = adapter.getItemCount();
+                        int rvItemCount = rvHistory.getAdapter() != null ? rvHistory.getAdapter().getItemCount() : 0;
+                        android.util.Log.d("SCAN_HISTORY_DEBUG", "Total rows inside the adapter: " + adapterRows);
+                        android.util.Log.d("SCAN_HISTORY_DEBUG", "RecyclerView item count: " + rvItemCount);
                     });
                 }
 
@@ -277,35 +275,51 @@ public class ToothScanActivity extends AppCompatActivity {
                                         imageFile
                                 );
 
-                double finalInflammationScore =
-                        result.get("inflammation_score").getAsDouble();
+                android.util.Log.d("TOOTH_SCAN_ANDROID_DEBUG", "JSON received from backend: " + result.toString());
 
-                double finalCleanlinessScore =
-                        result.get("cleanliness_score").getAsDouble();
-
-                double finalOverallScore =
-                        result.get("overall_score").getAsDouble();
-
-                String finalResultLabel =
-                        result.get("result_label").getAsString();
-
-
-                com.google.gson.JsonObject response =
-                        com.dentnova.app.services.ApiService.saveToothScan(
-                                ToothScanActivity.this,
-                                imageFile,
-                                finalOverallScore,
-                                finalInflammationScore,
-                                finalCleanlinessScore,
-                                finalResultLabel
-                        );
-                android.util.Log.d("SCAN_RESPONSE", response.toString());
-
-                if (!response.has("success") || !response.get("success").getAsBoolean()) {
-                    throw new Exception(response.has("message")
-                            ? response.get("message").getAsString()
-                            : "Scan save failed");
+                // Fail loudly if backend didn't return a class — never silently default to Healthy
+                if (!result.has("class")) {
+                    android.util.Log.e("TOOTH_SCAN_ANDROID_DEBUG",
+                            "Backend response missing 'class' field! Full response: " + result.toString());
+                    throw new java.io.IOException(
+                            "Backend did not return a prediction class. Check server logs. Response: " + result.toString());
                 }
+
+                final String predictedClass = result.get("class").getAsString();
+                final double confidence = result.has("confidence") ? result.get("confidence").getAsDouble() : 0.0;
+                final double finalInflammationScore = result.has("inflammation_score") ? result.get("inflammation_score").getAsDouble() : 0.0;
+                final double finalCleanlinessScore = result.has("cleanliness_score") ? result.get("cleanliness_score").getAsDouble() : 0.0;
+                final double finalOverallScore = result.has("overall_score") ? result.get("overall_score").getAsDouble() : 0.0;
+                final String finalResultLabel = result.has("result_label") ? result.get("result_label").getAsString() : "";
+
+                android.util.Log.d("TOOTH_SCAN_ANDROID_DEBUG", "Parsed values -> Class: " + predictedClass 
+                        + ", Conf: " + confidence 
+                        + ", Inflammation: " + finalInflammationScore 
+                        + ", Cleanliness: " + finalCleanlinessScore 
+                        + ", Overall: " + finalOverallScore);
+
+                // Only save to Supabase history if the scan is valid
+                if (!"Invalid".equalsIgnoreCase(predictedClass)) {
+                    com.google.gson.JsonObject response =
+                            com.dentnova.app.services.ApiService.saveToothScan(
+                                    ToothScanActivity.this,
+                                    imageFile,
+                                    finalOverallScore,
+                                    finalInflammationScore,
+                                    finalCleanlinessScore,
+                                    finalResultLabel
+                            );
+                    android.util.Log.d("SCAN_RESPONSE", response.toString());
+
+                    if (!response.has("success") || !response.get("success").getAsBoolean()) {
+                        throw new Exception(response.has("message")
+                                ? response.get("message").getAsString()
+                                : "Scan save failed");
+                    }
+                } else {
+                    android.util.Log.d("SCAN_RESPONSE", "Invalid image scan. Skipped saving to history.");
+                }
+
                 final String displayLabel = finalResultLabel;
                 final double displayInflammation = finalInflammationScore;
                 final double displayCleanliness = finalCleanlinessScore;
@@ -336,26 +350,45 @@ public class ToothScanActivity extends AppCompatActivity {
                     android.widget.TextView tvClean =
                             resultView.findViewById(R.id.tvCleanlinessScore);
 
-                    tvResult.setText(displayLabel);
+                    android.widget.TextView tvRecs =
+                            resultView.findViewById(R.id.tvRecommendations);
 
-                    if (displayLabel.toLowerCase().contains("high")) {
-                        tvDesc.setText("🔴 Signs of gum inflammation or poor cleanliness detected. Please improve care and consider a dental checkup.");
-                    } else if (displayLabel.toLowerCase().contains("moderate")) {
-                        tvDesc.setText("🟠 Some cleanliness or gum-health concerns noticed. Better brushing, rinsing, and flossing can improve this.");
-                    } else {
+                    // Dynamic UI rendering based on the predicted class
+                    if ("Healthy".equalsIgnoreCase(predictedClass)) {
+                        tvResult.setText("Healthy Gums (" + (int)(confidence * 100) + "% confidence)");
+                        tvResult.setTextColor(android.graphics.Color.parseColor("#10B981")); // Emerald Green
                         tvDesc.setText("🟢 Your gums and cleanliness look good. Keep maintaining your routine!");
+                        tvRecs.setText("✓ Brush twice daily for 2 minutes\n\n✓ Floss once daily\n\n✓ Rinse after meals\n\n✓ Regular dental checkups every 6 months");
+                    } 
+                    else if ("Gingivitis".equalsIgnoreCase(predictedClass)) {
+                        tvResult.setText("Gingivitis Detected (" + (int)(confidence * 100) + "% confidence)");
+                        tvResult.setTextColor(android.graphics.Color.parseColor("#F59E0B")); // Amber Orange
+                        tvDesc.setText("🟠 Signs of gum inflammation (gingivitis) detected. Please improve oral hygiene and consider visiting a dentist.");
+                        tvRecs.setText("✓ Brush carefully around the gumline using a soft-bristled brush\n\n✓ Floss daily to remove plaque between teeth\n\n✓ Use an antiseptic mouthwash to reduce inflammation\n\n✓ Schedule a professional cleaning with a dentist");
+                    } 
+                    else if ("Calculus".equalsIgnoreCase(predictedClass)) {
+                        tvResult.setText("Dental Calculus Detected (" + (int)(confidence * 100) + "% confidence)");
+                        tvResult.setTextColor(android.graphics.Color.parseColor("#EF4444")); // Red
+                        tvDesc.setText("🔴 Significant plaque buildup or calculus (tartar) detected. Hardened calculus cannot be brushed away and requires professional removal.");
+                        tvRecs.setText("✓ Visit a dentist for a professional scaling and cleaning\n\n✓ Use tartar-control toothpaste to prevent new buildup\n\n✓ Brush and floss meticulously twice a day\n\n✓ Use an antibacterial rinse to protect gums");
+                    } 
+                    else { // Invalid
+                        tvResult.setText("Invalid Image");
+                        tvResult.setTextColor(android.graphics.Color.parseColor("#9CA3AF")); // Gray
+                        tvDesc.setText("⚠️ The uploaded image does not appear to be a clear photo of teeth or the oral cavity. Please take a clear, well-lit photo of your teeth.");
+                        tvRecs.setText("✓ Ensure the camera is focused on your teeth\n\n✓ Use adequate lighting or flashlight\n\n✓ Avoid blurry or distant images\n\n✓ Do not upload faces, pets, or random objects");
                     }
 
                     tvPlaque.setText(
-                            "Gingival inflammation: " + displayInflammation + "%"
+                            "Gingival inflammation: " + (int)displayInflammation + "%"
                     );
 
                     tvGum.setText(
-                            "Gum cleanliness: " + displayCleanliness + "%"
+                            "Gum cleanliness: " + (int)displayCleanliness + "%"
                     );
 
                     tvClean.setText(
-                            "Overall gum health: " + displayOverall + "%"
+                            "Overall gum health: " + (int)displayOverall + "%"
                     );
 
                     MaterialButton btnScanAgain =
@@ -384,10 +417,18 @@ public class ToothScanActivity extends AppCompatActivity {
 
             } catch (Exception e) {
                 android.util.Log.e("ToothScanActivity", "Error predicting or saving tooth scan", e);
+                final String errorMsg;
+                if (e instanceof java.net.ConnectException || e instanceof java.net.SocketTimeoutException) {
+                    errorMsg = "Cannot reach server. Ensure phone and PC are on the same Wi-Fi and server is running.";
+                } else if (e instanceof java.io.IOException) {
+                    errorMsg = "Network error: " + e.getMessage();
+                } else {
+                    errorMsg = "Failed to analyze scan: " + e.getMessage();
+                }
                 runOnUiThread(() ->
                         android.widget.Toast.makeText(
                                 ToothScanActivity.this,
-                                "Failed to analyze scan",
+                                errorMsg,
                                 android.widget.Toast.LENGTH_LONG
                         ).show());
             }

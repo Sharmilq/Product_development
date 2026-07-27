@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
+import { predictToothScan } from '../services/api'
 import { 
   ScanFace, UploadCloud, Trash2, ArrowRight, ShieldAlert, CheckCircle, 
   History, Download, AlertTriangle, Play, Info, Eye
@@ -99,6 +100,72 @@ export default function ToothScan() {
     }
   }
 
+  /**
+   * Issue 3 fix: normalise image_base64 to a valid <img src> data URL.
+   * Android saves pure base64 → we add the "data:image/jpeg;base64," prefix.
+   * Web saves a full data URL  → leave unchanged.
+   * Missing / null             → return '' (placeholder shown instead).
+   */
+  const toDataUrl = (raw) => {
+    if (!raw) return ''
+    if (raw.startsWith('data:')) return raw          // already a data URL (web-saved)
+    return `data:image/jpeg;base64,${raw}`           // pure base64 (Android-saved)
+  }
+
+  /**
+   * Robust helper to format confidence values.
+   * - Accepts strings or numbers.
+   * - Handles 0-1 values (e.g. 0.97 -> 97%).
+   * - Handles 0-100 values (e.g. 97 -> 97%).
+   * - Safely returns "N/A" for null, undefined, or invalid inputs.
+   */
+  const formatConfidence = (value) => {
+    if (value === null || value === undefined || value === '') {
+      return 'N/A'
+    }
+    let num = Number(value)
+    if (isNaN(num)) {
+      if (typeof value === 'string' && value.includes('%')) {
+        num = parseFloat(value)
+      }
+    }
+    if (isNaN(num)) {
+      return 'N/A'
+    }
+    if (num > 0 && num <= 1) {
+      return `${Math.round(num * 100)}%`
+    }
+    return `${Math.round(num)}%`
+  }
+
+  /**
+   * Helper to derive predicted class and confidence value from historical label.
+   */
+  const parseResultLabel = (label) => {
+    let predClass = 'Healthy'
+    let confidence = undefined
+
+    if (!label) return { predClass, confidence }
+
+    const lower = label.toLowerCase()
+    if (lower.includes('calculus') || lower.includes('cleanliness')) {
+      predClass = 'Calculus'
+    } else if (lower.includes('gingival') || lower.includes('inflammation') || lower.includes('gingivitis')) {
+      predClass = 'Gingivitis'
+    } else if (lower.includes('healthy')) {
+      predClass = 'Healthy'
+    }
+
+    // Regex to search for a percentage in the label (e.g. "97%", "89")
+    const match = label.match(/(\d+)\s*%/ )
+    if (match) {
+      confidence = parseFloat(match[1]) / 100
+    }
+    
+    return { predClass, confidence }
+  }
+
+
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0]
     if (selectedFile) {
@@ -130,56 +197,66 @@ export default function ToothScan() {
     setResult(null)
 
     const userIdStr = localStorage.getItem('dentnova_user_id')
-    if (!userIdStr) return
+    if (!userIdStr) {
+      setErrorMsg('User session not found. Please log in again.')
+      setAnalyzing(false)
+      return
+    }
     const userId = parseInt(userIdStr)
 
-    const formData = new FormData()
-    formData.append('image', file)
-
     try {
-      // Call Render ML scan endpoint
-      const response = await fetch('https://dentnova-ml.onrender.com/predict-tooth', {
-        method: 'POST',
-        body: formData
-      })
+      // ── Call the LOCAL Flask backend via the Vite /api proxy ──────────────
+      // predictToothScan() → POST /api/predict-tooth → http://127.0.0.1:5000/predict-tooth
+      // Identical multipart request as Android ApiService.java predictToothScan()
+      const mlData = await predictToothScan(file)
 
-      if (!response.ok) {
-        throw new Error('ML endpoint returned error status')
+      // mlData fields exactly match the Flask JSON response (and Android display):
+      // { class, confidence, inflammation_score, cleanliness_score, overall_score, result_label }
+      const predClass      = mlData.class
+      const confidence     = mlData.confidence
+      const inflammation   = mlData.inflammation_score
+      const cleanliness    = mlData.cleanliness_score
+      const overall        = mlData.overall_score
+      const label          = mlData.result_label
+
+      console.log('[DentNova] Tooth scan result:', { predClass, confidence, inflammation, cleanliness, overall, label })
+
+      // Only save to Supabase if the image is valid (mirrors Android logic)
+      if (predClass !== 'Invalid') {
+        const { error: dbError } = await supabase
+          .from('tooth_scans')
+          .insert({
+            user_id:          userId,
+            plaque_score:     overall,
+            gum_score:        inflammation,
+            cleanliness_score: cleanliness,
+            result_label:     label,
+            image_base64:     imageBase64
+          })
+        if (dbError) {
+          console.error('[DentNova] Supabase save error:', dbError)
+          // Non-fatal — still show the result
+        } else {
+          fetchHistory(userId)
+        }
       }
 
-      const mlData = await response.json()
-      
-      const inflammation = mlData.inflammation_score
-      const cleanliness = mlData.cleanliness_score
-      const overall = mlData.overall_score
-      const label = mlData.result_label
-
-      // Save to Supabase tooth_scans table
-      const { error: dbError } = await supabase
-        .from('tooth_scans')
-        .insert({
-          user_id: userId,
-          plaque_score: overall,
-          gum_score: inflammation,
-          cleanliness_score: cleanliness,
-          result_label: label,
-          image_base64: imageBase64
-        })
-
-      if (dbError) throw dbError
-
       setResult({
+        predClass,
+        confidence,
         label,
         inflammation,
         cleanliness,
         overall,
         date: new Date().toLocaleString()
       })
-
-      fetchHistory(userId)
     } catch (err) {
-      setErrorMsg('Failed to process image scan. Please verify file format and try again.')
-      console.error(err)
+      console.error('[DentNova] Tooth scan error:', err)
+      if (err.message && err.message.includes('Failed to fetch')) {
+        setErrorMsg('Cannot reach the backend server. Ensure Flask is running at http://127.0.0.1:5000.')
+      } else {
+        setErrorMsg(err.message || 'Failed to process image scan. Please verify file format and try again.')
+      }
     } finally {
       setAnalyzing(false)
     }
@@ -358,33 +435,59 @@ export default function ToothScan() {
           {/* Results display */}
           {result && (
             <div className="border-t border-slate-100 dark:border-slate-800/80 pt-6 space-y-6 transition duration-300">
-              <div className="p-4 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-400 rounded-xl text-xs flex gap-3">
-                <CheckCircle className="w-5 h-5 shrink-0 text-emerald-500" />
-                <div>
-                  <p className="font-bold text-sm">Scan Diagnostics Complete</p>
-                  <p className="leading-relaxed mt-0.5">Results successfully synced to database profiles.</p>
+
+              {/* Status banner — colour matches predicted class, same as Android */}
+              {result.predClass === 'Invalid' ? (
+                <div className="p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-800 dark:text-amber-400 rounded-xl text-xs flex gap-3">
+                  <AlertTriangle className="w-5 h-5 shrink-0 text-amber-500" />
+                  <div>
+                    <p className="font-bold text-sm">Invalid Image</p>
+                    <p className="leading-relaxed mt-0.5">Please upload a clear, well-lit photo of teeth.</p>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="p-4 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-400 rounded-xl text-xs flex gap-3">
+                  <CheckCircle className="w-5 h-5 shrink-0 text-emerald-500" />
+                  <div>
+                    <p className="font-bold text-sm">Scan Diagnostics Complete</p>
+                    <p className="leading-relaxed mt-0.5">Results successfully synced to your history.</p>
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-4">
-                <h3 className="font-extrabold text-lg text-slate-900 dark:text-white">
-                  Scan Summary: <span className="text-cyan-500">{result.label}</span>
-                </h3>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-150 dark:border-slate-850 rounded-xl">
-                    <p className="text-xs text-slate-400 font-semibold mb-1">Gum Cleanliness</p>
-                    <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">{result.cleanliness}%</p>
-                  </div>
-                  <div className="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-150 dark:border-slate-850 rounded-xl">
-                    <p className="text-xs text-slate-400 font-semibold mb-1">Inflammation</p>
-                    <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">{result.inflammation}%</p>
-                  </div>
-                  <div className="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-150 dark:border-slate-850 rounded-xl">
-                    <p className="text-xs text-slate-400 font-semibold mb-1">Overall Gum Health</p>
-                    <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">{result.overall}%</p>
-                  </div>
+                {/* Predicted class badge + confidence — mirrors Android result header */}
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h3 className="font-extrabold text-lg text-slate-900 dark:text-white">
+                    Scan Summary:
+                  </h3>
+                  <span className={`px-3 py-1 rounded-full text-sm font-bold ${
+                    result.predClass === 'Healthy'   ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400' :
+                    result.predClass === 'Gingivitis' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400' :
+                    result.predClass === 'Calculus'   ? 'bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400' :
+                    'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                  }`}>
+                    {result.predClass || 'Diagnosis'}{(() => { const v = Number(result.confidence); return (!isNaN(v) && v !== 0) ? ` · ${formatConfidence(result.confidence)} confidence` : ''; })()}
+                  </span>
                 </div>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{result.label}</p>
+
+                {result.predClass !== 'Invalid' && (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-150 dark:border-slate-850 rounded-xl">
+                      <p className="text-xs text-slate-400 font-semibold mb-1">Gum Cleanliness</p>
+                      <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">{result.cleanliness}%</p>
+                    </div>
+                    <div className="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-150 dark:border-slate-850 rounded-xl">
+                      <p className="text-xs text-slate-400 font-semibold mb-1">Gingival Inflammation</p>
+                      <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">{result.inflammation}%</p>
+                    </div>
+                    <div className="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-150 dark:border-slate-850 rounded-xl">
+                      <p className="text-xs text-slate-400 font-semibold mb-1">Overall Gum Health</p>
+                      <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">{result.overall}%</p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-4">
@@ -421,20 +524,24 @@ export default function ToothScan() {
                 key={h.id}
                 className="p-3.5 bg-slate-50/50 dark:bg-slate-950/20 hover:bg-slate-50 dark:hover:bg-slate-850 border border-slate-100 dark:border-slate-850 rounded-xl flex items-center gap-3 transition cursor-pointer"
                 onClick={() => {
+                  const { predClass, confidence } = parseResultLabel(h.result_label)
                   setResult({
                     label: h.result_label,
+                    predClass,
+                    confidence,
                     cleanliness: h.cleanliness_score || 0,
                     inflammation: h.gum_score || 0,
                     overall: h.plaque_score || 0,
                     date: new Date(h.created_at).toLocaleString()
                   })
-                  setPreviewUrl(h.image_base64 || '')
+                  // Issue 3 fix: normalise before using as preview src
+                  setPreviewUrl(toDataUrl(h.image_base64))
                   setFile(true) // stub
                 }}
               >
                 {h.image_base64 ? (
                   <img
-                    src={h.image_base64}
+                    src={toDataUrl(h.image_base64)}
                     alt="Scan thumbnail"
                     className="w-12 h-12 rounded-lg object-cover border border-slate-200 dark:border-slate-800"
                   />
@@ -445,7 +552,11 @@ export default function ToothScan() {
                 )}
                 <div className="flex-grow min-w-0">
                   <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{h.result_label}</p>
-                  <p className="text-[10px] text-slate-400 font-semibold">{new Date(h.created_at).toLocaleDateString()}</p>
+                  <p className="text-[10px] text-slate-400 font-semibold">
+                    {new Date(h.created_at).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}
+                    {' '}·{' '}
+                    {new Date(h.created_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                  </p>
                 </div>
                 <Eye className="w-4 h-4 text-slate-300 dark:text-slate-600 group-hover:text-cyan-500 shrink-0" />
               </div>

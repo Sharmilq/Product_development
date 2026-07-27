@@ -24,7 +24,8 @@ import java.util.Calendar;
  * ApiService.java — exact Java equivalent of api_service.dart
  * Uses OkHttp (replaces dart:http) + Gson (replaces dart jsonDecode/jsonEncode)
  *
- * All methods are synchronous — call from background thread (AsyncTask / ExecutorService)
+ * All methods are synchronous — call from background thread (AsyncTask /
+ * ExecutorService)
  * Equivalent Flutter method listed in each Javadoc comment.
  */
 public class ApiService {
@@ -32,10 +33,13 @@ public class ApiService {
     /**
      * Replace with your server IP — same as baseUrl in api_service.dart
      */
-    //public static final String BASE_URL = "http://10.46.55.51/dentnova";
-    public static final String ML_BASE_URL = "https://dentnova-ml.onrender.com";
-    public static final String SUPABASE_AUTH_URL =
-            SupabaseConfig.SUPABASE_URL + "/auth/v1";
+    // public static final String BASE_URL = "http://10.46.55.51/dentnova";
+
+    // ── LOCAL BACKEND URL ────────────────────────────────────────────────────
+    // Replace 192.168.x.x with your laptop's actual Wi-Fi IP (run: ipconfig).
+    // Must match the IP set in SupabaseConfig.BACKEND_URL.
+    public static final String ML_BASE_URL = "http://10.33.82.51:5000";
+    public static final String SUPABASE_AUTH_URL = SupabaseConfig.SUPABASE_URL + "/auth/v1";
 
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
@@ -56,7 +60,7 @@ public class ApiService {
                 .build();
     }
 
-    //supabase//
+    // supabase//
     private static Headers supabaseHeaders() {
         return new Headers.Builder()
                 .add("apikey", SupabaseConfig.SUPABASE_ANON_KEY)
@@ -94,7 +98,8 @@ public class ApiService {
             // Also insert a row in the users table so user_id is consistent
             try {
                 int localUserId = email.hashCode();
-                if (localUserId < 0) localUserId = -localUserId;
+                if (localUserId < 0)
+                    localUserId = -localUserId;
 
                 JsonObject userRow = new JsonObject();
                 userRow.addProperty("user_id", localUserId);
@@ -129,6 +134,7 @@ public class ApiService {
 
         return result;
     }
+
     // ── Forgot Password → Node.js Render Backend OTP Flow ───────────────────
     // Calls Render Node.js backend /auth/request-password-otp
     public static JsonObject forgotPassword(String email) throws IOException {
@@ -150,7 +156,7 @@ public class ApiService {
             try (okhttp3.Response response = client.newCall(req).execute()) {
                 int code = response.code();
                 android.util.Log.d("REQUEST_OTP", "Response code: " + code);
-                
+
                 String raw = "";
                 if (response.body() != null) {
                     raw = response.body().string();
@@ -215,7 +221,7 @@ public class ApiService {
             try (okhttp3.Response response = client.newCall(req).execute()) {
                 int code = response.code();
                 android.util.Log.d("OTP_VERIFY", "Response code: " + code);
-                
+
                 String raw = "";
                 if (response.body() != null) {
                     raw = response.body().string();
@@ -274,7 +280,7 @@ public class ApiService {
             try (okhttp3.Response response = client.newCall(req).execute()) {
                 int code = response.code();
                 android.util.Log.d("PASSWORD_RESET", "Response code: " + code);
-                
+
                 String raw = "";
                 if (response.body() != null) {
                     raw = response.body().string();
@@ -310,6 +316,7 @@ public class ApiService {
             throw new IOException(e);
         }
     }
+
     // ── Login ── ApiService.login() ────────────────────────────────────────
     public static JsonObject login(Context ctx, String email, String password)
             throws IOException {
@@ -347,7 +354,8 @@ public class ApiService {
             }
 
             // FIX: Look up real user_id from users table by email.
-            // Do NOT use supabase_uuid.hashCode() — that differs from email.hashCode() used at registration.
+            // Do NOT use supabase_uuid.hashCode() — that differs from email.hashCode() used
+            // at registration.
             int localUserId = lookupUserIdByEmail(userEmail);
             android.util.Log.d("SUPABASE_LOGIN", "Looked up user_id for " + userEmail + ": " + localUserId);
 
@@ -355,8 +363,7 @@ public class ApiService {
                     localUserId,
                     token,
                     userName,
-                    userEmail
-            );
+                    userEmail);
 
             result.addProperty("success", true);
 
@@ -379,7 +386,8 @@ public class ApiService {
 
     /**
      * Looks up the integer user_id stored in the users table for the given email.
-     * Returns email.hashCode() (with sign correction) as fallback if user not found.
+     * Returns email.hashCode() (with sign correction) as fallback if user not
+     * found.
      */
     private static int lookupUserIdByEmail(String email) {
         try {
@@ -402,7 +410,8 @@ public class ApiService {
         }
         // Fallback: derive same way registration does
         int fallback = email.hashCode();
-        if (fallback < 0) fallback = -fallback;
+        if (fallback < 0)
+            fallback = -fallback;
         return fallback;
     }
 
@@ -433,7 +442,7 @@ public class ApiService {
         try (okhttp3.Response response = client.newCall(req).execute()) {
             int code = response.code();
             android.util.Log.d("SUPABASE_PROFILE", "ANDROID_PROFILE_RESPONSE_CODE: " + code);
-            
+
             if (response.body() != null) {
                 raw = response.body().string();
             }
@@ -443,8 +452,7 @@ public class ApiService {
                 android.util.Log.e("SUPABASE_PROFILE", "ANDROID_SUPABASE_ERROR: " + raw);
             }
 
-            com.google.gson.JsonArray arr =
-                    gson.fromJson(raw, com.google.gson.JsonArray.class);
+            com.google.gson.JsonArray arr = gson.fromJson(raw, com.google.gson.JsonArray.class);
 
             JsonObject result = new JsonObject();
 
@@ -469,8 +477,7 @@ public class ApiService {
             int age,
             String gender,
             String concerns,
-            String photoBase64
-    ) throws IOException {
+            String photoBase64) throws IOException {
 
         JsonObject result = new JsonObject();
 
@@ -500,11 +507,10 @@ public class ApiService {
                     .patch(RequestBody.create(body.toString(), JSON))
                     .headers(supabaseHeaders())
                     .build();
-            String raw =
-                    client.newCall(req)
-                            .execute()
-                            .body()
-                            .string();
+            String raw = client.newCall(req)
+                    .execute()
+                    .body()
+                    .string();
 
             android.util.Log.d("SUPABASE_PROFILE_SAVE", raw);
 
@@ -522,7 +528,7 @@ public class ApiService {
 
     // ── saveAssessment ── ApiService.saveAssessment() ─────────────────────
     public static JsonObject saveAssessment(Context ctx, int score, String label,
-                                            Map<Integer, Integer> answers) throws IOException {
+            Map<Integer, Integer> answers) throws IOException {
 
         JsonObject body = new JsonObject();
         body.addProperty("user_id", new SessionManager(ctx).getUserId());
@@ -542,32 +548,26 @@ public class ApiService {
 
             notif.addProperty(
                     "user_id",
-                    new SessionManager(ctx).getUserId()
-            );
+                    new SessionManager(ctx).getUserId());
 
             notif.addProperty(
                     "title",
-                    "Assessment Completed 🦷"
-            );
+                    "Assessment Completed 🦷");
 
             notif.addProperty(
                     "body",
                     "Your oral health score is "
                             + score +
-                            " (" + label + ")"
-            );
+                            " (" + label + ")");
 
-            Request notifReq =
-                    new Request.Builder()
-                            .url(SupabaseConfig.REST_URL + "notifications")
-                            .post(
-                                    RequestBody.create(
-                                            notif.toString(),
-                                            JSON
-                                    )
-                            )
-                            .headers(supabaseHeaders())
-                            .build();
+            Request notifReq = new Request.Builder()
+                    .url(SupabaseConfig.REST_URL + "notifications")
+                    .post(
+                            RequestBody.create(
+                                    notif.toString(),
+                                    JSON))
+                    .headers(supabaseHeaders())
+                    .build();
 
             client.newCall(notifReq)
                     .enqueue(new Callback() {
@@ -575,15 +575,13 @@ public class ApiService {
                         @Override
                         public void onFailure(
                                 Call call,
-                                IOException e
-                        ) {
+                                IOException e) {
                         }
 
                         @Override
                         public void onResponse(
                                 Call call,
-                                Response response
-                        ) throws IOException {
+                                Response response) throws IOException {
 
                             if (response.body() != null) {
                                 response.body().close();
@@ -636,7 +634,8 @@ public class ApiService {
                     android.util.Log.e("SUPABASE_GET_ASSESSMENTS", "Expected JsonArray, but got: " + raw);
                 }
             } catch (Exception e) {
-                android.util.Log.e("SUPABASE_GET_ASSESSMENTS", "JSON parsing crash from Supabase response (assessments)", e);
+                android.util.Log.e("SUPABASE_GET_ASSESSMENTS",
+                        "JSON parsing crash from Supabase response (assessments)", e);
             }
         }
         if (array == null) {
@@ -679,7 +678,8 @@ public class ApiService {
                     android.util.Log.e("SUPABASE_GET_REMINDERS", "Expected JsonArray, but got: " + raw);
                 }
             } catch (Exception e) {
-                android.util.Log.e("SUPABASE_GET_REMINDERS", "JSON parsing crash from Supabase response (reminders)", e);
+                android.util.Log.e("SUPABASE_GET_REMINDERS", "JSON parsing crash from Supabase response (reminders)",
+                        e);
             }
         }
         if (array == null) {
@@ -735,39 +735,31 @@ public class ApiService {
     public static JsonObject predictAssessment(JsonObject data)
             throws Exception {
 
-        okhttp3.MediaType JSON =
-                okhttp3.MediaType.parse("application/json");
+        okhttp3.MediaType JSON = okhttp3.MediaType.parse("application/json");
 
-        okhttp3.RequestBody body =
-                okhttp3.RequestBody.create(
-                        data.toString(),
-                        JSON
-                );
+        okhttp3.RequestBody body = okhttp3.RequestBody.create(
+                data.toString(),
+                JSON);
 
-        okhttp3.Request request =
-                new okhttp3.Request.Builder()
-                        .url(ML_BASE_URL + "/predict")
-                        .post(body)
-                        .build();
+        okhttp3.Request request = new okhttp3.Request.Builder()
+                .url(ML_BASE_URL + "/predict")
+                .post(body)
+                .build();
 
-        okhttp3.Response response =
-                client.newCall(request).execute();
+        okhttp3.Response response = client.newCall(request).execute();
 
-        String responseBody =
-                response.body().string();
+        String responseBody = response.body().string();
 
         return gson.fromJson(
                 responseBody,
-                JsonObject.class
-        );
+                JsonObject.class);
     }
 
     // ── toggleReminder ── ApiService.toggleReminder() ─────────────────────
     public static JsonObject toggleReminder(
             Context ctx,
             int id,
-            boolean enabled
-    ) throws IOException {
+            boolean enabled) throws IOException {
 
         JsonObject body = new JsonObject();
         body.addProperty("enabled", enabled);
@@ -775,53 +767,45 @@ public class ApiService {
         Request req = new Request.Builder()
                 .url(
                         SupabaseConfig.REST_URL +
-                                "reminders?id=eq." + id
-                )
+                                "reminders?id=eq." + id)
                 .patch(
                         RequestBody.create(
                                 body.toString(),
-                                JSON
-                        )
-                )
+                                JSON))
                 .headers(supabaseHeaders())
                 .build();
 
-        String raw =
-                client.newCall(req)
-                        .execute()
-                        .body()
-                        .string();
+        String raw = client.newCall(req)
+                .execute()
+                .body()
+                .string();
 
-        JsonObject result =
-                new JsonObject();
+        JsonObject result = new JsonObject();
 
         result.addProperty("success", true);
 
         return result;
     }
+
     // ── deleteReminder ── ApiService.deleteReminder() ─────────────────────
     public static JsonObject deleteReminder(
             Context ctx,
-            int id
-    ) throws IOException {
+            int id) throws IOException {
 
         Request req = new Request.Builder()
                 .url(
                         SupabaseConfig.REST_URL +
-                                "reminders?id=eq." + id
-                )
+                                "reminders?id=eq." + id)
                 .delete()
                 .headers(supabaseHeaders())
                 .build();
 
-        String raw =
-                client.newCall(req)
-                        .execute()
-                        .body()
-                        .string();
+        String raw = client.newCall(req)
+                .execute()
+                .body()
+                .string();
 
-        JsonObject result =
-                new JsonObject();
+        JsonObject result = new JsonObject();
 
         result.addProperty("success", true);
 
@@ -855,7 +839,8 @@ public class ApiService {
                     String days = r.get("days").getAsString();
 
                     boolean isExpired = false;
-                    if ("ONCE".equalsIgnoreCase(days) || (!timeStr.contains(":") && !timeStr.contains("AM") && !timeStr.contains("PM"))) {
+                    if ("ONCE".equalsIgnoreCase(days)
+                            || (!timeStr.contains(":") && !timeStr.contains("AM") && !timeStr.contains("PM"))) {
                         try {
                             java.util.Date reminderDate = parser.parse(timeStr);
                             if (reminderDate != null) {
@@ -877,7 +862,7 @@ public class ApiService {
 
                     if (isExpired) {
                         android.util.Log.d("EXPIRED_REMINDER_FOUND", "EXPIRED_REMINDER_FOUND: ID=" + id);
-                        
+
                         // Disable in Supabase
                         toggleReminder(ctx, id, false);
                         android.util.Log.d("EXPIRED_REMINDER_DISABLED", "EXPIRED_REMINDER_DISABLED: ID=" + id);
@@ -896,11 +881,10 @@ public class ApiService {
         }
     }
 
-    //feedback
+    // feedback
     public static JsonObject sendFeedback(
             Context ctx,
-            String message
-    ) throws IOException {
+            String message) throws IOException {
 
         SessionManager session = new SessionManager(ctx);
         int userId = session.getUserId();
@@ -951,20 +935,19 @@ public class ApiService {
 
         return result;
     }
+
     // ── saveVisitReminder ── ApiService.saveVisitReminder() ───────────────
     public static JsonObject saveVisitReminder(
             Context ctx,
             String date,
             String time,
-            String note
-    ) throws IOException {
+            String note) throws IOException {
 
         JsonObject body = new JsonObject();
 
         body.addProperty(
                 "user_id",
-                new SessionManager(ctx).getUserId()
-        );
+                new SessionManager(ctx).getUserId());
 
         body.addProperty("visit_date", date);
         body.addProperty("visit_time", time);
@@ -976,11 +959,10 @@ public class ApiService {
                 .headers(supabaseHeaders())
                 .build();
 
-        String raw =
-                client.newCall(req)
-                        .execute()
-                        .body()
-                        .string();
+        String raw = client.newCall(req)
+                .execute()
+                .body()
+                .string();
 
         android.util.Log.d("SUPABASE_VISIT_SAVE", raw);
 
@@ -1006,26 +988,22 @@ public class ApiService {
     // ── deleteVisitReminder ── ApiService.deleteVisitReminder() ───────────
     public static JsonObject deleteVisitReminder(
             Context ctx,
-            int id
-    ) throws IOException {
+            int id) throws IOException {
 
         Request req = new Request.Builder()
                 .url(
                         SupabaseConfig.REST_URL +
-                                "visits?id=eq." + id
-                )
+                                "visits?id=eq." + id)
                 .delete()
                 .headers(supabaseHeaders())
                 .build();
 
-        String raw =
-                client.newCall(req)
-                        .execute()
-                        .body()
-                        .string();
+        String raw = client.newCall(req)
+                .execute()
+                .body()
+                .string();
 
-        JsonObject result =
-                new JsonObject();
+        JsonObject result = new JsonObject();
 
         result.addProperty("success", true);
 
@@ -1034,43 +1012,35 @@ public class ApiService {
 
     // ── getVisitReminder ── ApiService.getVisitReminder() ────────────────
     public static JsonObject getVisitReminder(
-            Context ctx
-    ) throws IOException {
+            Context ctx) throws IOException {
 
-        int userId =
-                new SessionManager(ctx)
-                        .getUserId();
+        int userId = new SessionManager(ctx)
+                .getUserId();
 
         Request req = new Request.Builder()
                 .url(
                         SupabaseConfig.REST_URL +
                                 "visits?user_id=eq."
                                 + userId +
-                                "&select=*&order=created_at.desc"
-                )
+                                "&select=*&order=created_at.desc")
                 .get()
                 .headers(supabaseHeaders())
                 .build();
 
-        String raw =
-                client.newCall(req)
-                        .execute()
-                        .body()
-                        .string();
+        String raw = client.newCall(req)
+                .execute()
+                .body()
+                .string();
 
         android.util.Log.d(
                 "SUPABASE_VISITS",
-                raw
-        );
+                raw);
 
-        JsonArray array =
-                gson.fromJson(
-                        raw,
-                        JsonArray.class
-                );
+        JsonArray array = gson.fromJson(
+                raw,
+                JsonArray.class);
 
-        JsonObject result =
-                new JsonObject();
+        JsonObject result = new JsonObject();
 
         result.addProperty("success", true);
         result.add("visits", array);
@@ -1080,43 +1050,35 @@ public class ApiService {
 
     // ── getNotifications ── ApiService.getNotifications() ────────────────
     public static JsonObject getNotifications(
-            Context ctx
-    ) throws IOException {
+            Context ctx) throws IOException {
 
-        int userId =
-                new SessionManager(ctx)
-                        .getUserId();
+        int userId = new SessionManager(ctx)
+                .getUserId();
 
         Request req = new Request.Builder()
                 .url(
                         SupabaseConfig.REST_URL +
                                 "notifications?user_id=eq."
                                 + userId +
-                                "&select=*&order=created_at.desc"
-                )
+                                "&select=*&order=created_at.desc")
                 .get()
                 .headers(supabaseHeaders())
                 .build();
 
-        String raw =
-                client.newCall(req)
-                        .execute()
-                        .body()
-                        .string();
+        String raw = client.newCall(req)
+                .execute()
+                .body()
+                .string();
 
         android.util.Log.d(
                 "SUPABASE_NOTIFICATIONS",
-                raw
-        );
+                raw);
 
-        JsonArray array =
-                gson.fromJson(
-                        raw,
-                        JsonArray.class
-                );
+        JsonArray array = gson.fromJson(
+                raw,
+                JsonArray.class);
 
-        JsonObject result =
-                new JsonObject();
+        JsonObject result = new JsonObject();
 
         result.addProperty("success", true);
         result.add("notifications", array);
@@ -1131,45 +1093,35 @@ public class ApiService {
             double plaqueScore,
             double gumScore,
             double cleanlinessScore,
-            String resultLabel
-    ) throws IOException {
+            String resultLabel) throws IOException {
 
         JsonObject body = new JsonObject();
 
         body.addProperty(
                 "user_id",
-                new SessionManager(ctx).getUserId()
-        );
+                new SessionManager(ctx).getUserId());
 
         body.addProperty(
                 "plaque_score",
-                plaqueScore
-        );
+                plaqueScore);
 
         body.addProperty(
                 "gum_score",
-                gumScore
-        );
+                gumScore);
 
         body.addProperty(
                 "cleanliness_score",
-                cleanlinessScore
-        );
+                cleanlinessScore);
 
         body.addProperty(
                 "result_label",
-                resultLabel
-        );
-        byte[] imageBytes =
-                java.nio.file.Files.readAllBytes(
-                        imageFile.toPath()
-                );
+                resultLabel);
+        byte[] imageBytes = java.nio.file.Files.readAllBytes(
+                imageFile.toPath());
 
-        String imageBase64 =
-                android.util.Base64.encodeToString(
-                        imageBytes,
-                        android.util.Base64.NO_WRAP
-                );
+        String imageBase64 = android.util.Base64.encodeToString(
+                imageBytes,
+                android.util.Base64.NO_WRAP);
 
         body.addProperty("image_base64", imageBase64);
         Request req = new Request.Builder()
@@ -1178,83 +1130,69 @@ public class ApiService {
                 .headers(supabaseHeaders())
                 .build();
 
-        String raw =
-                client.newCall(req)
-                        .execute()
-                        .body()
-                        .string();
+        String raw = client.newCall(req)
+                .execute()
+                .body()
+                .string();
 
         android.util.Log.d(
                 "SUPABASE_SCAN_SAVE",
-                raw
-        );
+                raw);
 
-        JsonObject result =
-                new JsonObject();
+        JsonObject result = new JsonObject();
 
         result.addProperty(
                 "success",
-                !raw.contains("code")
-        );
+                !raw.contains("code"));
 
         result.addProperty(
                 "message",
-                raw
-        );
+                raw);
 
         return result;
     }
-//predict tooth scan
-public static JsonObject predictToothScan(
-        Context ctx,
-        File imageFile
-) throws IOException {
 
-    RequestBody reqBody =
-            new MultipartBody.Builder()
-                    .setType(MultipartBody.FORM)
-                    .addFormDataPart(
-                            "image",
-                            imageFile.getName(),
-                            RequestBody.create(
-                                    imageFile,
-                                    MediaType.parse("image/*")
-                            )
-                    )
-                    .build();
+    // predict tooth scan
+    public static JsonObject predictToothScan(
+            Context ctx,
+            File imageFile) throws IOException {
 
-    Request req =
-            new Request.Builder()
-                    .url(ML_BASE_URL + "/predict-tooth")
-                    .post(reqBody)
-                    .build();
+        RequestBody reqBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart(
+                        "image",
+                        imageFile.getName(),
+                        RequestBody.create(
+                                imageFile,
+                                MediaType.parse("image/*")))
+                .build();
 
-    Response response =
-            client.newCall(req)
-                    .execute();
+        Request req = new Request.Builder()
+                .url(ML_BASE_URL + "/predict-tooth")
+                .post(reqBody)
+                .build();
 
-    String raw =
-            response.body()
-                    .string();
+        Response response = client.newCall(req)
+                .execute();
 
-    android.util.Log.d(
-            "TOOTH_AI_RAW",
-            raw
-    );
+        String raw = response.body()
+                .string();
 
-    return gson.fromJson(
-            raw,
-            JsonObject.class
-    );
-}
+        android.util.Log.d(
+                "TOOTH_AI_RAW",
+                raw);
+
+        return gson.fromJson(
+                raw,
+                JsonObject.class);
+    }
+
     // ── getToothScans ── ApiService.getToothScans() ───────────────────────
     public static JsonObject getToothScans(
-            Context ctx
-    ) throws IOException {
+            Context ctx) throws IOException {
 
-        int userId =
-                new SessionManager(ctx)
-                        .getUserId();
+        int userId = new SessionManager(ctx)
+                .getUserId();
         android.util.Log.d("SCAN_QUERY_USER", "SCAN_QUERY_USER: " + userId);
 
         Request req = new Request.Builder()
@@ -1262,8 +1200,7 @@ public static JsonObject predictToothScan(
                         SupabaseConfig.REST_URL +
                                 "tooth_scans?user_id=eq."
                                 + userId +
-                                "&select=*&order=created_at.desc"
-                )
+                                "&select=*&order=created_at.desc")
                 .get()
                 .headers(supabaseHeaders())
                 .build();
@@ -1279,17 +1216,13 @@ public static JsonObject predictToothScan(
 
         android.util.Log.d(
                 "SUPABASE_SCAN_HISTORY",
-                raw
-        );
+                raw);
 
-        JsonArray array =
-                gson.fromJson(
-                        raw,
-                        JsonArray.class
-                );
+        JsonArray array = gson.fromJson(
+                raw,
+                JsonArray.class);
 
-        JsonObject result =
-                new JsonObject();
+        JsonObject result = new JsonObject();
 
         result.addProperty("success", true);
         result.add("scans", array);
@@ -1297,7 +1230,8 @@ public static JsonObject predictToothScan(
         return result;
 
     }
-    //seetings
+
+    // seetings
     public static JsonObject changePassword(Context ctx, String newPassword)
             throws IOException {
         return changePassword(ctx, newPassword, null);
@@ -1329,13 +1263,15 @@ public static JsonObject predictToothScan(
     }
 
     // ── Sync Google User with Supabase (links existing or inserts new profile) ──
-    public static JsonObject syncGoogleUserWithSupabase(Context ctx, String name, String email, String firebaseUid, String photoUrl)
+    public static JsonObject syncGoogleUserWithSupabase(Context ctx, String name, String email, String firebaseUid,
+            String photoUrl)
             throws IOException {
         JsonObject result = new JsonObject();
 
         // Check if user already exists in users table by email only
         // (firebase_uid and auth_provider columns do not exist in the DB schema)
-        String queryUrl = SupabaseConfig.REST_URL + "users?email=eq." + email + "&select=user_id,name,photo_url&limit=1";
+        String queryUrl = SupabaseConfig.REST_URL + "users?email=eq." + email
+                + "&select=user_id,name,photo_url&limit=1";
         Request checkReq = new Request.Builder()
                 .url(queryUrl)
                 .get()
@@ -1373,14 +1309,18 @@ public static JsonObject predictToothScan(
         if (users != null && users.size() > 0) {
             // User already exists — use their existing user_id
             JsonObject existingUser = users.get(0).getAsJsonObject();
-            localUserId = existingUser.has("user_id") && !existingUser.get("user_id").isJsonNull() ? existingUser.get("user_id").getAsInt() : -1;
+            localUserId = existingUser.has("user_id") && !existingUser.get("user_id").isJsonNull()
+                    ? existingUser.get("user_id").getAsInt()
+                    : -1;
             if (existingUser.has("name") && !existingUser.get("name").isJsonNull()) {
                 displayName = existingUser.get("name").getAsString();
             }
 
             // Update photo_url if not set and Google provides one
             if (photoUrl != null && !photoUrl.isEmpty()) {
-                String existingPhoto = existingUser.has("photo_url") && !existingUser.get("photo_url").isJsonNull() ? existingUser.get("photo_url").getAsString() : "";
+                String existingPhoto = existingUser.has("photo_url") && !existingUser.get("photo_url").isJsonNull()
+                        ? existingUser.get("photo_url").getAsString()
+                        : "";
                 if (existingPhoto.isEmpty()) {
                     JsonObject patchBody = new JsonObject();
                     patchBody.addProperty("photo_url", photoUrl);
@@ -1389,7 +1329,7 @@ public static JsonObject predictToothScan(
                             .patch(RequestBody.create(patchBody.toString(), JSON))
                             .headers(supabaseHeaders())
                             .build();
-                    
+
                     try (okhttp3.Response response = client.newCall(patchReq).execute()) {
                         if (response.body() != null) {
                             String patchRaw = response.body().string();
@@ -1475,8 +1415,7 @@ public static JsonObject predictToothScan(
 
     // ── updateStreakInSupabase ── patches streak_count + last_streak_date ──
     public static JsonObject updateStreakInSupabase(
-            Context ctx, int streakCount, String lastStreakDate
-    ) throws IOException {
+            Context ctx, int streakCount, String lastStreakDate) throws IOException {
         int userId = new SessionManager(ctx).getUserId();
         JsonObject body = new JsonObject();
         body.addProperty("streak_count", streakCount);
@@ -1498,8 +1437,7 @@ public static JsonObject predictToothScan(
             Context ctx,
             boolean brushingDone,
             boolean flossingDone,
-            String habitDate
-    ) throws IOException {
+            String habitDate) throws IOException {
         int userId = new SessionManager(ctx).getUserId();
         JsonObject body = new JsonObject();
         body.addProperty("brushing_done", brushingDone);
@@ -1527,7 +1465,8 @@ public static JsonObject predictToothScan(
         try {
             // 1. Fetch current streak and last active date
             Request req = new Request.Builder()
-                    .url(SupabaseConfig.REST_URL + "users?user_id=eq." + userId + "&select=streak_count,last_active_date")
+                    .url(SupabaseConfig.REST_URL + "users?user_id=eq." + userId
+                            + "&select=streak_count,last_active_date")
                     .get()
                     .headers(supabaseHeaders())
                     .build();
@@ -1600,22 +1539,23 @@ public static JsonObject predictToothScan(
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
             java.util.Date date1 = sdf.parse(dateStr1);
             java.util.Date date2 = sdf.parse(dateStr2);
-            if (date1 == null || date2 == null) return -1;
-            
+            if (date1 == null || date2 == null)
+                return -1;
+
             java.util.Calendar cal1 = java.util.Calendar.getInstance();
             cal1.setTime(date1);
             cal1.set(java.util.Calendar.HOUR_OF_DAY, 0);
             cal1.set(java.util.Calendar.MINUTE, 0);
             cal1.set(java.util.Calendar.SECOND, 0);
             cal1.set(java.util.Calendar.MILLISECOND, 0);
-            
+
             java.util.Calendar cal2 = java.util.Calendar.getInstance();
             cal2.setTime(date2);
             cal2.set(java.util.Calendar.HOUR_OF_DAY, 0);
             cal2.set(java.util.Calendar.MINUTE, 0);
             cal2.set(java.util.Calendar.SECOND, 0);
             cal2.set(java.util.Calendar.MILLISECOND, 0);
-            
+
             long diff = cal2.getTimeInMillis() - cal1.getTimeInMillis();
             return (int) (diff / (24L * 60L * 60L * 1000L));
         } catch (Exception e) {
@@ -1656,7 +1596,8 @@ public static JsonObject predictToothScan(
                     String requestBody = buffer.readUtf8();
                     // Mask passwords in request body if present
                     if (requestBody.contains("\"password\"")) {
-                        requestBody = requestBody.replaceAll("\"password\"\\s*:\\s*\"[^\"]+\"", "\"password\":\"[HIDDEN SECRET]\"");
+                        requestBody = requestBody.replaceAll("\"password\"\\s*:\\s*\"[^\"]+\"",
+                                "\"password\":\"[HIDDEN SECRET]\"");
                     }
                     android.util.Log.d(TAG, "Request Body: " + requestBody);
                 } catch (Exception e) {
@@ -1670,7 +1611,8 @@ public static JsonObject predictToothScan(
                 response = chain.proceed(request);
             } catch (IOException e) {
                 android.util.Log.e(TAG, "==================== SUPABASE EXCEPTION ====================");
-                android.util.Log.e(TAG, "ANDROID_SUPABASE_ERROR: Exception during call to: " + url + " - " + e.getMessage());
+                android.util.Log.e(TAG,
+                        "ANDROID_SUPABASE_ERROR: Exception during call to: " + url + " - " + e.getMessage());
                 android.util.Log.e(TAG, "Exception during call to: " + url, e);
                 android.util.Log.e(TAG, "Exception Message: " + e.getMessage());
                 // Log the stack trace elements
